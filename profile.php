@@ -1,9 +1,9 @@
 <?php
 require_once('connessione.php');
-<?php
+
 // Inizia la sessione
 session_start();
-ciao
+
 // Controlla se l'utente è loggato
 if (!isset($_SESSION['username'])) {
     echo "Devi effettuare il login per visualizzare il tuo profilo";
