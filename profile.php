@@ -1,6 +1,6 @@
 <?php
 require_once('connessione.php');
-<?php
+
 // Inizia la sessione
 session_start();
 
