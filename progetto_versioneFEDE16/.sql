@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Apr 16, 2024 alle 13:38
+-- Creato il: Apr 16, 2024 alle 22:48
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -41,6 +41,18 @@ CREATE TABLE `blog` (
 -- --------------------------------------------------------
 
 --
+-- Struttura della tabella `categoria`
+--
+
+CREATE TABLE `categoria` (
+  `id_categoria` int(20) NOT NULL,
+  `descrizione` int(11) NOT NULL,
+  `ig_blog` int(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Struttura della tabella `commento`
 --
 
@@ -51,17 +63,6 @@ CREATE TABLE `commento` (
   `img_comm` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default.png',
   `id_utente` int(10) NOT NULL,
   `id_post` int(10) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Struttura della tabella `genere`
---
-
-CREATE TABLE `genere` (
-  `id_genere` int(10) NOT NULL,
-  `tipo` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -92,18 +93,22 @@ CREATE TABLE `post` (
   `id_autore` int(10) NOT NULL,
   `id_sotgenere` int(10) NOT NULL,
   `id_stile` int(10) NOT NULL,
-  `id_blog` int(10) NOT NULL
+  `id_blog` int(10) NOT NULL,
+  `id_comm` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `proprietario`
+-- Struttura della tabella `scrittore`
 --
 
-CREATE TABLE `proprietario` (
+CREATE TABLE `scrittore` (
   `id_utente` int(10) NOT NULL,
-  `id_blog` int(10) NOT NULL
+  `coautore` tinyint(1) NOT NULL,
+  `proprietario` tinyint(1) NOT NULL,
+  `id_blog` int(10) NOT NULL,
+  `id_scrittore` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -154,34 +159,48 @@ ALTER TABLE `blog`
   ADD PRIMARY KEY (`id_blog`),
   ADD KEY `id_stile` (`id_stile`),
   ADD KEY `id_genere` (`id_genere`),
-  ADD KEY `id_utente` (`id_utente`);
+  ADD KEY `FK_blog_utente` (`id_utente`);
+
+--
+-- Indici per le tabelle `categoria`
+--
+ALTER TABLE `categoria`
+  ADD PRIMARY KEY (`id_categoria`),
+  ADD KEY `ig_blog` (`ig_blog`);
 
 --
 -- Indici per le tabelle `commento`
 --
 ALTER TABLE `commento`
   ADD PRIMARY KEY (`id_comm`),
-  ADD KEY `id_utente` (`id_utente`,`id_post`);
+  ADD KEY `id_utente` (`id_utente`,`id_post`),
+  ADD KEY `fk_commento_post` (`id_post`);
 
 --
 -- Indici per le tabelle `like`
 --
 ALTER TABLE `like`
   ADD PRIMARY KEY (`id_like`),
-  ADD KEY `id_utente` (`id_utente`,`id_post`);
+  ADD KEY `id_utente` (`id_utente`,`id_post`),
+  ADD KEY `fk_like_post` (`id_post`);
 
 --
 -- Indici per le tabelle `post`
 --
 ALTER TABLE `post`
   ADD PRIMARY KEY (`id_post`),
-  ADD KEY `id_autore` (`id_autore`,`id_sotgenere`,`id_stile`,`id_blog`);
+  ADD KEY `id_autore` (`id_autore`,`id_sotgenere`,`id_stile`,`id_blog`),
+  ADD KEY `fk_post_blog` (`id_blog`),
+  ADD KEY `fk_post_stile` (`id_stile`),
+  ADD KEY `id_comm` (`id_comm`);
 
 --
--- Indici per le tabelle `proprietario`
+-- Indici per le tabelle `scrittore`
 --
-ALTER TABLE `proprietario`
-  ADD KEY `id_utente` (`id_utente`,`id_blog`);
+ALTER TABLE `scrittore`
+  ADD PRIMARY KEY (`id_scrittore`),
+  ADD KEY `id_utente` (`id_utente`,`id_blog`),
+  ADD KEY `fk_scrittore_blog` (`id_blog`);
 
 --
 -- Indici per le tabelle `stile`
@@ -242,14 +261,42 @@ ALTER TABLE `utente`
 --
 
 --
--- Limiti per la tabella `blog`
+-- Limiti per la tabella `categoria`
 --
-ALTER TABLE `blog`
-  ADD CONSTRAINT `blog_ibfk_2` FOREIGN KEY (`id_stile`) REFERENCES `stile` (`id_stile`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `blog_ibfk_3` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `categoria`
+  ADD CONSTRAINT `fk_categoria_blog` FOREIGN KEY (`ig_blog`) REFERENCES `blog` (`id_blog`);
+
+--
+-- Limiti per la tabella `commento`
+--
+ALTER TABLE `commento`
+  ADD CONSTRAINT `commento_ibfk_1` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`),
+  ADD CONSTRAINT `fk_commento_post` FOREIGN KEY (`id_post`) REFERENCES `post` (`id_post`);
+
+--
+-- Limiti per la tabella `like`
+--
+ALTER TABLE `like`
+  ADD CONSTRAINT `fk_like_blog` FOREIGN KEY (`id_post`) REFERENCES `post` (`id_post`),
+  ADD CONSTRAINT `fk_like_post` FOREIGN KEY (`id_post`) REFERENCES `post` (`id_post`);
+
+--
+-- Limiti per la tabella `post`
+--
+ALTER TABLE `post`
+  ADD CONSTRAINT `fk_post_blog` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`),
+  ADD CONSTRAINT `fk_post_scrittore` FOREIGN KEY (`id_autore`) REFERENCES `scrittore` (`id_utente`),
+  ADD CONSTRAINT `fk_post_stile` FOREIGN KEY (`id_stile`) REFERENCES `stile` (`id_stile`),
+  ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`id_comm`) REFERENCES `commento` (`id_comm`);
+
+--
+-- Limiti per la tabella `scrittore`
+--
+ALTER TABLE `scrittore`
+  ADD CONSTRAINT `fk_scrittore_blog` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`),
+  ADD CONSTRAINT `fk_scrittore_utente` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
