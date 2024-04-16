@@ -1,29 +1,25 @@
 <?php
     // Connessione al database
-    $db = new mysqli('localhost', 'username', 'password', 'database');
+    require_once('connessione.php');
 
-    if ($db->connect_error) {
-        die("Connessione fallita: " . $db->connect_error);
-    }
+    // // // Controllo se il form è stato inviato
+    //  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    //  // Preparazione dei dati
+    //     $username = $db->real_escape_string($_POST['username']);
+    //     $email = $db->real_escape_string($_POST['email']);
+    //     $password = $db->real_escape_string($_POST['password']);
 
-    // Controllo se il form è stato inviato
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Preparazione dei dati
-        $username = $db->real_escape_string($_POST['username']);
-        $email = $db->real_escape_string($_POST['email']);
-        $password = $db->real_escape_string($_POST['password']);
+    //    // Inserimento dei dati nel database
+    //    $query = "INSERT INTO utenti (username, email, password) VALUES ('$username', '$email', '$password')";
 
-        // Inserimento dei dati nel database
-        $query = "INSERT INTO utenti (username, email, password) VALUES ('$username', '$email', '$password')";
+    //      if ($db->query($query) === TRUE) {
+    //         echo "Registrazione avvenuta con successo!";
+    // } else {
+    //        echo "Errore: " . $query . "<br>" . $db->error;
+    //     }
+    //  }
 
-        if ($db->query($query) === TRUE) {
-            echo "Registrazione avvenuta con successo!";
-        } else {
-            echo "Errore: " . $query . "<br>" . $db->error;
-        }
-    }
-
-    $db->close();
+    // $db->close();
 ?>
 
 <!DOCTYPE html>
