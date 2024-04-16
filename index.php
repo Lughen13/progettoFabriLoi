@@ -31,7 +31,7 @@
 <head>
     <title>Registrazione</title>
     <style>
-        /* Aggiungi qui il tuo CSS */
+       
     </style>
 </head>
 <body>
