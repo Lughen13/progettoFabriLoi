@@ -90,7 +90,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $data_scadenza = trim($_POST["data_scadenza"]);
     }
 
-
     // Nella query SQL
     $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, numero_telefono, intestatario, carta, data_scadenza) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -181,11 +180,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <span><?php echo $numero_telefono_err; ?></span>
             </div>
 
-            <div>
-            <input type="checkbox" id="premium">
-            <label for="premium">Iscriviti da premium</label> 
-            </div>
-
             <!-- Campi premium -->
             <div id="premium-fields" style="display:none">
 
@@ -209,6 +203,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
             <input type="submit" value="Invia">
             <p>Hai già un account? <a href="login.php">Accedi</a></p>
+        
+            <div>
+            <input type="checkbox" id="premium">
+            <label for="premium">Iscriviti da premium</label> 
+            </div>
+
         </form>
     </div>    
 </body>
