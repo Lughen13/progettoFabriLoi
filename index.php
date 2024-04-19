@@ -65,6 +65,38 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $numero_telefono = trim($_POST["numero_telefono"]);
     }
 
+    // Campi per iscrizione premium
+    $intestatario = $carta = $data_scadenza = "";
+    $intestatario_err = $carta_err = $data_scadenza_err = "";
+
+    // Validazione intestatario
+    if(empty(trim($_POST["intestatario"]))){
+        $intestatario_err = "Inserire intestatario";
+    } else{
+        $intestatario = trim($_POST["intestatario"]); 
+    }
+
+    // Validazione numero carta
+    if(empty(trim($_POST["carta"]))){
+        $carta_err = "Inserire numero carta";
+    } else {
+        $carta = trim($_POST["carta"]);
+    }
+
+    // Validazione data scadenza  
+    if(empty(trim($_POST["data_scadenza"]))){
+        $data_scadenza_err = "Inserire data di scadenza";
+    } else{
+        $data_scadenza = trim($_POST["data_scadenza"]);
+    }
+
+
+    // Nella query SQL
+    $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, numero_telefono, intestatario, carta, data_scadenza) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    // Nel bind dei parametri
+    $stmt->bind_param("ssssssissss", $username, $email, $password_hash, $nome, $cognome, $genere, $data_nascita, $numero_telefono, $intestatario, $carta, $data_scadenza);
+
     // Controlla gli errori prima di inserire nel DB
     if(empty($username_err) && empty($email_err) && empty($password_err) && empty($nome_err) && empty($cognome_err) && empty($genere_err) && empty($data_nascita_err) && empty($numero_telefono_err)){
         
@@ -148,6 +180,25 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <input type="text" name="numero_telefono" value="<?php echo $numero_telefono; ?>">
                 <span><?php echo $numero_telefono_err; ?></span>
             </div>
+
+            <div>
+            <label>Intestatario</label>
+            <input type="text" name="intestatario" value="<?php echo $intestatario; ?>">
+            <span><?php echo $intestatario_err; ?></span>
+            </div>
+
+            <div>
+            <label>Numero carta</label>
+            <input type="text" name="carta" value="<?php echo $carta; ?>">
+            <span><?php echo $carta_err; ?></span>  
+            </div>
+
+            <div>
+            <label>Data di scadenza</label>
+            <input type="date" name="data_scadenza" value="<?php echo $data_scadenza; ?>">
+            <span><?php echo $data_scadenza_err; ?></span>
+            </div>
+
             <input type="submit" value="Invia">
             <p>Hai già un account? <a href="login.php">Accedi</a></p>
         </form>
