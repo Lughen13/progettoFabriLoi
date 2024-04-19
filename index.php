@@ -182,6 +182,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
 
             <div>
+            <input type="checkbox" id="premium">
+            <label for="premium">Iscriviti da premium</label> 
+            </div>
+
+            <!-- Campi premium -->
+            <div id="premium-fields" style="display:none">
+
+            <div>
             <label>Intestatario</label>
             <input type="text" name="intestatario" value="<?php echo $intestatario; ?>">
             <span><?php echo $intestatario_err; ?></span>
