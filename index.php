@@ -181,7 +181,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
 
             <!-- Campi premium -->
-            <div id="premium-fields" style="display:none">
+            <!---<div id="premium-fields" style="display:none"> -->
 
             <div>
             <label>Intestatario</label>
