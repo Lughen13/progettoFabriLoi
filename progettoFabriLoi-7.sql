@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Creato il: Apr 19, 2024 alle 17:48
+-- Creato il: Apr 20, 2024 alle 18:44
 -- Versione del server: 10.4.28-MariaDB
 -- Versione PHP: 8.2.4
 
@@ -136,21 +136,6 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 --
--- Struttura della tabella `notifica`
---
-
-CREATE TABLE `notifica` (
-  `id_notifica` int(10) NOT NULL,
-  `id_utente` int(10) NOT NULL,
-  `id_post` int(10) NOT NULL,
-  `tipo` enum('like','commento') NOT NULL,
-  `data_notifica` datetime NOT NULL,
-  `letto` tinyint(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Struttura della tabella `post`
 --
 
@@ -161,7 +146,7 @@ CREATE TABLE `post` (
   `descrizione_post` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `img_post` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default.png',
   `id_autore` int(10) NOT NULL,
-  `id_sotgenere` int(10) NOT NULL,
+  `id_sotcat` int(10) NOT NULL,
   `id_blog` int(10) NOT NULL,
   `likes_count` int(10) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -174,7 +159,7 @@ CREATE TABLE `post` (
 
 CREATE TABLE `sottocat` (
   `id_sottocat` int(10) NOT NULL,
-  `id_post` int(10) NOT NULL,
+  `titolo` varchar(20) NOT NULL,
   `id_categoria` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -271,28 +256,21 @@ ALTER TABLE `like`
   ADD KEY `id_post` (`id_post`);
 
 --
--- Indici per le tabelle `notifica`
---
-ALTER TABLE `notifica`
-  ADD PRIMARY KEY (`id_notifica`),
-  ADD UNIQUE KEY `id_utente` (`id_utente`,`id_post`),
-  ADD KEY `id_notifica` (`id_notifica`,`id_utente`,`id_post`);
-
---
 -- Indici per le tabelle `post`
 --
 ALTER TABLE `post`
   ADD PRIMARY KEY (`id_post`),
-  ADD KEY `id_autore` (`id_autore`,`id_sotgenere`,`id_blog`),
-  ADD KEY `id_blog` (`id_blog`);
+  ADD KEY `id_autore` (`id_autore`,`id_sotcat`,`id_blog`),
+  ADD KEY `id_blog` (`id_blog`),
+  ADD KEY `id_sotcat` (`id_sotcat`);
 
 --
 -- Indici per le tabelle `sottocat`
 --
 ALTER TABLE `sottocat`
   ADD PRIMARY KEY (`id_sottocat`),
-  ADD KEY `id_post` (`id_post`,`id_categoria`),
-  ADD KEY `id_categoria` (`id_categoria`);
+  ADD KEY `id_post` (`id_categoria`) USING BTREE,
+  ADD KEY `titolo` (`titolo`);
 
 --
 -- Indici per le tabelle `stile`
@@ -369,7 +347,8 @@ ALTER TABLE `utente`
 ALTER TABLE `blog`
   ADD CONSTRAINT `blog_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`),
   ADD CONSTRAINT `blog_ibfk_2` FOREIGN KEY (`id_stile`) REFERENCES `stile` (`id_stile`),
-  ADD CONSTRAINT `blog_ibfk_3` FOREIGN KEY (`id_proprietario`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `blog_ibfk_3` FOREIGN KEY (`id_proprietario`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `blog_ibfk_4` FOREIGN KEY (`id_blog`) REFERENCES `co_autore` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limiti per la tabella `commento`
@@ -380,17 +359,11 @@ ALTER TABLE `commento`
   ADD CONSTRAINT `commento_ibfk_3` FOREIGN KEY (`id_comm`) REFERENCES `notifica` (`id_notifica`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `co_autore`
---
-ALTER TABLE `co_autore`
-  ADD CONSTRAINT `co_autore_ibfk_1` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `co_autore_ibfk_2` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
 -- Limiti per la tabella `follow`
 --
 ALTER TABLE `follow`
-  ADD CONSTRAINT `follow_ibfk_1` FOREIGN KEY (`id_follow`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `follow_ibfk_1` FOREIGN KEY (`id_follow`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `follow_ibfk_2` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limiti per la tabella `like`
@@ -401,24 +374,24 @@ ALTER TABLE `like`
   ADD CONSTRAINT `like_ibfk_3` FOREIGN KEY (`id_like`) REFERENCES `notifica` (`id_notifica`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Limiti per la tabella `notifica`
---
-ALTER TABLE `notifica`
-  ADD CONSTRAINT `notifica_ibfk_1` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
 -- Limiti per la tabella `post`
 --
 ALTER TABLE `post`
   ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `post_ibfk_3` FOREIGN KEY (`id_sotcat`) REFERENCES `sottocat` (`id_sottocat`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Limiti per la tabella `sottocat`
 --
 ALTER TABLE `sottocat`
-  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `sottocat_ibfk_2` FOREIGN KEY (`id_post`) REFERENCES `post` (`id_post`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Limiti per la tabella `utente`
+--
+ALTER TABLE `utente`
+  ADD CONSTRAINT `utente_ibfk_1` FOREIGN KEY (`id_utente`) REFERENCES `co_autore` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
