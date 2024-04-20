@@ -181,35 +181,43 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
 
             <!-- Campi premium -->
-            <!---<div id="premium-fields" style="display:none"> -->
+            <!---<div id="premium-fields" style="display:none"> --> 
 
-            <div>
-            <label>Intestatario</label>
-            <input type="text" name="intestatario" value="<?php echo $intestatario; ?>">
-            <span><?php echo $intestatario_err; ?></span>
-            </div>
+<div>
+  <input type="checkbox" id="premium">
+  <label for="premium">Iscriviti da premium</label>
+</div>
 
-            <div>
-            <label>Numero carta</label>
-            <input type="text" name="carta" value="<?php echo $carta; ?>">
-            <span><?php echo $carta_err; ?></span>  
-            </div>
+<div id="premium-fields" style="display:none">
 
-            <div>
-            <label>Data di scadenza</label>
-            <input type="date" name="data_scadenza" value="<?php echo $data_scadenza; ?>">
-            <span><?php echo $data_scadenza_err; ?></span>
-            </div>
+  <div>
+    <label>Intestatario</label> 
+    <input type="text" name="intestatario">
+  </div>
 
-            <input type="submit" value="Invia">
-            <p>Hai già un account? <a href="login.php">Accedi</a></p>
-        
-            <div>
-            <input type="checkbox" id="premium">
-            <label for="premium">Iscriviti da premium</label> 
-            </div>
+  <div>
+   <label>Numero carta</label>
+   <input type="text" name="carta">
+  </div>
 
-        </form>
-    </div>    
-</body>
-</html>
+  <div>
+    <label>Data di scadenza</label>
+    <input type="date" name="data_scadenza">
+  </div>
+
+</div>
+
+<script>
+const premiumCheckbox = document.getElementById('premium');
+const premiumFields = document.getElementById('premium-fields');
+
+premiumCheckbox.addEventListener('change', () => {
+  if(premiumCheckbox.checked) {
+    premiumFields.style.display = 'block';
+  } else {
+    premiumFields.style.display = 'none';
+  }
+})  
+</script>
+
+<php/>
