@@ -54,6 +54,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Validazione data di nascita
     if(empty(trim($_POST["data_nascita"]))){
         $data_nascita_err = "Inserire data di nascita";     
+      } else{
+        $birthDate = trim($_POST["data_nascita"]);
+        
+        // Verifica età minima
+        $sixteenYearsAgo = date('Y-m-d', strtotime('-16 years'));
+        
+        if($birthDate > $sixteenYearsAgo){
+          $data_nascita_err = "Devi avere almeno 16 anni";
+        } else {
+          $data_nascita = $birthDate;
+        }
+      }
+      
+    if(empty(trim($_POST["data_nascita"]))){
+        $data_nascita_err = "Inserire data di nascita";     
     } else{
         $data_nascita = trim($_POST["data_nascita"]);
     }
