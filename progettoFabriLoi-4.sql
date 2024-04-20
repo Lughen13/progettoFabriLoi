@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Creato il: Apr 19, 2024 alle 15:32
+-- Creato il: Apr 19, 2024 alle 17:48
 -- Versione del server: 10.4.28-MariaDB
 -- Versione PHP: 8.2.4
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `test_bdd`
+-- Database: `progettoFabriLoi`
 --
 
 -- --------------------------------------------------------
@@ -187,7 +187,9 @@ CREATE TABLE `sottocat` (
 CREATE TABLE `stile` (
   `id_stile` int(10) NOT NULL,
   `nome` varchar(20) NOT NULL,
-  `font` varchar(20) NOT NULL
+  `font` varchar(20) NOT NULL,
+  `colore_testo` varchar(10) NOT NULL,
+  `background` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
