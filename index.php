@@ -66,7 +66,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
           $data_nascita = $birthDate;
         }
       }
-      
+
     if(empty(trim($_POST["data_nascita"]))){
         $data_nascita_err = "Inserire data di nascita";     
     } else{
@@ -136,7 +136,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $stmt->close();
         }
     }
+$sql = "INSERT INTO utenti (username, email, password, nome, cognome, ...)
+         VALUES (?, ?, ?, ?, ?, ...)";
+$stmt = $conn->prepare($sql);
 
+$stmt->bind_param("ssssss", $username, $email, $password, $nome, $cognome, ...);
+if($stmt->execute()) {
+    echo "Registrazione avvenuta con successo!"; 
+  } else {
+    echo "Errore durante la registrazione: " . $conn->error;
+  }
+  
     // Chiudi connessione
     $connessione->close();
 }
