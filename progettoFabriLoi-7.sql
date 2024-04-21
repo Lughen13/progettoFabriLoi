@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Creato il: Apr 20, 2024 alle 18:44
--- Versione del server: 10.4.28-MariaDB
--- Versione PHP: 8.2.4
+-- Host: 127.0.0.1
+-- Creato il: Apr 21, 2024 alle 15:40
+-- Versione del server: 10.4.32-MariaDB
+-- Versione PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `progettoFabriLoi`
+-- Database: `progetto_prova_3`
 --
 
 -- --------------------------------------------------------
@@ -66,6 +66,16 @@ CREATE TABLE `commento` (
 --
 -- Trigger `commento`
 --
+DELIMITER $$
+CREATE TRIGGER `aggiorna_conteggio_commenti` AFTER INSERT ON `commento` FOR EACH ROW BEGIN
+    DECLARE user_id INT;
+    DECLARE comment_count INT;
+    SELECT id_utente INTO user_id FROM commento WHERE id_comm = NEW.id_comm;
+    SELECT COUNT(*) INTO comment_count FROM commento WHERE id_utente = user_id;
+    UPDATE utente SET numero_commenti = comment_count WHERE id_utente = user_id;
+END
+$$
+DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `update_comment_count` AFTER INSERT ON `commento` FOR EACH ROW UPDATE post
 SET comments = comments + 1
@@ -244,7 +254,8 @@ ALTER TABLE `co_autore`
 ALTER TABLE `follow`
   ADD PRIMARY KEY (`id_follow`),
   ADD UNIQUE KEY `id_utente` (`id_utente`,`id_blog`),
-  ADD KEY `id_follow` (`id_follow`,`id_utente`,`id_blog`);
+  ADD KEY `id_follow` (`id_follow`,`id_utente`,`id_blog`),
+  ADD KEY `follow_ibfk_1` (`id_blog`);
 
 --
 -- Indici per le tabelle `like`
@@ -262,15 +273,14 @@ ALTER TABLE `post`
   ADD PRIMARY KEY (`id_post`),
   ADD KEY `id_autore` (`id_autore`,`id_sotcat`,`id_blog`),
   ADD KEY `id_blog` (`id_blog`),
-  ADD KEY `id_sotcat` (`id_sotcat`);
+  ADD KEY `post_ibfk_3` (`id_sotcat`);
 
 --
 -- Indici per le tabelle `sottocat`
 --
 ALTER TABLE `sottocat`
   ADD PRIMARY KEY (`id_sottocat`),
-  ADD KEY `id_post` (`id_categoria`) USING BTREE,
-  ADD KEY `titolo` (`titolo`);
+  ADD KEY `titolo` (`titolo`,`id_categoria`);
 
 --
 -- Indici per le tabelle `stile`
@@ -359,10 +369,16 @@ ALTER TABLE `commento`
   ADD CONSTRAINT `commento_ibfk_3` FOREIGN KEY (`id_comm`) REFERENCES `notifica` (`id_notifica`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Limiti per la tabella `co_autore`
+--
+ALTER TABLE `co_autore`
+  ADD CONSTRAINT `co_autore_ibfk_1` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`);
+
+--
 -- Limiti per la tabella `follow`
 --
 ALTER TABLE `follow`
-  ADD CONSTRAINT `follow_ibfk_1` FOREIGN KEY (`id_follow`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `follow_ibfk_1` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `follow_ibfk_2` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
@@ -386,12 +402,6 @@ ALTER TABLE `post`
 --
 ALTER TABLE `sottocat`
   ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Limiti per la tabella `utente`
---
-ALTER TABLE `utente`
-  ADD CONSTRAINT `utente_ibfk_1` FOREIGN KEY (`id_utente`) REFERENCES `co_autore` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
