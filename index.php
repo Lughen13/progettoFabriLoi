@@ -12,7 +12,7 @@ if(!$conn){
 }
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-
+    
   $username = $_POST['username'];
   $email = $_POST['email'];
   $password = $_POST['password'];
@@ -22,6 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   $genere = $_POST['genere'];
   $data_nascita = $_POST['data_nascita'];
 
+ 
   $password_hash = password_hash($password, PASSWORD_DEFAULT);  
 
   $premium = isset($_POST['premium']) ? 1 : 0;
@@ -29,16 +30,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   $numero_carta = $_POST['numero_carta'];
   $data_scadenza = $_POST['data_scadenza'];
   $cvv = $_POST['cvv'];
-
-  $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, premium, intestatario, numero_carta, data_scadenza)
-          VALUES ('$username', '$email', '$password_hash', '$nome', '$cognome', '$genere', '$data_nascita', $premium, '$intestatario', '$numero_carta', '$data_scadenza')";
   
+  $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, premium, intestatario, numero_carta, data_scadenza)
+          VALUES ($username, $email, $password_hash, $nome, $cognome, $genere, $data_nascita, $premium, $intestatario, $numero_carta, $data_scadenza)";
+  
+  echo "<script>console.log('ok');</script>";
   if(mysqli_query($conn, $sql)){
     echo "Registrazione avvenuta con successo!";
   } else {
     echo "Errore: " . mysqli_error($conn);
   }
-
+ 
 }
 
 ?>
