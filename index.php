@@ -37,6 +37,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   echo "<script>console.log('ok');</script>";
   if(mysqli_query($conn, $sql)){
     echo "Registrazione avvenuta con successo!";
+    // Reindirizza l'utente alla pagina di login
+  header("Location: login.php"); 
+  exit();
   } else {
     echo "Errore: " . mysqli_error($conn);
   }
@@ -75,6 +78,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <select id="genere" name="genere">
       <option value="M">Maschio</option>
       <option value="F">Femmina</option>
+      <option value="A">Altro</option>
     </select><br><br>
 
     <label for="data_nascita">Data di nascita:</label>
