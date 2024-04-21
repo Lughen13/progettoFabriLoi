@@ -30,8 +30,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   $data_scadenza = $_POST['data_scadenza'];
   $cvv = $_POST['cvv'];
 
-  $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, premium, intestatario, numero_carta, data_scadenza, cvv)
-          VALUES ('$username', '$email', '$password_hash', '$nome', '$cognome', '$genere', '$data_nascita', $premium, '$intestatario', '$numero_carta', '$data_scadenza', '$cvv')";
+  $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, premium, intestatario, numero_carta, data_scadenza)
+          VALUES ('$username', '$email', '$password_hash', '$nome', '$cognome', '$genere', '$data_nascita', $premium, '$intestatario', '$numero_carta', '$data_scadenza')";
   
   if(mysqli_query($conn, $sql)){
     echo "Registrazione avvenuta con successo!";
