@@ -33,17 +33,24 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   
   $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, premium, intestatario, numero_carta, data_scadenza)
           VALUES ('$username', '$email', '$password_hash', '$nome', '$cognome', '$genere', '$data_nascita', '$premium', '$intestatario', '$numero_carta', '$data_scadenza')";
-  
   echo "<script>console.log('ok');</script>";
-  if(mysqli_query($conn, $sql)){
-    echo "Registrazione avvenuta con successo!";
-    // Reindirizza l'utente alla pagina di login
-  header("Location: login.php"); 
-  exit();
-  } else {
-    echo "Errore: " . mysqli_error($conn);
-  }
- 
+  
+  // Esecuzione query
+if(mysqli_query($conn, $sql)){
+  echo "Registrazione effettuata!";
+} else{
+  echo "Errore: ".mysqli_error($conn);
+}
+
+// Chiusura connessione
+mysqli_close($conn);
+
+// Reindirizzamento pagina login
+header("Location: login.php");
+
+
+
+
 }
 
 ?>
@@ -101,6 +108,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     <input type="submit" value="Registrati">
 
+    <a href="login.php">
+  <button type="button">Torna alla Login</button> 
+    </a>
   </form>
 
 </body>
