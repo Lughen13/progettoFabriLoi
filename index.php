@@ -83,7 +83,7 @@ header("Location: login.php");
 
     <label for="genere">Genere:</label>
     <select id="genere" name="genere">
-      <option value="M">Maschio</option>
+      <option value="M">Uomo</option>
       <option value="F">Femmina</option>
       <option value="A">Altro</option>
     </select><br><br>
