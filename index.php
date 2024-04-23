@@ -1,17 +1,8 @@
 <?php
 // Connessione DB
-$host = "localhost";
-$user = "root"; 
-$password = "";
-$db = "progettoFabriLoi";
+require_once('connessione.php');
 
-$conn = mysqli_connect($host, $user, $password, $db);
-
-if(!$conn){
-    die("Connessione fallita: " . mysqli_connect_error());
-}
-
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
+// if($_SERVER['REQUEST_METHOD'] == 'POST'){
     
   $username = $_POST['username'];
   $email = $_POST['email'];
@@ -23,35 +14,30 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   $data_nascita = $_POST['data_nascita'];
 
  
-  $password_hash = password_hash($password, PASSWORD_DEFAULT);  
+  $password_hash = md5($password);  
 
-  $premium = isset($_POST['premium']) ? 1 : 0;
+  $premium = isset($_POST['premium']) ? 1 : 0;//if is set (== true) then return 1 else return 0
   $intestatario = $_POST['intestatario'];
   $numero_carta = $_POST['numero_carta'];
   $data_scadenza = $_POST['data_scadenza'];
   $cvv = $_POST['cvv'];
   
-  $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, premium, intestatario, numero_carta, data_scadenza)
-          VALUES ('$username', '$email', '$password_hash', '$nome', '$cognome', '$genere', '$data_nascita', '$premium', '$intestatario', '$numero_carta', '$data_scadenza')";
+  $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, premium, intestatario, carta, data_scadenza) VALUES ('$username', '$email', '$password_hash', '$nome', '$cognome', '$genere', '$data_nascita', '$premium', '$intestatario', '$numero_carta', '$data_scadenza')";
   echo "<script>console.log('ok');</script>";
   
   // Esecuzione query
-if(mysqli_query($conn, $sql)){
+if(mysqli_query($connessione, $sql)){
   echo "Registrazione effettuata!";
 } else{
-  echo "Errore: ".mysqli_error($conn);
+  echo "Errore: ".mysqli_error($connessione);
 }
 
 // Chiusura connessione
-mysqli_close($conn);
+mysqli_close($connessione);
 
 // Reindirizzamento pagina login
 header("Location: login.php");
-
-
-
-
-}
+// }
 
 ?>
 
@@ -84,7 +70,7 @@ header("Location: login.php");
     <label for="genere">Genere:</label>
     <select id="genere" name="genere">
       <option value="M">Uomo</option>
-      <option value="F">Femmina</option>
+      <option value="F">Donna</option>
       <option value="A">Altro</option>
     </select><br><br>
 
@@ -108,9 +94,9 @@ header("Location: login.php");
 
     <input type="submit" value="Registrati">
 
-    <a href="login.php">
-  <button type="button">Torna alla Login</button> 
-    </a>
+    
+  <button type="button"><a href="login.php">Torna alla Login</a></button> 
+    
   </form>
 
 </body>

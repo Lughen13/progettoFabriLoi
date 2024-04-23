@@ -1,10 +1,7 @@
 <?php
 // Avvia sessione
 session_start();
-if(isset($_SESSION['utente'])) {
-    header("Location: area_protetta.php");
-    exit;
-} 
+
 // Include file di connessione db
 include 'connessione.php';
 
@@ -44,24 +41,24 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
   mysqli_stmt_bind_param($stmt, "ss", $username, $email);
   
 
-// Recupera utente
+    // Recupera utente
     $user = mysqli_fetch_assoc($result);
     
-// Verifica password
-if(password_verify($password, $user['password'])) {
+    // Verifica password
+    if(password_verify($password, $user['password'])) {
 
-    // Salva dati utente in sessione
-    $_SESSION['utente'] = $user;
+      // Salva dati utente in sessione
+      $_SESSION['utente'] = $user;
 
-    // Reindirizza alla pagina protetta
-    header("Location: area_protetta.php");
-    exit();
+      // Reindirizza alla pagina protetta
+      header("Location: area_protetta.php");
+      exit();
 
-} else {
-    $passwordErr = "Password errata";
-}
+    } else {
+      $passwordErr = "Password errata";
+    }
 
-}
+  }
 
 }
 
