@@ -60,6 +60,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
   
   }
 
+  header("Location: login.php");
 }
 
 ?>
@@ -137,6 +138,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
   <input type="submit" value="Registrati">
 
+  <a href="login.php"><button>Vai al Login</button></a>
 </form>
 
 <script>
