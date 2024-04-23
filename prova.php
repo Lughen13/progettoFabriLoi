@@ -12,11 +12,6 @@ if(!$conn){
   die("Connessione fallita: " . mysqli_connect_error());
 }
 
-// Definizione variabili errore
-$usernameErr = $emailErr = $passwordErr = "";
-$nomeErr = $cognomeErr = $genereErr = $dataErr = "";
-$error = false;
-
 // Invio form
 if($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -40,47 +35,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     $carta = $_POST["carta"];
     $data_scadenza = $_POST["data_scadenza"];
   }
-
-// Validazione username 
-if(empty($username)) {
-    $usernameErr = "Inserisci username";
-    $error = true;
-  } else if(!preg_match("/^[a-zA-Z0-9_]+$/", $username)) {
-    $usernameErr = "Username non valido";
-    $error = true;
-  } else {
-    // Controlla username univoco
-    $sql = "SELECT id FROM utenti WHERE username = '$username'";
-    $res = mysqli_query($conn, $sql);
-    if(mysqli_num_rows($res) > 0) {
-      $usernameErr = "Username già in uso";
-      $error = true;
-    }
-  }
-
-  // Validazione email
-  if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $emailErr = "Email non valida";
-    $error = true;
-  } else {
-    // Controlla email univoca
-    $sql = "SELECT id FROM utenti WHERE email = '$email'";
-    $res = mysqli_query($conn, $sql);
-    if(mysqli_num_rows($res) > 0) {
-      $emailErr = "Email già in uso";
-      $error = true;
-    }
-  }
-
-  // Validazione password
-  if(empty($password)) {
-    $passwordErr = "Inserisci password";
-    $error = true;
-  } else if(strlen($password) < 8) {
-    $passwordErr = "Password troppo corta";
-    $error = true;
-  }
-
 
   // Query inserimento dati
   if($premium == 1){
