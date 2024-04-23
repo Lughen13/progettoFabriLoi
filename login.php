@@ -32,7 +32,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
   if($premium == 1){
     $intestatario = $_POST["intestatario"];
-    $carta = $_POST["carta"];
+    $carta = $_POST["numero_carta"];
     $data_scadenza = $_POST["data_scadenza"];
   }
 
