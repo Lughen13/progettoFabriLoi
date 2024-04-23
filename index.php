@@ -1,103 +1,154 @@
 <?php
+
 // Connessione DB
-require_once('connessione.php');
+$host = "localhost";
+$user = "root";
+$password = "";
+$db = "progettoFabriLoi";
 
-// if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    
-  $username = $_POST['username'];
-  $email = $_POST['email'];
-  $password = $_POST['password'];
+$conn = mysqli_connect($host, $user, $password, $db);
 
-  $nome = $_POST['nome'];
-  $cognome = $_POST['cognome'];
-  $genere = $_POST['genere'];
-  $data_nascita = $_POST['data_nascita'];
-
- 
-  $password_hash = md5($password);  
-
-  $premium = isset($_POST['premium']) ? 1 : 0;//if is set (== true) then return 1 else return 0
-  $intestatario = $_POST['intestatario'];
-  $numero_carta = $_POST['numero_carta'];
-  $data_scadenza = $_POST['data_scadenza'];
-  $cvv = $_POST['cvv'];
-  
-  $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, premium, intestatario, carta, data_scadenza) VALUES ('$username', '$email', '$password_hash', '$nome', '$cognome', '$genere', '$data_nascita', '$premium', '$intestatario', '$numero_carta', '$data_scadenza')";
-  echo "<script>console.log('ok');</script>";
-  
-  // Esecuzione query
-if(mysqli_query($connessione, $sql)){
-  echo "Registrazione effettuata!";
-} else{
-  echo "Errore: ".mysqli_error($connessione);
+if(!$conn){
+  die("Connessione fallita: " . mysqli_connect_error());
 }
 
-// Chiusura connessione
-mysqli_close($connessione);
+// Invio form
+if($_SERVER["REQUEST_METHOD"] == "POST") {
 
-// Reindirizzamento pagina login
-header("Location: login.php");
-// }
+  // Dati utente
+  $username = $_POST["username"];
+  $email = $_POST["email"];
+  $password = $_POST["password"];
+  $nome = $_POST["nome"];
+  $cognome = $_POST["cognome"];
+  $genere = $_POST["genere"];
+  $data_nascita = $_POST["data_nascita"];
+
+  // Dati premium
+  $premium = $_POST["premium"];
+  $intestatario = "";
+  $carta = "";
+  $data_scadenza = "";
+
+  if($premium == 1){
+    $intestatario = $_POST["intestatario"];
+    $carta = $_POST["numero_carta"];
+    $data_scadenza = $_POST["data_scadenza"];
+  }
+
+  // Query inserimento dati
+  if($premium == 1){
+    
+    $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, premium, intestatario, numero_carta, data_scadenza) 
+            VALUES ('$username', '$email', '$password', '$nome', '$cognome', '$genere', '$data_nascita', $premium, '$intestatario', '$numero_carta', '$data_scadenza')";
+
+  } else {
+
+    $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita)
+            VALUES ('$username', '$email', '$password', '$nome', '$cognome', '$genere', '$data_nascita')";
+  
+  }
+
+  // Esecuzione e gestione errore
+  if(mysqli_query($conn, $sql)){
+
+    echo "Registrazione effettuata con successo!";
+
+  } else {
+
+    echo "Errore: " . mysqli_error($conn);
+  
+  }
+
+}
 
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Registrazione</title>
-</head>
-<body>
 
-  <h1>Registrazione</h1>
+<!-- Form HTML -->
 
-  <form method="post">
+<h2>Registrazione</h2>
 
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username"><br><br>
+<form method="post">
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email"><br><br>
+  <div>
+    <label for="username">Username</label>
+    <input type="text" name="username" required>
+  </div>
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password"><br><br>
+  <div>
+    <label for="email">Email</label>
+    <input type="email" name="email" required>
+  </div>
 
-    <label for="nome">Nome:</label>
-    <input type="text" id="nome" name="nome"><br><br>
+  <div>
+    <label for="password">Password</label>
+    <input type="password" name="password" required>
+  </div>
 
-    <label for="cognome">Cognome:</label>
-    <input type="text" id="cognome" name="cognome"><br><br>
+  <div>
+    <label for="nome">Nome</label>
+    <input type="text" name="nome" required>
+  </div>
 
-    <label for="genere">Genere:</label>
-    <select id="genere" name="genere">
-      <option value="M">Uomo</option>
-      <option value="F">Donna</option>
+  <div>
+    <label for="cognome">Cognome</label>
+    <input type="text" name="cognome" required>
+  </div>
+
+  <div>
+    <label for="genere">Genere</label>
+    <select name="genere">
+      <option value="M">Maschio</option>
+      <option value="F">Femmina</option>
       <option value="A">Altro</option>
-    </select><br><br>
+    </select>
+  </div>
 
-    <label for="data_nascita">Data di nascita:</label>
-    <input type="date" id="data_nascita" name="data_nascita"><br><br>
+  <div>
+    <label for="data_nascita">Data di nascita</label>
+    <input type="date" name="data_nascita" required> 
+  </div>
 
-    <label for="premium">Utente Premium:</label>
-    <input type="checkbox" id="premium" name="premium"><br><br>
+  <div>
+    <input type="checkbox" name="premium" value="1"> Account Premium
+  </div>
 
-    <label for="intestatario">Intestatario:</label>
-    <input type="text" id="intestatario" name="intestatario"><br><br>
+  <div id="payment-data" style="display:none">
 
-    <label for="numero_carta">Numero carta:</label>
-    <input type="text" id="numero_carta" name="numero_carta"><br><br>
+    <h3>Dati di pagamento</h3>
+  
+    <div>
+      <label for="intestatario">Intestatario</label>
+      <input type="text" name="intestatario">
+    </div>
 
-    <label for="data_scadenza">Data di scadenza:</label>
-    <input type="date" id="data_scadenza" name="data_scadenza"><br><br>
+    <div>
+      <label for="carta">Numero Carta</label>
+      <input type="text" name="numero_carta">
+    </div>
 
-    <label for="cvv">CVV:</label>
-    <input type="text" id="cvv" name="cvv"><br><br>
+    <div>
+      <label for="data_scadenza">Data Scadenza</label>
+      <input type="date" name="data_scadenza">
+    </div>
 
-    <input type="submit" value="Registrati">
+  </div>
 
-    
-  <button type="button"><a href="login.php">Torna alla Login</a></button> 
-    
-  </form>
+  <input type="submit" value="Registrati">
 
-</body>
-</html>
+</form>
+
+<script>
+// Mostra/nascondi dati pagamento
+const premiumCheck = document.querySelector('input[name="premium"]');
+const paymentData = document.getElementById('payment-data');
+
+premiumCheck.addEventListener('change', function() {
+  if(this.checked) {
+    paymentData.style.display = 'block';
+  } else {
+    paymentData.style.display = 'none';
+  }
+})
+</script>

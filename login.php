@@ -1,154 +1,88 @@
 <?php
+// Avvia sessione
+session_start();
 
-// Connessione DB
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "progettoFabriLoi";
+// Include file di connessione db
+include 'connessione.php';
 
-$conn = mysqli_connect($host, $user, $password, $db);
+// Definisci variabili errore
+$usernameErr = $emailErr = $passwordErr = "";
+$username = $email = $password = "";
 
-if(!$conn){
-  die("Connessione fallita: " . mysqli_connect_error());
-}
+// Validazione form
+if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-// Invio form
-if($_SERVER["REQUEST_METHOD"] == "POST") {
-
-  // Dati utente
-  $username = $_POST["username"];
-  $email = $_POST["email"];
-  $password = $_POST["password"];
-  $nome = $_POST["nome"];
-  $cognome = $_POST["cognome"];
-  $genere = $_POST["genere"];
-  $data_nascita = $_POST["data_nascita"];
-
-  // Dati premium
-  $premium = $_POST["premium"];
-  $intestatario = "";
-  $carta = "";
-  $data_scadenza = "";
-
-  if($premium == 1){
-    $intestatario = $_POST["intestatario"];
-    $carta = $_POST["numero_carta"];
-    $data_scadenza = $_POST["data_scadenza"];
+  // Validazione username
+  if(empty($_POST['username'])) {
+    $usernameErr = "Inserisci username";
+  } else {
+    $username = test_input($_POST['username']);
   }
 
-  // Query inserimento dati
-  if($premium == 1){
+  // Validazione email
+  if(empty($_POST['email'])) {
+    $emailErr = "Inserisci email";
+  } else {
+    $email = test_input($_POST['email']);
+  }
+  // Validazione password
+  if(empty($_POST['password'])) {
+    $passwordErr = "Inserisci password";
+  } else {
+    $password = test_input($_POST['password']); 
+  }
+
+  // Se non ci sono errori
+  if($usernameErr == '' && $passwordErr == '') {
+
+    // Query db per recuperare utente
+  $sql = "SELECT * FROM utenti WHERE username = ? AND email = ?";
+  $stmt = mysqli_prepare($conn, $sql);
+  mysqli_stmt_bind_param($stmt, "ss", $username, $email);
+  
+
+    // Recupera utente
+    $user = mysqli_fetch_assoc($result);
     
-    $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, premium, intestatario, numero_carta, data_scadenza) 
-            VALUES ('$username', '$email', '$password', '$nome', '$cognome', '$genere', '$data_nascita', $premium, '$intestatario', '$numero_carta', '$data_scadenza')";
+    // Verifica password
+    if(password_verify($password, $user['password'])) {
 
-  } else {
+      // Salva dati utente in sessione
+      $_SESSION['utente'] = $user;
 
-    $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita)
-            VALUES ('$username', '$email', '$password', '$nome', '$cognome', '$genere', '$data_nascita')";
-  
-  }
+      // Reindirizza alla pagina protetta
+      header("Location: area_protetta.php");
+      exit();
 
-  // Esecuzione e gestione errore
-  if(mysqli_query($conn, $sql)){
+    } else {
+      $passwordErr = "Password errata";
+    }
 
-    echo "Registrazione effettuata con successo!";
-
-  } else {
-
-    echo "Errore: " . mysqli_error($conn);
-  
   }
 
 }
 
+// Pulisce input
+function test_input($data) {
+  $data = trim($data);
+  $data = stripslashes($data);
+  $data = htmlspecialchars($data);
+  return $data;
+}
 ?>
 
+<!-- HTML form -->
 
-<!-- Form HTML -->
+<h2>Login</h2>
 
-<h2>Registrazione</h2>
+<p style="color: red;"><?php echo $usernameErr; ?></p>
 
-<form method="post">
-
-  <div>
-    <label for="username">Username</label>
-    <input type="text" name="username" required>
-  </div>
-
-  <div>
-    <label for="email">Email</label>
-    <input type="email" name="email" required>
-  </div>
-
-  <div>
-    <label for="password">Password</label>
-    <input type="password" name="password" required>
-  </div>
-
-  <div>
-    <label for="nome">Nome</label>
-    <input type="text" name="nome" required>
-  </div>
-
-  <div>
-    <label for="cognome">Cognome</label>
-    <input type="text" name="cognome" required>
-  </div>
-
-  <div>
-    <label for="genere">Genere</label>
-    <select name="genere">
-      <option value="M">Maschio</option>
-      <option value="F">Femmina</option>
-      <option value="A">Altro</option>
-    </select>
-  </div>
-
-  <div>
-    <label for="data_nascita">Data di nascita</label>
-    <input type="date" name="data_nascita" required> 
-  </div>
-
-  <div>
-    <input type="checkbox" name="premium" value="1"> Account Premium
-  </div>
-
-  <div id="payment-data" style="display:none">
-
-    <h3>Dati di pagamento</h3>
+<form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+  <input type="text" name="username" value="<?php echo $username; ?>">
   
-    <div>
-      <label for="intestatario">Intestatario</label>
-      <input type="text" name="intestatario">
-    </div>
-
-    <div>
-      <label for="carta">Numero Carta</label>
-      <input type="text" name="numero_carta">
-    </div>
-
-    <div>
-      <label for="data_scadenza">Data Scadenza</label>
-      <input type="date" name="data_scadenza">
-    </div>
-
-  </div>
-
-  <input type="submit" value="Registrati">
-
+  <p style="color: red;"><?php echo $passwordErr; ?></p>
+  
+  <input type="password" name="password" value="<?php echo $password; ?>">
+  
+  <input type="submit" value="Login">
 </form>
-
-<script>
-// Mostra/nascondi dati pagamento
-const premiumCheck = document.querySelector('input[name="premium"]');
-const paymentData = document.getElementById('payment-data');
-
-premiumCheck.addEventListener('change', function() {
-  if(this.checked) {
-    paymentData.style.display = 'block';
-  } else {
-    paymentData.style.display = 'none';
-  }
-})
-</script>
