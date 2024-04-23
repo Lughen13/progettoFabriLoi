@@ -27,7 +27,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
   // Dati premium
   $premium = $_POST["premium"];
   $intestatario = "";
-  $carta = "";
+  $numero_carta = "";
   $data_scadenza = "";
 
   if($premium == 1){
