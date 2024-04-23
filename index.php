@@ -124,7 +124,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <div>
-      <label for="carta">Numero Carta</label>
+      <label for="numero_carta">Numero Carta</label>
       <input type="text" name="numero_carta">
     </div>
 
