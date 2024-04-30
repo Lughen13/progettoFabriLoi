@@ -31,7 +31,7 @@ $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nas
 // Esecuzione query
 mysqli_query($conn, $sql);
 
-// Dati premium 
+// Dati premium c
 if(isset($_POST['premium'])) {
 
   $intestatario = $_POST['intestatario'];
