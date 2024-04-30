@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Creato il: Apr 22, 2024 alle 10:22
+-- Creato il: Apr 29, 2024 alle 09:47
 -- Versione del server: 10.4.28-MariaDB
 -- Versione PHP: 8.2.4
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `test`
+-- Database: `progettoFabriLoi`
 --
 
 -- --------------------------------------------------------
@@ -63,26 +63,6 @@ CREATE TABLE `commento` (
   `id_utente` int(10) NOT NULL,
   `id_post` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Trigger `commento`
---
-DELIMITER $$
-CREATE TRIGGER `aggiorna_conteggio_commenti` AFTER INSERT ON `commento` FOR EACH ROW BEGIN
-    DECLARE user_id INT;
-    DECLARE comment_count INT;
-    SELECT id_utente INTO user_id FROM commento WHERE id_comm = NEW.id_comm;
-    SELECT COUNT(*) INTO comment_count FROM commento WHERE id_utente = user_id;
-    UPDATE utente SET numero_commenti = comment_count WHERE id_utente = user_id;
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `update_comment_count` AFTER INSERT ON `commento` FOR EACH ROW UPDATE post
-SET comments = comments + 1
-WHERE post.id = post_id
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -159,8 +139,20 @@ CREATE TABLE `post` (
   `id_autore` int(10) NOT NULL,
   `id_sotcat` int(10) NOT NULL,
   `id_blog` int(10) NOT NULL,
-  `likes_count` int(10) NOT NULL DEFAULT 0,
-  `comment_count` int(10) NOT NULL
+  `likes_count` int(10) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `premium`
+--
+
+CREATE TABLE `premium` (
+  `id_utente` int(10) NOT NULL,
+  `intestatario` varchar(40) NOT NULL,
+  `numero_carta` varchar(16) NOT NULL,
+  `data_scadenza` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -171,7 +163,7 @@ CREATE TABLE `post` (
 
 CREATE TABLE `sottocat` (
   `id_sottocat` int(10) NOT NULL,
-  `id_post` int(10) NOT NULL,
+  `titolo` varchar(20) NOT NULL,
   `id_categoria` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -207,12 +199,8 @@ CREATE TABLE `utente` (
   `data_nascita` date NOT NULL,
   `bio` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `numero_telefono` varchar(10) DEFAULT NULL,
-  `premium` tinyint(1) NOT NULL DEFAULT 0,
-  `intestatario` varchar(40) NOT NULL,
-  `carta` varchar(16) NOT NULL,
-  `data_scadenza` date NOT NULL,
-  `n_commenti` int(10) NOT NULL
-) ;
+  `premium` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indici per le tabelle scaricate
@@ -279,11 +267,18 @@ ALTER TABLE `post`
   ADD KEY `id_sotcat` (`id_sotcat`);
 
 --
+-- Indici per le tabelle `premium`
+--
+ALTER TABLE `premium`
+  ADD PRIMARY KEY (`id_utente`),
+  ADD UNIQUE KEY `numero_carta` (`numero_carta`);
+
+--
 -- Indici per le tabelle `sottocat`
 --
 ALTER TABLE `sottocat`
   ADD PRIMARY KEY (`id_sottocat`),
-  ADD KEY `id_post` (`id_post`,`id_categoria`),
+  ADD KEY `id_post` (`titolo`,`id_categoria`),
   ADD KEY `id_categoria` (`id_categoria`);
 
 --
@@ -349,7 +344,7 @@ ALTER TABLE `stile`
 -- AUTO_INCREMENT per la tabella `utente`
 --
 ALTER TABLE `utente`
-  MODIFY `id_utente` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_utente` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Limiti per le tabelle scaricate
@@ -359,8 +354,8 @@ ALTER TABLE `utente`
 -- Limiti per la tabella `blog`
 --
 ALTER TABLE `blog`
-  ADD CONSTRAINT `blog_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`),
-  ADD CONSTRAINT `blog_ibfk_2` FOREIGN KEY (`id_stile`) REFERENCES `stile` (`id_stile`),
+  ADD CONSTRAINT `blog_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `blog_ibfk_2` FOREIGN KEY (`id_stile`) REFERENCES `stile` (`id_stile`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `blog_ibfk_3` FOREIGN KEY (`id_proprietario`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `blog_ibfk_4` FOREIGN KEY (`id_blog`) REFERENCES `co_autore` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -396,14 +391,14 @@ ALTER TABLE `like`
 --
 ALTER TABLE `post`
   ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `post_ibfk_3` FOREIGN KEY (`id_sotcat`) REFERENCES `sottocat` (`id_sottocat`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limiti per la tabella `sottocat`
 --
 ALTER TABLE `sottocat`
-  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `sottocat_ibfk_2` FOREIGN KEY (`id_sottocat`) REFERENCES `post` (`id_sotcat`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
