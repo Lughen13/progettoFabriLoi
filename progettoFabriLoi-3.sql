@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Mag 03, 2024 alle 13:22
+-- Creato il: Mag 03, 2024 alle 15:34
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -155,13 +155,6 @@ CREATE TABLE `premium` (
   `data_scadenza` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dump dei dati per la tabella `premium`
---
-
-INSERT INTO `premium` (`id_utente`, `intestatario`, `numero_carta`, `data_scadenza`) VALUES
-(6, 'asdfg', '123456789y', '2025-11-11');
-
 -- --------------------------------------------------------
 
 --
@@ -170,7 +163,6 @@ INSERT INTO `premium` (`id_utente`, `intestatario`, `numero_carta`, `data_scaden
 
 CREATE TABLE `sottocat` (
   `id_sottocat` int(10) NOT NULL,
-  `titolo` varchar(20) NOT NULL,
   `id_categoria` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -210,13 +202,6 @@ CREATE TABLE `utente` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dump dei dati per la tabella `utente`
---
-
-INSERT INTO `utente` (`id_utente`, `username`, `email`, `pw`, `img_profilo`, `nome`, `cognome`, `genere`, `data_nascita`, `bio`, `numero_telefono`, `premium`) VALUES
-(6, 'f.fabri1', 'federicafabri11@gmail.com', 'qwerty', 'default.png', 'qwertyui', 'qwerty', 'F', '2000-10-10', NULL, NULL, 0);
-
---
 -- Indici per le tabelle scaricate
 --
 
@@ -225,7 +210,6 @@ INSERT INTO `utente` (`id_utente`, `username`, `email`, `pw`, `img_profilo`, `no
 --
 ALTER TABLE `blog`
   ADD PRIMARY KEY (`id_blog`),
-  ADD UNIQUE KEY `id_blog` (`id_blog`,`titolo_blog`),
   ADD UNIQUE KEY `titolo_blog` (`titolo_blog`,`id_proprietario`),
   ADD KEY `id_categoria` (`id_categoria`,`id_stile`,`id_proprietario`),
   ADD KEY `id_proprietario` (`id_proprietario`),
@@ -249,7 +233,8 @@ ALTER TABLE `commento`
 -- Indici per le tabelle `co_autore`
 --
 ALTER TABLE `co_autore`
-  ADD PRIMARY KEY (`id_utente`,`id_blog`),
+  ADD UNIQUE KEY `id_utente_2` (`id_utente`),
+  ADD UNIQUE KEY `id_blog_2` (`id_blog`),
   ADD KEY `id_utente` (`id_utente`,`id_blog`),
   ADD KEY `id_blog` (`id_blog`);
 
@@ -292,7 +277,7 @@ ALTER TABLE `premium`
 --
 ALTER TABLE `sottocat`
   ADD PRIMARY KEY (`id_sottocat`),
-  ADD KEY `id_post` (`titolo`,`id_categoria`),
+  ADD KEY `id_post` (`id_categoria`),
   ADD KEY `id_categoria` (`id_categoria`);
 
 --
@@ -305,8 +290,7 @@ ALTER TABLE `stile`
 -- Indici per le tabelle `utente`
 --
 ALTER TABLE `utente`
-  ADD PRIMARY KEY (`id_utente`),
-  ADD UNIQUE KEY `username` (`username`,`email`);
+  ADD PRIMARY KEY (`id_utente`);
 
 --
 -- AUTO_INCREMENT per le tabelle scaricate
@@ -406,7 +390,7 @@ ALTER TABLE `like`
 ALTER TABLE `post`
   ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `post_ibfk_3` FOREIGN KEY (`id_sotcat`) REFERENCES `sottocat` (`id_sottocat`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `post_ibfk_3` FOREIGN KEY (`id_sotcat`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Limiti per la tabella `premium`
@@ -418,7 +402,8 @@ ALTER TABLE `premium`
 -- Limiti per la tabella `sottocat`
 --
 ALTER TABLE `sottocat`
-  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `sottocat_ibfk_2` FOREIGN KEY (`id_sottocat`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
