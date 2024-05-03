@@ -12,17 +12,15 @@ if ($connessione->connect_error) {
     die("Connessione fallita: " . $connessione->connect_error);
 }
 
-// Variabili per i messaggi di errore
-$nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $premium_err = $intestatario_err = $carta_err = $data_scadenza_err = "";
-
-// Elaborazione dei dati del modulo quando viene inviato
-// Variabili per i messaggi di errore
-$nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $premium_err = $intestatario_err = $carta_err = $data_scadenza_err = "";
-
 // Inizializza le variabili del modulo con stringhe vuote
 $nome = $cognome = $username = $password = $email = $data_nascita = $genere = $numero_telefono = $intestatario = $carta = $data_scadenza = "";
 
+// Variabili per i messaggi di errore
+$nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $premium_err = $intestatario_err = $carta_err = $data_scadenza_err = "";
 
+// Inizializza le variabili del modulo con stringhe vuote o valori di default
+$nome = $cognome = $username = $password = $email = $data_nascita = $genere = $numero_telefono = $intestatario = $carta = $data_scadenza = "";
+$premium = 0; // Imposta il valore di default a 0 (non premium)
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione nome
