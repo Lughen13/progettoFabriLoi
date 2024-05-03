@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Creato il: Apr 29, 2024 alle 09:47
--- Versione del server: 10.4.28-MariaDB
--- Versione PHP: 8.2.4
+-- Host: 127.0.0.1
+-- Creato il: Mag 03, 2024 alle 13:22
+-- Versione del server: 10.4.32-MariaDB
+-- Versione PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `progettoFabriLoi`
+-- Database: `progettofabriloi`
 --
 
 -- --------------------------------------------------------
@@ -155,6 +155,13 @@ CREATE TABLE `premium` (
   `data_scadenza` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dump dei dati per la tabella `premium`
+--
+
+INSERT INTO `premium` (`id_utente`, `intestatario`, `numero_carta`, `data_scadenza`) VALUES
+(6, 'asdfg', '123456789y', '2025-11-11');
+
 -- --------------------------------------------------------
 
 --
@@ -201,6 +208,13 @@ CREATE TABLE `utente` (
   `numero_telefono` varchar(10) DEFAULT NULL,
   `premium` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dump dei dati per la tabella `utente`
+--
+
+INSERT INTO `utente` (`id_utente`, `username`, `email`, `pw`, `img_profilo`, `nome`, `cognome`, `genere`, `data_nascita`, `bio`, `numero_telefono`, `premium`) VALUES
+(6, 'f.fabri1', 'federicafabri11@gmail.com', 'qwerty', 'default.png', 'qwertyui', 'qwerty', 'F', '2000-10-10', NULL, NULL, 0);
 
 --
 -- Indici per le tabelle scaricate
@@ -344,7 +358,7 @@ ALTER TABLE `stile`
 -- AUTO_INCREMENT per la tabella `utente`
 --
 ALTER TABLE `utente`
-  MODIFY `id_utente` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_utente` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Limiti per le tabelle scaricate
@@ -391,8 +405,9 @@ ALTER TABLE `like`
 --
 ALTER TABLE `post`
   ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
-  
+  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `post_ibfk_3` FOREIGN KEY (`id_sotcat`) REFERENCES `sottocat` (`id_sottocat`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
 --
 -- Limiti per la tabella `premium`
 --
@@ -403,8 +418,7 @@ ALTER TABLE `premium`
 -- Limiti per la tabella `sottocat`
 --
 ALTER TABLE `sottocat`
-  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `sottocat_ibfk_2` FOREIGN KEY (`id_sottocat`) REFERENCES `post` (`id_sotcat`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
