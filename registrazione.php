@@ -1,4 +1,4 @@
-<<<<<<< Updated upstream
+
 <?php
 // Connessione al database
 $host = "localhost";
@@ -16,6 +16,14 @@ if ($connessione->connect_error) {
 $nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $premium_err = $intestatario_err = $carta_err = $data_scadenza_err = "";
 
 // Elaborazione dei dati del modulo quando viene inviato
+// Variabili per i messaggi di errore
+$nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $premium_err = $intestatario_err = $carta_err = $data_scadenza_err = "";
+
+// Inizializza le variabili del modulo con stringhe vuote
+$nome = $cognome = $username = $password = $email = $data_nascita = $genere = $numero_telefono = $intestatario = $carta = $data_scadenza = "";
+
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione nome
     $nome = trim($_POST["nome"]);
@@ -299,5 +307,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>
 </body>
 </html>
-=======
->>>>>>> Stashed changes
