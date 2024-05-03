@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 
 <!-- Form HTML -->
-
+<!-- ciao -->
 <h2>Registrazione</h2>
 
 <form method="post">
