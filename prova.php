@@ -11,7 +11,7 @@ if (!$conn) {
     die("Connessione fallita: " . mysqli_connect_error());
 }
 
-// Invio form  
+// Invio form     
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Dati utente
