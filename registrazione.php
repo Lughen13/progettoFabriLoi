@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 <?php
 // Connessione al database
 $host = "localhost";
@@ -298,3 +299,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>
 </body>
 </html>
+=======
+>>>>>>> Stashed changes
