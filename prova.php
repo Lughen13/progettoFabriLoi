@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <input type="date" name="data_nascita" required>
     </div>
     <section>
-        <label for="telefono">Numero di Telefono:</label>
+        <label for="numero_telefono">Numero di Telefono:</label>
         <input type="tel" id="telefono" name="telefono" pattern="[0-9]{10}" required>
     </section>
     <section>
