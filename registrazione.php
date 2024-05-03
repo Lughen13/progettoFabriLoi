@@ -4,6 +4,12 @@ $host = "localhost";
 $user = "root";
 $pass = "";
 $db = "progettoFabriLoi";
+$connessione = new mysqli($host, $user, $pass, $db);
+
+// Verifica la connessione
+if ($connessione->connect_error) {
+    die("Connessione fallita: " . $connessione->connect_error);
+}
 
 // Variabili per i messaggi di errore
 $nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $premium_err = $intestatario_err = $carta_err = $data_scadenza_err = "";
@@ -147,10 +153,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Se non ci sono errori, procedi con l'inserimento dei dati nel database
     if (empty($nome_err) && empty($cognome_err) && empty($username_err) && empty($password_err) && empty($email_err) && empty($data_nascita_err) && empty($genere_err) && empty($numero_telefono_err) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
         // Preparazione delle istruzioni SQL
-        $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, numero_telefono, premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $connessione->prepare($sql);
+        $sql_utente = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, numero_telefono, premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt_utente = $connessione->prepare($sql_utente);
 
-        // Binding dei parametri
+        // Binding dei parametri per la tabella utente
         $param_username = $username;
         $param_email = $email;
         $param_password = password_hash($password, PASSWORD_DEFAULT);
@@ -161,20 +167,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $param_numero_telefono = $numero_telefono;
         $param_premium = $premium;
 
-        $stmt->bind_param("ssssssssi", $param_username, $param_email, $param_password, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
+        $stmt_utente->bind_param("ssssssssi", $param_username, $param_email, $param_password, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
 
-        if ($stmt->execute()) {
-            $ultimo_id = $stmt->insert_id;
+        if ($stmt_utente->execute()) {
+            $ultimo_id = $stmt_utente->insert_id;
 
             if ($premium == 1) {
                 // Inserimento dei dati della carta di credito
-                $sql = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
-                $stmt = $connessione->prepare($sql);
+                $sql_premium = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
+                $stmt_premium = $connessione->prepare($sql_premium);
                 $param_intestatario = $intestatario;
                 $param_carta = $carta;
                 $param_data_scadenza = $data_scadenza;
-                $stmt->bind_param("isss", $ultimo_id, $param_intestatario, $param_carta, $param_data_scadenza);
-                $stmt->execute();
+                $stmt_premium->bind_param("isss", $ultimo_id, $param_intestatario, $param_carta, $param_data_scadenza);
+                $stmt_premium->execute();
             }
 
             // Reindirizzamento alla pagina di login
@@ -184,7 +190,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "Qualcosa è andato storto. Riprova più tardi.";
         }
 
-        $stmt->close();
+        $stmt_utente->close();
+        $stmt_premium->close();
     }
 
     $connessione->close();
