@@ -197,7 +197,7 @@ CREATE TABLE `utente` (
   `genere` varchar(10) NOT NULL,
   `data_nascita` date NOT NULL,
   `bio` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `numero_telefono` varchar(10) NOT NULL,
+  `numero_telefono` varchar(10) DEFAULT NULL,
   `premium` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
