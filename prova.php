@@ -22,12 +22,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
   $cognome = $_POST['cognome'];
   $genere = $_POST['genere'];
   $data_nascita = $_POST['data_nascita'];
+  $numero_telefono = $_POST['numero_telefono'];
+  $premium = $_POST['premium'];
 
   
 
   // Query inserimento utente
-  $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita)
-          VALUES ('$username', '$email', '$password', '$nome', '$cognome', '$genere', '$data_nascita')";
+  $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, numero_telefono, premium)
+          VALUES ('$username', '$email', '$password', '$nome', '$cognome', '$genere', '$data_nascita', '$numero_telefono', '$premium')";
 
   if(mysqli_query($conn, $sql)){
 
@@ -77,6 +79,9 @@ if(isset($_POST['premium'])) {
   <select name="genere">
     <option value="M">Maschio</option>
     <option value="F">Femmina</option> 
+    <option value="C"> Croissant</option>
+    <option value="D"> Cristo MCNuggets</option>
+    <option value="E"> LGBTQPORCODIO</option>
   </select>
 
   <label for="data_nascita">Data di nascita:</label>
