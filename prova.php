@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </section>
     <section>
         <label for="premium">Sottoscrivi Premium:</label>
-        <input type="checkbox" id="premium" name="premium" onclick="change()">
+        <input type="checkbox" id="premium" name="premium">
 
         <div id="premium-data" style="display:none;">
             <input type="text" name="intestatario" placeholder="Intestatario carta">
