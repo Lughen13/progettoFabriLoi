@@ -192,19 +192,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt_premium->execute();
             }
 
-            // Reindirizzamento alla pagina di login
-            header("location: login.php");
-            exit();
-        } else {
-            echo "Qualcosa è andato storto. Riprova più tardi.";
-        }
+          // Inserimento riuscito
+          header("location: login.php");
+          exit();
+      } else {
+          echo "Errore durante l'inserimento dei dati della carta di credito: " . $stmt_premium->error;
+      }
+  } else {
+      // Reindirizzamento alla pagina di login
+      header("location: login.php");
+      exit();
+  }
+} else {
+  echo "Errore durante l'inserimento dei dati dell'utente: " . $stmt_utente->error;
 
-        $stmt_utente->close();
-        $stmt_premium->close();
-    }
+}
+$stmt_utente->close();
+$stmt_premium->close();
+
 
     $connessione->close();
-}
+
 ?>
 
 <!DOCTYPE html>

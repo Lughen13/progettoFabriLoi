@@ -1,0 +1,93 @@
+<?php
+// Includi il file di connessione al database
+require_once 'conn.php';
+
+// Inizializza le variabili
+$username = $password = "";
+$username_err = $password_err = "";
+
+// Elaborazione dei dati del modulo quando viene inviato
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Validazione username
+    $username = trim($_POST["username"]);
+    if (empty($username)) {
+        $username_err = "Per favore inserisci il tuo username.";
+    }
+
+    // Validazione password
+    $password = trim($_POST["password"]);
+    if (empty($password)) {
+        $password_err = "Per favore inserisci la tua password.";
+    }
+
+    // Verifica le credenziali
+    if (empty($username_err) && empty($password_err)) {
+        $sql = "SELECT id_utente, username, pw FROM utente WHERE username = ?";
+        $stmt = $connessione->prepare($sql);
+        $stmt->bind_param("s", $param_username);
+        $param_username = $username;
+
+        if ($stmt->execute()) {
+            $stmt->store_result();
+
+            // Verifica se l'username esiste
+            if ($stmt->num_rows == 1) {
+                $stmt->bind_result($id, $username, $hashed_password);
+                if ($stmt->fetch()) {
+                    if (password_verify($password, $hashed_password)) {
+                        // Credenziali corrette, avvia una nuova sessione
+                        session_start();
+                        $_SESSION["loggedin"] = true;
+                        $_SESSION["id"] = $id;
+                        $_SESSION["username"] = $username;
+                        header("location: dashboard.php");
+                    } else {
+                        // Password non corretta
+                        $password_err = "Password non corretta.";
+                    }
+                }
+            } else {
+                // Username non trovato
+                $username_err = "Username non trovato.";
+            }
+        } else {
+            echo "Ops! Qualcosa è andato storto. Riprova più tardi.";
+        }
+
+        $stmt->close();
+    }
+
+    $connessione->close();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        .error {color: red;}
+    </style>
+</head>
+<body>
+    <h2>Login</h2>
+    <p>Per favore inserisci le tue credenziali per accedere.</p>
+    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+        <div>
+            <label>Username:</label>
+            <input type="text" name="username" value="<?php echo $username; ?>">
+            <span class="error">* <?php echo $username_err; ?></span>
+        </div>
+        <div>
+            <label>Password:</label>
+            <input type="password" name="password">
+            <span class="error">* <?php echo $password_err; ?></span>
+        </div>
+        <div>
+            <input type="submit" value="Accedi">
+        </div>
+        <p>Non hai un account? <a href="registrazione.php">Registrati qui</a>.</p>
+    </form>
+</body>
+</html>
