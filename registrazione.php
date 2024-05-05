@@ -23,6 +23,7 @@ function validateInput($data) {
 // Inizializzazione delle variabili
 $nome = $cognome = $username = $password = $email = $data_nascita = $genere = $numero_telefono = $intestatario = $carta = $data_scadenza = "";
 $nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $intestatario_err = $carta_err = $data_scadenza_err = "";
+$premium = 0; // Imposta il valore predefinito di $premium a 0 (non premium)
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione nome
@@ -304,3 +305,6 @@ $conn->close();
                 premiumFields.style.display = 'none';
             }
         });
+    </script>
+</body>
+</html>
