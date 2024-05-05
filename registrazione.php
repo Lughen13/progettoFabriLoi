@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione nome
     $nome = validateInput($_POST["nome"]);
     if (empty($nome)) {
-        $nome_err = "Per favore inserisci il tuo nome.";
+        $nome_err = "Inserisci il tuo nome.";
     } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $nome)) {
         $nome_err = "Il nome può contenere solo lettere e spazi.";
     }
@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione cognome
     $cognome = validateInput($_POST["cognome"]);
     if (empty($cognome)) {
-        $cognome_err = "Per favore inserisci il tuo cognome.";
+        $cognome_err = "Inserisci il tuo cognome.";
     } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $cognome)) {
         $cognome_err = "Il cognome può contenere solo lettere e spazi.";
     }
@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione username
     $username = validateInput($_POST["username"]);
     if (empty($username)) {
-        $username_err = "Per favore inserisci un username.";
+        $username_err = "Inserisci un username.";
     } elseif (!preg_match("/^[a-zA-Z0-9_]*$/", $username)) {
         $username_err = "Il username può contenere solo lettere, numeri e underscore.";
     } else {
@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
-            $username_err = "Questo username è già stato preso.";
+            $username_err = "Questo username è già in utilizzo.";
         }
         $stmt->close();
     }
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione password
     $password = validateInput($_POST["password"]);
     if (empty($password)) {
-        $password_err = "Per favore inserisci una password.";
+        $password_err = "Inserisci una password.";
     } elseif (strlen($password) < 6) {
         $password_err = "La password deve essere lunga almeno 6 caratteri.";
     }
@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione email
     $email = validateInput($_POST["email"]);
     if (empty($email)) {
-        $email_err = "Per favore inserisci un'email.";
+        $email_err = "Inserisci un'email.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $email_err = "Formato email non valido.";
     } else {
@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
-            $email_err = "Questa email è già stata presa.";
+            $email_err = "Questa email è già stata utilizzata.";
         }
         $stmt->close();
     }
@@ -91,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione data di nascita
     $data_nascita = validateInput($_POST["data_nascita"]);
     if (empty($data_nascita)) {
-        $data_nascita_err = "Per favore inserisci la tua data di nascita.";
+        $data_nascita_err = "Inserisci la tua data di nascita.";
     } else {
         $data_nascita_obj = DateTime::createFromFormat('Y-m-d', $data_nascita);
         if (!$data_nascita_obj || $data_nascita_obj->format('Y-m-d') != $data_nascita) {
@@ -102,7 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione genere
     $genere = validateInput($_POST["genere"]);
     if (empty($genere)) {
-        $genere_err = "Per favore seleziona il tuo genere.";
+        $genere_err = "Seleziona il tuo genere.";
     } elseif (!in_array($genere, array("Maschio", "Femmina", "Altro"))) {
         $genere_err = "Valore genere non valido.";
     }
@@ -119,7 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Validazione intestatario
         $intestatario = validateInput($_POST["intestatario"]);
         if (empty($intestatario)) {
-            $intestatario_err = "Per favore inserisci l'intestatario della carta.";
+            $intestatario_err = "Inserisci l'intestatario della carta.";
         } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $intestatario)) {
             $intestatario_err = "L'intestatario può contenere solo lettere e spazi.";
         }
@@ -127,7 +127,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Validazione numero di carta
         $carta = validateInput($_POST["carta"]);
         if (empty($carta)) {
-            $carta_err = "Per favore inserisci il numero della carta.";
+            $carta_err = "Inserisci il numero della carta.";
         } elseif (!preg_match("/^[0-9]{16}$/", $carta)) {
             $carta_err = "Il numero della carta deve essere di 16 cifre.";
         } else {
@@ -138,7 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute();
             $stmt->store_result();
             if ($stmt->num_rows > 0) {
-                $carta_err = "Questo numero di carta è già stato preso.";
+                $carta_err = "Questo numero di carta è già stato registrato da un altro utente.";
             }
             $stmt->close();
         }
@@ -146,7 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Validazione data di scadenza
         $data_scadenza = validateInput($_POST["data_scadenza"]);
         if (empty($data_scadenza)) {
-            $data_scadenza_err = "Per favore inserisci la data di scadenza della carta.";
+            $data_scadenza_err = "Inserisci la data di scadenza della carta.";
         } else {
             $data_scadenza_obj = DateTime::createFromFormat('Y-m-d', $data_scadenza);
             if (!$data_scadenza_obj || $data_scadenza_obj->format('Y-m-d') != $data_scadenza) {
