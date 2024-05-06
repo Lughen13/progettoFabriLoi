@@ -219,7 +219,7 @@ $conn->close();
 </head>
 <body>
     <h2>Registrazione</h2>
-    <p>Per favore compila questo modulo per registrarti.</p>
+    <p> Compila i seguenti campi per registrarti </p>
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
         <div>
             <label>Nome:</label>
