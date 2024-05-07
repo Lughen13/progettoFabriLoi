@@ -1,10 +1,9 @@
 <?php
 
-$host = "127.0.0.1";
+$host = "localhost";
 $user = "root";
-$password = "";
-$db = "progettoFabriLoi";
-
+$password = "root"; // Inserisci la password di root per MAMP
+$database = "progettoFabriLoi";
 $connessione = new mysqli($host, $user, $password, $db);
 
 if($connessione->connect_error){

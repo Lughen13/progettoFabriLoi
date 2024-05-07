@@ -2,7 +2,7 @@
 // Connessione al database
 $host = "localhost";
 $user = "root";
-$password = "";
+$password = "root"; // Inserisci la password di root per MAMP
 $database = "progettoFabriLoi";
 
 $conn = new mysqli($host, $user, $password, $database);
@@ -14,11 +14,16 @@ if ($conn->connect_error) {
 
 // Funzione per la validazione dei dati di input
 function validateInput($data) {
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data);
+    if (is_string($data)) {
+        $data = trim($data);
+        $data = stripslashes($data);
+        $data = htmlspecialchars($data);
+    } else {
+        $data = "";
+    }
     return $data;
 }
+
 
 // Inizializzazione delle variabili
 $nome = $cognome = $username = $password = $email = $data_nascita = $genere = $numero_telefono = $intestatario = $carta = $data_scadenza = "";
@@ -100,7 +105,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Validazione genere
-    $genere = validateInput($_POST["genere"]);
+    $genere = isset($_POST["genere"]) ? validateInput($_POST["genere"]) : "";
+
     if (empty($genere)) {
         $genere_err = "Seleziona il tuo genere.";
     } elseif (!in_array($genere, array("Maschio", "Femmina", "Altro"))) {
