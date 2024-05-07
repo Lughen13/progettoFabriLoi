@@ -33,7 +33,7 @@ $blog = $result->fetch_assoc();
         <?php
         // Recupera le categorie dal database e genera le opzioni
         require_once 'database.php';
-        $categories = getAllCategories($conn);
+        $categories = getAllCategories();
         foreach ($categories as $category) {
             $selected = ($category['id'] == $blog['category_id']) ? 'selected' : '';
             echo "<option value='" . $category['id'] . "' $selected>" . $category['name'] . "</option>";
@@ -46,7 +46,7 @@ $blog = $result->fetch_assoc();
         <?php
         // Recupera gli stili dal database e genera le opzioni
         require_once 'database.php';
-        $styles = getAllStyles($conn);
+        $styles = getAllStyles();
         foreach ($styles as $style) {
             $selected = ($style['id'] == $blog['style_id']) ? 'selected' : '';
             echo "<option value='" . $style['id'] . "' $selected>" . $style['name'] . "</option>";
@@ -55,6 +55,8 @@ $blog = $result->fetch_assoc();
     </select>
 
     <input type="submit" value="Salva modifiche">
+</form>
+
 </form>
 
 </form>

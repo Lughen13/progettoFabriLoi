@@ -1,10 +1,6 @@
 <?php
 // Connessione al database
-$host = "localhost";
-$user = "root";
-$password = "root"; // Inserisci la password di root per MAMP
-$database = "progettoFabriLoi";
-
+require_once 'conn.php';
 $conn = new mysqli($host, $user, $password, $database);
 
 // Verifica la connessione

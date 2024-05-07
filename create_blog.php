@@ -13,10 +13,28 @@
         <?php
         // Recupera le categorie dal database e genera le opzioni
         require_once 'database.php'; // Includi il file di connessione al database
-        $conn = connectToDatabase(); // Connessione al database
-        $categories = getAllCategories($conn); // Passa la connessione al database
-        foreach ($categories as $category) {
-            echo "<option value='" . $category['id'] . "'>" . $category['name'] . "</option>";
+        function getAllCategories()
+        {
+            global $connessione;
+        
+            // Query per selezionare tutte le categorie
+            $query = "SELECT * FROM categoria";
+            $result = $connessione->query($query);
+        
+            if ($result === false) {
+                // Gestione dell'errore di query
+                echo "Errore nella query: " . $connessione->error;
+                return false;
+            }
+        
+            $categories = [];
+        
+            // Recupera i risultati e li memorizza nell'array $categories
+            while ($row = $result->fetch_assoc()) {
+                $categories[] = $row;
+            }
+        
+            return $categories;
         }
         ?>
     </select>
@@ -25,9 +43,21 @@
     <select id="style" name="style" required>
         <?php
         // Recupera gli stili dal database e genera le opzioni
-        $styles = getAllStyles($conn); // Passa la connessione al database
-        foreach ($styles as $style) {
-            echo "<option value='" . $style['id'] . "'>" . $style['name'] . "</option>";
+        function getAllStyles() {
+            global $connessione;
+        
+            $query = "SELECT id_stile, nome FROM stile";
+            $result = $connessione->query($query);
+        
+            $styles = array();
+        
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $styles[$row['id_stile']] = $row['nome'];
+                }
+            }
+        
+            return $styles;
         }
         ?>
     </select>
