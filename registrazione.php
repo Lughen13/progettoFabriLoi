@@ -1,6 +1,14 @@
 <?php
 // Connessione al database
+
 require_once 'conn.php';
+=======
+$host = "localhost";
+$user = "root";
+$password = ""; // Inserisci la password di root per MAMP
+$database = "progettoFabriLoi";
+
+>>>>>>> fced4e5d58202aebae3bcd40cffbea6f3a737e38
 $conn = new mysqli($host, $user, $password, $database);
 
 // Verifica la connessione
@@ -69,7 +77,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (strlen($password) < 6) {
         $password_err = "La password deve essere lunga almeno 6 caratteri.";
     }
-
+// Validazione conferma password
+$confirm_password = validateInput($_POST["confirm_password"]);
+if (empty($confirm_password)) {
+    $password_err = "Conferma la password.";
+} elseif ($confirm_password != $password) {
+    $password_err = "Le password non corrispondono.";
+}
     // Validazione email
     $email = validateInput($_POST["email"]);
     if (empty($email)) {
@@ -242,6 +256,10 @@ $conn->close();
             <label>Password:</label>
             <input type="password" name="password" value="<?php echo $password;?>">
             <span class="error"><?php echo $password_err;?></span>
+        </div>
+        <div>
+            <label for="confirm_password">Conferma Password:</label>
+            <input type="password" id="confirm_password" name="confirm_password" >
         </div>
         <div>
             <label>Email:</label>
