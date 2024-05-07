@@ -40,7 +40,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $_SESSION["loggedin"] = true;
                         $_SESSION["id"] = $id;
                         $_SESSION["username"] = $username;
+
+                        // Reindirizza l'utente alla dashboard dopo il login
                         header("location: dashboard.php");
+                        exit();
                     } else {
                         // Password non corretta
                         $password_err = "Password non corretta.";
