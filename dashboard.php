@@ -19,10 +19,83 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 // Recupera le statistiche dell'utente
+function getPostCount($userId) {
+    global $conn;
+    $query = "SELECT COUNT(*) AS post_count
+              FROM post p
+              JOIN blog b ON p.id_blog = b.id_blog
+              WHERE b.id_proprietario = ? OR b.id_blog IN (
+                  SELECT id_blog
+                  FROM co_autore
+                  WHERE id_utente = ?
+              )";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $userId, $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return $row['post_count'];
+}
+
 $postCount = getPostCount($userId);
+
+function getFollowingCount($userId) {
+    global $conn;
+    $query = "SELECT COUNT(*) AS following_count
+              FROM follow
+              WHERE follower_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return $row['following_count'];
+}
+
 $followingCount = getFollowingCount($userId);
+
+function getLikesCount($userId) {
+    global $conn;
+    $query = "SELECT SUM(CASE WHEN like_value = 1 THEN 1 ELSE 0 END) AS likes_count
+              FROM likes l
+              JOIN post p ON l.id_post = p.id_post  
+              JOIN blog b ON p.id_blog = b.id_blog
+              WHERE b.id_proprietario = ? OR b.id_blog IN (
+                  SELECT id_blog
+                  FROM co_autore
+                  WHERE id_utente = ?
+              )";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $userId, $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return $row['likes_count'];
+}
+
 $likesCount = getLikesCount($userId);
+
+function getCommentsCount($userId) {
+    global $conn;
+    $query = "SELECT COUNT(*) AS comments_count 
+              FROM commento c
+              JOIN post p ON c.id_post = p.id_post
+              JOIN blog b ON p.id_blog = b.id_blog
+              WHERE b.id_proprietario = ? OR b.id_blog IN (
+                  SELECT id_blog
+                  FROM co_autore
+                  WHERE id_utente = ?
+              )";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $userId, $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return $row['comments_count'];
+}
+
 $commentsCount = getCommentsCount($userId);
+
 
 // Recupera il feed di post recenti
 $feedQuery = "SELECT p.*, u.username, b.titolo_blog

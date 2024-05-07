@@ -12,7 +12,9 @@
     <select id="category" name="category" required>
         <?php
         // Recupera le categorie dal database e genera le opzioni
-        $categories = getAllCategories();
+        require_once 'database.php'; // Includi il file di connessione al database
+        $conn = connectToDatabase(); // Connessione al database
+        $categories = getAllCategories($conn); // Passa la connessione al database
         foreach ($categories as $category) {
             echo "<option value='" . $category['id'] . "'>" . $category['name'] . "</option>";
         }
@@ -23,7 +25,7 @@
     <select id="style" name="style" required>
         <?php
         // Recupera gli stili dal database e genera le opzioni
-        $styles = getAllStyles();
+        $styles = getAllStyles($conn); // Passa la connessione al database
         foreach ($styles as $style) {
             echo "<option value='" . $style['id'] . "'>" . $style['name'] . "</option>";
         }
@@ -31,4 +33,7 @@
     </select>
 
     <input type="submit" value="Crea blog">
+
+</form>
+
 </form>
