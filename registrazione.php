@@ -2,7 +2,7 @@
 // Connessione al database
 $host = "localhost";
 $user = "root";
-$password = "root"; // Inserisci la password di root per MAMP
+$password = ""; // Inserisci la password di root per MAMP
 $database = "progettoFabriLoi";
 
 $conn = new mysqli($host, $user, $password, $database);
