@@ -1,7 +1,8 @@
 <?php
 // Includi il file di connessione al database
 require_once 'conn.php';
-
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 // Inizializza le variabili
 $username = $password = "";
 $username_err = $password_err = "";
@@ -23,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Verifica le credenziali
     if (empty($username_err) && empty($password_err)) {
         $sql = "SELECT id_utente, username, pw FROM utente WHERE username = ?";
-        $stmt = $connessione->prepare($sql);
+        $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $param_username);
         $param_username = $username;
 
@@ -38,12 +39,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         // Credenziali corrette, avvia una nuova sessione
                         session_start();
                         $_SESSION["loggedin"] = true;
-                        $_SESSION["id"] = $id;
+                        $_SESSION["user_id"] = $id; // Imposta l'ID dell'utente nella sessione
                         $_SESSION["username"] = $username;
-
+                    
                         // Reindirizza l'utente alla dashboard dopo il login
                         header("location: dashboard.php");
                         exit();
+                    };
                     } else {
                         // Password non corretta
                         $password_err = "Password non corretta.";
@@ -60,8 +62,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 
-    $connessione->close();
-}
+    $conn->close();
+
 ?>
 
 <!DOCTYPE html>
@@ -72,11 +74,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <style>
         .error {color: red;}
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('#login-form').submit(function(e) {
+            e.preventDefault(); // Previene il comportamento di default del form
+
+            // Invia la richiesta AJAX
+            $.ajax({
+                type: 'POST',
+                url: 'login.php',
+                data: $(this).serialize(), // Serializza i dati del form
+                success: function(response) {
+    if (response === 'success') {
+        console.log('Login riuscito');
+        // Reindirizza l'utente a dashboard.php
+        window.location.href = 'dashboard.php';
+    } else {
+        // Mostra un messaggio di errore
+        $('#error-message').text(response);
+    }
+}
+
+            });
+        });
+    });
+    </script>
 </head>
 <body>
     <h2>Login</h2>
     <p>Per favore inserisci le tue credenziali per accedere.</p>
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+    <div id="error-message" class="error"></div>
+    <form id="login-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
         <div>
             <label>Username:</label>
             <input type="text" name="username" value="<?php echo $username; ?>">

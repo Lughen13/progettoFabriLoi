@@ -1,12 +1,20 @@
 <?php
 require_once 'conn.php';
+
+// Verifica la connessione
+if ($conn->connect_error) {
+    die("Connessione fallita: " . $conn->connect_error);
+}
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
 
 // Verifica se l'utente è loggato
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: login.php");
     exit();
 }
+
 
 $userId = $_SESSION['user_id'];
 
@@ -43,7 +51,7 @@ function getFollowingCount($userId) {
     global $conn;
     $query = "SELECT COUNT(*) AS following_count
               FROM follow
-              WHERE follower_id = ?";
+              WHERE id_utente = ?"; // Supponiamo che la colonna per l'ID dell'utente sia "id_utente"
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $userId);
     $stmt->execute();
@@ -52,12 +60,13 @@ function getFollowingCount($userId) {
     return $row['following_count'];
 }
 
+
 $followingCount = getFollowingCount($userId);
 
-function getLikesCount($userId) {
+/*function getLikesCount($userId) {
     global $conn;
     $query = "SELECT SUM(CASE WHEN like_value = 1 THEN 1 ELSE 0 END) AS likes_count
-              FROM likes l
+              FROM 'like' 
               JOIN post p ON l.id_post = p.id_post  
               JOIN blog b ON p.id_blog = b.id_blog
               WHERE b.id_proprietario = ? OR b.id_blog IN (
@@ -71,10 +80,10 @@ function getLikesCount($userId) {
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     return $row['likes_count'];
-}
+              }
 
 $likesCount = getLikesCount($userId);
-
+*/
 function getCommentsCount($userId) {
     global $conn;
     $query = "SELECT COUNT(*) AS comments_count 
@@ -128,7 +137,7 @@ $stmt->execute();
 $blogsResult = $stmt->get_result();
 
 // Recupera le notifiche dell'utente
-$notificationsQuery = "SELECT n.*, p.titolo_post, u.username
+/*$notificationsQuery = "SELECT n.*, p.titolo_post, u.username
                        FROM notifica n
                        JOIN post p ON n.id_post = p.id_post
                        JOIN utente u ON p.id_autore = u.id_utente
@@ -137,7 +146,7 @@ $notificationsQuery = "SELECT n.*, p.titolo_post, u.username
 $stmt = $conn->prepare($notificationsQuery);
 $stmt->bind_param("i", $userId);
 $stmt->execute();
-$notificationsResult = $stmt->get_result();
+$notificationsResult = $stmt->get_result();*/
 ?>
 
 <!DOCTYPE html>

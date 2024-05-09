@@ -1,11 +1,7 @@
 
 <?php
 // Connessione al database
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "progettoFabriLoi";
-$connessione = new mysqli($host, $user, $pass, $db);
+require_once 'conn.php';;
 
 // Verifica la connessione
 if ($connessione->connect_error) {

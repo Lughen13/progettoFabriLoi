@@ -1,20 +1,17 @@
 <?php
 // Connessione al database
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 require_once 'conn.php';
-=======
-$host = "localhost";
-$user = "root";
-$password = ""; // Inserisci la password di root per MAMP
-$database = "progettoFabriLoi";
-
->>>>>>> fced4e5d58202aebae3bcd40cffbea6f3a737e38
 $conn = new mysqli($host, $user, $password, $database);
 
 // Verifica la connessione
 if ($conn->connect_error) {
+    error_log("Errore di connessione al database: " . $conn->connect_error);
     die("Connessione fallita: " . $conn->connect_error);
 }
+
 
 // Funzione per la validazione dei dati di input
 function validateInput($data) {
@@ -76,6 +73,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password_err = "Inserisci una password.";
     } elseif (strlen($password) < 6) {
         $password_err = "La password deve essere lunga almeno 6 caratteri.";
+    } elseif (strlen($password) > 16) {
+        $password_err = "La password non può essere più lunga di 60 caratteri.";
+    }
+    
+    if (strlen($password) > 16) {
+        echo "Errore: La password non può essere più lunga di 60 caratteri.";
+        exit;
     }
 // Validazione conferma password
 $confirm_password = validateInput($_POST["confirm_password"]);
