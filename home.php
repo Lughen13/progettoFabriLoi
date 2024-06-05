@@ -152,7 +152,7 @@ $notificationsResult = $stmt->get_result();*/
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>Home</title>
     <!-- Includi fogli di stile e script JavaScript qui -->
 </head>
 <body>
@@ -160,7 +160,7 @@ $notificationsResult = $stmt->get_result();*/
         <nav>
             <!-- Menu di navigazione -->
             <ul>
-                <li><a href="dashboard.php">Dashboard</a></li>
+                <li><a href="home.php">Home</a></li>
                 <li><a href="my_blogs.php">I Miei Blog</a></li>
                 <li><a href="create_blog.php">Crea Nuovo Blog</a></li>
                 <li><a href="create_post.php">Crea Nuovo Post</a></li>
