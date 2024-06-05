@@ -185,7 +185,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // parametri per la tabella utente
         $param_username = $username;
         $param_email = $email;
-        //Attenzione: Né md5() né sha1() sono adatti per l'hashing delle password, perché è computazionalmente facile scoprire la password originale
+       
+        //ho usato md5 perchè hash non mi andava su windows 
         $param_password = md5($password, PASSWORD_DEFAULT);
         $param_nome = $nome;
         $param_cognome = $cognome;
