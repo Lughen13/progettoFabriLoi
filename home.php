@@ -16,7 +16,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 }
 
 
-$userId = $_SESSION['user_id'];
+//$userId = $_SESSION['user_id'];
 
 // Recupera le informazioni dell'utente
 $userQuery = "SELECT * FROM utente WHERE id_utente = ?";
@@ -82,8 +82,6 @@ $followingCount = getFollowingCount($userId);
     return $row['likes_count'];
               }
 
-$likesCount = getLikesCount($userId);
-*/
 function getCommentsCount($userId) {
     global $conn;
     $query = "SELECT COUNT(*) AS comments_count 
