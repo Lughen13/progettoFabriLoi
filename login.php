@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->store_result();
 
         if ($stmt->num_rows == 1) {
-            $stmt->bind_result($id, $username, ($password));
+            $stmt->bind_result($id, $username, $password);
             if ($stmt->fetch()) {
                 if (md5($password) === md5(($password))) {
 
