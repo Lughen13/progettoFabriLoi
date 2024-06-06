@@ -6,6 +6,8 @@ include 'conn.php';
 $username = $password = "";
 $username_err = $password_err = $login_err = "";
 
+session_start();
+
 // Elaborazione dei dati del modulo quando viene inviato
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione username
@@ -33,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($stmt->fetch()) {
                 $password_hash = md5($password);
                 if ($password_hash === $hashed_password){
-                    session_start();
+                  //  session_start();
                     $_SESSION["loggedin"] = true;
                     $_SESSION["id"] = $id;
                     $_SESSION["username"] = $username;
