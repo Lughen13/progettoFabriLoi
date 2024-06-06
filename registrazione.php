@@ -186,8 +186,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $param_username = $username;
         $param_email = $email;
        
-        //ho usato md5 perchè hash non mi andava su windows 
-        $param_password = md5($password, PASSWORD_DEFAULT);
+
+        
+        $password_hash = md5($password); 
         $param_nome = $nome;
         $param_cognome = $cognome;
         $param_genere = $genere;
@@ -195,7 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $param_numero_telefono = $numero_telefono;
         $param_premium = $premium;
 
-        $stmt->bind_param("ssssssssi", $param_username, $param_email, $param_password, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
+        $stmt->bind_param("ssssssssi", $param_username, $param_email, $password_hash, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
 
         if ($stmt->execute()) {
             $ultimo_id = $stmt->insert_id;
@@ -216,7 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             // Inserimento riuscito
-            header("location: login.php");
+            header("location: home.php");
             exit();
         } else {
             echo "Errore durante l'inserimento dei dati dell'utente: " . $stmt->error;

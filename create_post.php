@@ -1,43 +1,10 @@
 <?php
+
+//pagina per creare post, ci si accede dalla pagina home tramite un button, prima di iniziare a creare il post verrà chiesto in qual blog va inserito se il blog non esiste va creato 
+
 require_once 'conn.php';
 session_start();
 
-// Verifica se l'utente è loggato
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
-
-$userId = $_SESSION['user_id'];
-
-// Recupera i blog di cui l'utente è proprietario o co-autore
-$blogsQuery = "SELECT b.id_blog, b.titolo_blog
-               FROM blog b
-               LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog AND ca.id_utente = $userId
-               WHERE b.id_proprietario = $userId OR ca.id_utente = $userId";
-$blogsResult = $conn->query($blogsQuery);
-
-// Gestione dell'invio del form per la creazione di un nuovo post
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $blogId = $_POST['blog_id'];
-    $title = $_POST['title'];
-    $description = $_POST['description'];
-    $category = $_POST['category'];
-
-    // Carica l'immagine del post, se presente
-    $imageName = '';
-    if (!empty($_FILES['image']['name'])) {
-        $imageTmp = $_FILES['image']['tmp_name'];
-        $imageName = 'uploads/' . uniqid() . '_' . $_FILES['image']['name'];
-        move_uploaded_file($imageTmp, $imageName);
-    }
-
-    $createPostQuery = "INSERT INTO post (titolo_post, descrizione_post, img_post, id_autore, id_sotcat, id_blog)
-                        VALUES ('$title', '$description', '$imageName', $userId, $category, $blogId)";
-    $conn->query($createPostQuery);
-    header("Location: my_blogs.php");
-    exit();
-}
 ?>
 
 <!DOCTYPE html>

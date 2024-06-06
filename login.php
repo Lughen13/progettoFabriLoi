@@ -29,10 +29,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->store_result();
 
         if ($stmt->num_rows == 1) {
-            $stmt->bind_result($id, $username, $password);
+            $stmt->bind_result($id, $username, $hashed_password);
             if ($stmt->fetch()) {
-                if (md5($password) === md5(($password))) {
-
+                $password_hash = md5($password);
+                if ($password_hash === $hashed_password){
                     session_start();
                     $_SESSION["loggedin"] = true;
                     $_SESSION["id"] = $id;

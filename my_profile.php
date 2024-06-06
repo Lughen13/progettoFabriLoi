@@ -1,5 +1,8 @@
 <?php
-// my_blogs.php
+
+// pagina del profilo dell'utente con i propri blog e annessi post 
+//avrà un button modifica per andare in account_settings per modificare i dati precedentemente inseriti e per completare la registrazione (biografia e foto) 
+
 
 // Connessione al database
 require_once 'conn.php';

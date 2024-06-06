@@ -1,3 +1,7 @@
+<?php
+// pagina per creare i blog, ci si accede tramite la pagina di home spingendo un button 
+?> 
+
 <form action="process_create_blog.php" method="post" enctype="multipart/form-data">
     <label for="title">Titolo del blog:</label>
     <input type="text" id="title" name="title" required>
