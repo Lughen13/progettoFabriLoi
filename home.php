@@ -24,6 +24,7 @@ $username = $_SESSION['username'];
             <li><a href="home.php"> Home </a></li>
             <li><a href="my_profile.php">Il mio profilo </a></li>
             <li><a href="account_settings.php">Impostazioni profilo</a></li>
+            <li><a href="create_blog.php">creablog</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
         <form action="search.php" method="GET">
