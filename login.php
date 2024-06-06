@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <h2>Login</h2>
-    <p>Per favore inserisci le tue credenziali per accedere.</p>
+    <p>Per favore inserisci le tue credenziali per accedere alla Home.</p>
     <?php if (!empty($login_err)) { ?>
         <div class="error"><?php echo $login_err; ?></div>
     <?php } ?>
@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div>
             <input type="submit" value="Accedi">
         </div>
-        <p>Non hai un account? <a href="registrazione.php">Registrati qui</a>.</p>
+        <p> Se non hai un account puoi <a href="registrazione.php"> registrarti qui</a>.</p>
     </form>
 </body>
 </html>

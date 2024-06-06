@@ -1,19 +1,18 @@
 <?php
-include 'conn.php';
-//come prima cosa in hom c'è il login perchè se non si è loggato non si può accedere al sito
-// in home l'utente potrà vedere i lpost dei blog che segue
+// in home l'utente potrà vedere il post dei blog che segue
 //avrà accesso al proprio profilo per visualizzarlo, al setting per modificare i propri dati, ai comandi per creare poste e blog
 
-
-// login per vedere se l'utente è loggato, altrimenti può registrarsi 
+include 'conn.php';
 session_start();
 
-// Verifica se l'utente è loggato
+// la seguente funzione permette all'utente di accedere alla home solo mediante loghin, questo perchè se non si è loggati bisogna registrarsi
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
-    exit();
+    header('Location: login.php');
+    exit;
 }
+$username = $_SESSION['username'];
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -24,8 +23,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
         <ul>
             <li><a href="home.php"> Home </a></li>
             <li><a href="my_profile.php">Il mio profilo </a></li>
-            <li><a href="create_blog.php">Crea Nuovo Blog</a></li>
-            <li><a href="create_post.php">Crea Nuovo Post</a></li>
             <li><a href="account_settings.php">Impostazioni profilo</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
