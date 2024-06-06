@@ -122,7 +122,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($premium == 1) {
                 if (isset($_POST['intestatario']) && !empty($_POST['intestatario'])) {
                     $intestatario = $_POST['intestatario'];
-                    if ($intestatario != $user['intestatario']) {
+                    if (!isset($user['intestatario']) || $intestatario != $user['intestatario']) {
                         $updateCardFields[] = "intestatario = '$intestatario'";
                     }
                 }
@@ -153,7 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             if ($premium == 1) {
-                if ($user['premium'] == 0) {
+                if (!isset($user['premium']) || $user['premium'] == 0) {
                     // Inserisci i dati della carta di credito nella tabella premium
                     $insertCardQuery = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
                     $stmt = $conn->prepare($insertCardQuery);
@@ -214,16 +214,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="premium">Premium:</label>
         <input type="checkbox" id="premium" name="premium" value="1" <?php if ($user['premium'] == 1) echo 'checked'; ?>>
 
-        <div id="premium-fields" style="display: <?php echo ($user['premium'] == 1) ? 'block' : 'none'; ?>;">
-            <label for="intestatario">Intestatario:</label>
-            <input type="text" id="intestatario" name="intestatario" value="">
+        <div id="premium-fields" style="display: <?php echo (isset($user['premium']) && $user['premium'] == 1) ? 'block' : 'none'; ?>;">
+    <label for="intestatario">Intestatario:</label>
+    <input type="text" id="intestatario" name="intestatario" value="<?php echo isset($user['intestatario']) ? $user['intestatario'] : ''; ?>">
 
-            <label for="carta">Numero di Carta:</label>
-            <input type="text" id="carta" name="carta" value="">
+    <label for="carta">Numero di Carta:</label>
+    <input type="text" id="carta" name="carta" value="<?php echo isset($user['numero_carta']) ? $user['numero_carta'] : ''; ?>">
 
-            <label for="data_scadenza">Data di Scadenza:</label>
-            <input type="date" id="data_scadenza" name="data_scadenza" value="">
-        </div>
+    <label for="data_scadenza">Data di Scadenza:</label>
+    <input type="date" id="data_scadenza" name="data_scadenza" value="<?php echo isset($user['data_scadenza']) ? $user['data_scadenza'] : ''; ?>">
+</div>
 
         <?php if (isset($passwordError) && !empty($passwordError)): ?>
             <p style="color: red;"><?php echo $passwordError; ?></p>
