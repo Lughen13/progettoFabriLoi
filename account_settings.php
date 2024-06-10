@@ -155,30 +155,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <title>Impostazioni Account</title>
 </head>
-<body>
+<body style=" text-align: center;">
     <h1>Impostazioni Account</h1>
     <?php if (isset($successMessage) && !empty($successMessage)): ?>
-        <p style="color: green;"><?php echo $successMessage; ?></p>
+        <?php echo $successMessage; ?>
     <?php endif; ?>
     <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+    <div>
         <label for="nome">Nome:</label>
         <input type="text" id="nome" name="nome">
+    </div>
 
+    <div> 
         <label for="cognome">Cognome:</label>
         <input type="text" id="cognome" name="cognome">
-
+    </div>
+    
+    <div> 
         <label for="email">Email:</label>
         <input type="email" id="email" name="email">
         <?php if (isset($emailError) && !empty($emailError)): ?>
             <p style="color: red;"><?php echo $emailError; ?></p>
         <?php endif; ?>
-
+    </div>
+    
+    <div> 
         <label for="password">Nuova Password (lascia vuoto per non modificare):</label>
         <input type="password" id="password" name="password">
-
+    </div>
+    
+    <div> 
         <label for="data_nascita">Data di Nascita:</label>
         <input type="date" id="data_nascita" name="data_nascita">
-
+    </div>
+    
+    <div> 
         <label for="genere">Genere:</label>
         <select id="genere" name="genere">
             <option value="">Seleziona il tuo genere</option>
@@ -186,26 +197,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <option value="Femmina">Femmina</option>
             <option value="Altro">Altro</option>
         </select>
-
+    </div>
+    
+    <div> 
         <label for="numero_telefono">Numero di Telefono:</label>
-        <input type="text" id="numero_telefono" name="numero_telefono">
+        <input type="text" id="numero_telefono" name="numero_telefono"> 
+    </div>
 
+    <div> 
         <label for="premium">Premium:</label>
         <input type="checkbox" id="premium" name="premium" value="1" <?php if (isset($user['premium']) && $user['premium'] == 1) echo 'checked'; ?>>
-
-        <div id="premium-fields" style="display: <?php echo (isset($user['premium']) && $user['premium'] == 1) ? 'block' : 'none'; ?>;">
+    </div>
+    
+    
+    <div id="premiumInfo" style="display: <?php echo (isset($user['premium']) && $user['premium'] == 1) ? 'block' : 'none'; ?>;">
+        <div>         
             <label for="intestatario">Intestatario:</label>
             <input type="text" id="intestatario" name="intestatario">
-
+        </div>
+        <div> 
             <label for="carta">Numero di Carta:</label>
             <input type="text" id="carta" name="carta">
-
+        </div>
+        <div> 
             <label for="data_scadenza">Data di Scadenza:</label>
             <input type="date" id="data_scadenza" name="data_scadenza">
         </div>
+    </div>
 
         <?php if (isset($passwordError) && !empty($passwordError)): ?>
-            <p style="color: red;"><?php echo $passwordError; ?></p>
+            <p><?php echo $passwordError; ?></p>
         <?php endif; ?>
         <label for="old_password">Vecchia Password (richiesta solo per salvare le modifiche):</label>
         <input type="password" id="old_password" name="old_password">
@@ -216,13 +237,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script>
         // Mostra/nascondi i campi della carta di credito in base allo stato premium
         var premiumCheckbox = document.getElementById('premium');
-        var premiumFields = document.getElementById('premium-fields');
+        var premiuminfo = document.getElementById('premiumInfo');
 
         premiumCheckbox.addEventListener('change', function() {
             if (this.checked) {
-                premiumFields.style.display = 'block';
+                premiuminfo.style.display = 'block';
             } else {
-                premiumFields.style.display = 'none';
+                premiuminfo.style.display = 'none';
             }
         });
     </script>

@@ -239,7 +239,7 @@ $conn->close();
         .error {color: red;}
     </style>
 </head>
-<body>
+<body style=" text-align: center;">
     <h2>Registrazione</h2>
     <p> Compila i seguenti campi per registrarti </p>
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">

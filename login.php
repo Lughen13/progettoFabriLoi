@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .error {color: red;}
     </style>
 </head>
-<body>
+<body style=" text-align: center;">
     <h2>Login</h2>
     <p>Per favore inserisci le tue credenziali per accedere alla Home.</p>
     <?php if (!empty($login_err)) { ?>
