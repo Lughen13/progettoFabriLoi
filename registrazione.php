@@ -188,7 +188,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
        
 
         
-        $password_hash = md5($password); 
+        $password_crypt = md5($password); 
         $param_nome = $nome;
         $param_cognome = $cognome;
         $param_genere = $genere;
@@ -196,7 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $param_numero_telefono = $numero_telefono;
         $param_premium = $premium;
 
-        $stmt->bind_param("ssssssssi", $param_username, $param_email, $password_hash, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
+        $stmt->bind_param("ssssssssi", $param_username, $param_email, $password_crypt, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
 
         if ($stmt->execute()) {
             $ultimo_id = $stmt->insert_id;

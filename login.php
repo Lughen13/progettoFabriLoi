@@ -33,8 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->num_rows == 1) {
             $stmt->bind_result($id, $username, $hashed_password);
             if ($stmt->fetch()) {
-                $password_hash = md5($password);
-                if ($password_hash === $hashed_password){
+                $password_crypt = md5($password);
+                if ($password_crypt === $hashed_password){
                   //  session_start();
                     $_SESSION["loggedin"] = true;
                     $_SESSION["id"] = $id;
