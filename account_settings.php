@@ -10,13 +10,12 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 // Connessione al database
 require_once 'conn.php';
 
-// recupero i dati di utente e premium con la join, utilizzo la chiave esterna id_utente 
+// recupero i dati del'utente dal db, faccio la join perchè i dati degli utenti premium inseriscono i dati delle carte che vanno in una seconda tabella 
 $userId = $_SESSION['id'];
 $sql = "SELECT u.username, u.email, u.pw, u.nome, u.cognome, u.data_nascita, u.genere, u.numero_telefono, u.premium, p.intestatario, p.numero_carta, p.data_scadenza
         FROM utente u
         LEFT JOIN premium p ON u.id_utente = p.id_utente
         WHERE u.id_utente = ?";
-
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $userId);
 $stmt->execute();
@@ -24,9 +23,11 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
+// Gestione dell'invio del modulo
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Convalida dei dati di input (omessa per brevità)
 
-    // per salvare le modifiche deve essere salvata la vecchia password
+    // Verifica la vecchia password solo quando si preme il pulsante "Salva Modifiche"
     if (isset($_POST['save_changes'])) {
         $oldPassword = $_POST['old_password'];
         $hashedPassword = $user['pw'];
@@ -36,13 +37,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $passwordError = "";
 
+            // Array per memorizzare i campi da aggiornare
             $updateFields = array();
 
             // Aggiorna la password
             if (!empty($_POST["password"])) {
                 $password = $_POST["password"];
-                $password_crypt = md5($password);
-                $updateFields[] = "pw = '$password_crypt'";
+                $password_hash = md5($password);
+                $updateFields[] = "pw = '$password_hash'";
             }
 
             // Aggiorna le informazioni dell'utente
@@ -88,36 +90,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $numero_telefono = $_POST['numero_telefono'];
                 $updateFields[] = "numero_telefono = '$numero_telefono'";
             }
-        }
-            // se l'utente è premium dai la possibilità di modificare intestatario, numero carta e data di scadenza 
-            // se l'utente è premium dai la possibilità di tornare indietro e tornare standard 
-            // se l'utente non è premium dai la possibilità di diventarlo inserendo la checkbox e i dati della carta 
-                      // Aggiorna lo stato premium
+
+            // Aggiorna lo stato premium
             $premium = isset($_POST['premium']) ? 1 : 0;
             $updateFields[] = "premium = '$premium'";
-            // Gestisci l'aggiornamento dei dati premium
+
+            // Esegui l'aggiornamento solo se ci sono campi da aggiornare, la vecchia password è corretta e l'email non è già in uso
             if (!empty($updateFields) && empty($passwordError) && empty($emailError)) {
                 $updateQuery = "UPDATE utente SET " . implode(", ", $updateFields) . " WHERE id_utente = ?";
                 $stmt = $conn->prepare($updateQuery);
                 $stmt->bind_param("i", $userId);
                 if ($stmt->execute()) {
                     $successMessage = "Modifiche salvate con successo!";
-                    $updateSuccessful = true; // Imposta $updateSuccessful a true se l'aggiornamento ha avuto successo
-                } else {
-                    echo "Errore durante l'esecuzione della query: " . $stmt->error;
-                    $updateSuccessful = false; // Imposta $updateSuccessful a false se si verifica un errore
+                    // Reindirizza l'utente alla pagina del profilo o a una pagina di conferma
+                    header("Location: home.php");
+                    exit();
                 }
                 $stmt->close();
             }
 
-
-
-            // Esegui l'aggiornamento solo se ci sono campi da aggiornare, la vecchia password è corretta e l'email non è già in uso
-
             // Aggiorna i dati della carta di credito
             $updateCardFields = array();
             if (isset($_POST['intestatario']) && !empty($_POST['intestatario'])) {
-                $intestatario = filter_var($_POST['intestatario']);
+                $intestatario = $_POST['intestatario'];
                 $updateCardFields[] = "intestatario = '$intestatario'";
             }
 
@@ -147,16 +142,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $stmt->bind_param("i", $userId);
                         $stmt->execute();
                         $stmt->close();
-                    } 
+                    }
                 }
             }
         }
-        
-        header("location: home.php");
-    exit();
     }
+}
+
+
+
+    // se l'utente è premium dai la possibilità di modificare intestatario, numero carta e data di scadenza 
+    // se l'utente è premium dai la possibilità di deselezionare la checkbox e diventare standard
+    // se l'utente non è premium dai la possibilità di diventarlo selezionando la checkbox e inserendo i dati della carta 
     
+
 ?>
+
+
+
+
+
+
 
 
 <!DOCTYPE html>
