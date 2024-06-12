@@ -51,7 +51,7 @@ function getFollowingCount($userId) {
     global $conn;
     $query = "SELECT COUNT(*) AS following_count
               FROM follow
-              WHERE id_utente = ?"; // Supponiamo che la colonna per l'ID dell'utente sia "id_utente"
+              WHERE id_utente = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $userId);
     $stmt->execute();
@@ -61,13 +61,14 @@ function getFollowingCount($userId) {
 }
 
 
+
 $followingCount = getFollowingCount($userId);
 
-/*function getLikesCount($userId) {
+function getLikesCount($userId) {
     global $conn;
-    $query = "SELECT SUM(CASE WHEN like_value = 1 THEN 1 ELSE 0 END) AS likes_count
-              FROM 'like' 
-              JOIN post p ON l.id_post = p.id_post  
+    $query = "SELECT COUNT(*) AS likes_count
+              FROM like l
+              JOIN post p ON l.id_post = p.id_post
               JOIN blog b ON p.id_blog = b.id_blog
               WHERE b.id_proprietario = ? OR b.id_blog IN (
                   SELECT id_blog
@@ -79,14 +80,14 @@ $followingCount = getFollowingCount($userId);
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
+    $stmt->close();
     return $row['likes_count'];
-              }
+}
 
-$likesCount = getLikesCount($userId);
-*/
+
 function getCommentsCount($userId) {
     global $conn;
-    $query = "SELECT COUNT(*) AS comments_count 
+    $query = "SELECT COUNT(*) AS comments_count
               FROM commento c
               JOIN post p ON c.id_post = p.id_post
               JOIN blog b ON p.id_blog = b.id_blog
@@ -100,6 +101,7 @@ function getCommentsCount($userId) {
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
+    $stmt->close();
     return $row['comments_count'];
 }
 
@@ -136,24 +138,14 @@ $stmt->bind_param("ii", $userId, $userId);
 $stmt->execute();
 $blogsResult = $stmt->get_result();
 
-// Recupera le notifiche dell'utente
-/*$notificationsQuery = "SELECT n.*, p.titolo_post, u.username
-                       FROM notifica n
-                       JOIN post p ON n.id_post = p.id_post
-                       JOIN utente u ON p.id_autore = u.id_utente
-                       WHERE n.id_utente = ? AND n.letto = 0
-                       ORDER BY n.data_notifica DESC";
-$stmt = $conn->prepare($notificationsQuery);
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$notificationsResult = $stmt->get_result();*/
+
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>Dashboard</title>
-    <!-- Includi fogli di stile e script JavaScript qui -->
+   
 </head>
 <body>
     <header>
@@ -225,14 +217,8 @@ $notificationsResult = $stmt->get_result();*/
         </section>
 
         <section>
-            <h2>Notifiche</h2>
-            <!-- Implementa la logica per visualizzare le notifiche qui -->
-            <?php while ($notification = $notificationsResult->fetch_assoc()): ?>
-                <div>
-                    <p><?php echo $notification['username']; ?> ha <?php echo $notification['tipo']; ?> il tuo post "<?php echo $notification['titolo_post']; ?>"</p>
-                    <p>Data: <?php echo $notification['data_notifica']; ?></p>
-                </div>
-            <?php endwhile; ?>
+           
+            
         </section>
 
         <section>
