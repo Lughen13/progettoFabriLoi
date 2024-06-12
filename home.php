@@ -1,0 +1,44 @@
+<?php
+// in home l'utente potrà vedere il post dei blog che segue
+//avrà accesso al proprio profilo per visualizzarlo, al setting per modificare i propri dati, ai comandi per creare poste e blog
+
+include 'conn.php';
+session_start();
+
+// Controlla se l'utente è autenticato
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header('Location: login.php');
+    exit;
+}
+
+// Recupera i dati dell'utente dalla sessione
+$username = $_SESSION['username'];
+?>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>    
+    <nav>
+        <ul>
+            <li><a href="home.php"> Home </a></li>
+            <li><a href="my_profile.php">Il mio profilo </a></li>
+            <li><a href="account_settings.php">Impostazioni profilo</a></li>
+            <li><a href="logout.php">Logout</a></li>
+        </ul>
+        <form action="search.php" method="GET">
+            <input type="text" name="query" placeholder="Cerca blog o post">
+            <button type="submit">Cerca</button>
+        </form>
+    </nav>
+
+<body>
+
+    <h1>Benvenut* nella tua home</h1>
+    <p>Questi sono i post più recenti dei blog che segui.</p>
+
+
+</body>
+</html>

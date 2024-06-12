@@ -2,7 +2,6 @@
 // Connessione al database
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
 require_once 'conn.php';
 
 $conn = new mysqli($host, $user, $password, $database);
@@ -14,7 +13,7 @@ if ($conn->connect_error) {
 }
 
 
-// Funzione per la validazione dei dati di input
+// Funzione per ripulire i dati in input prima che entrino nel db 
 function validateInput($data) {
     if (is_string($data)) {
         $data = trim($data);
@@ -26,11 +25,10 @@ function validateInput($data) {
     return $data;
 }
 
-
 // Inizializzazione delle variabili
 $nome = $cognome = $username = $password = $email = $data_nascita = $genere = $numero_telefono = $intestatario = $carta = $data_scadenza = "";
 $nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $intestatario_err = $carta_err = $data_scadenza_err = "";
-$premium = 0; // Imposta il valore predefinito di $premium a 0 (non premium)
+$premium = 0; // premium è di default 0 fino a quando non si fa ceck 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validazione nome
@@ -82,13 +80,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Errore: La password non può essere più lunga di 60 caratteri.";
         exit;
     }
-// Validazione conferma password
-$confirm_password = validateInput($_POST["confirm_password"]);
-if (empty($confirm_password)) {
-    $password_err = "Conferma la password.";
-} elseif ($confirm_password != $password) {
-    $password_err = "Le password non corrispondono.";
-}
+    // Conferma password
+    $confirm_password = validateInput($_POST["confirm_password"]);
+    if (empty($confirm_password)) {
+        $password_err = "Conferma la password.";
+    } elseif ($confirm_password != $password) {
+        $password_err = "Le password non corrispondono.";
+    }
     // Validazione email
     $email = validateInput($_POST["email"]);
     if (empty($email)) {
@@ -145,20 +143,20 @@ if (empty($confirm_password)) {
             $intestatario_err = "L'intestatario può contenere solo lettere e spazi.";
         }
 
-        // Validazione numero di carta
-        $carta = validateInput($_POST["carta"]);
-        if (empty($carta)) {
-            $carta_err = "Inserisci il numero della carta.";
-        } elseif (!preg_match("/^[0-9]{16}$/", $carta)) {
-            $carta_err = "Il numero della carta deve essere di 16 cifre.";
-        } else {
-            // Controllo se il numero di carta esiste già nel database
-            $sql = "SELECT id_utente FROM premium WHERE numero_carta = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("s", $carta);
-            $stmt->execute();
-            $stmt->store_result();
-            if ($stmt->num_rows > 0) {
+    // Validazione numero di carta
+    $carta = validateInput($_POST["carta"]);
+    if (empty($carta)) {
+        $carta_err = "Inserisci il numero della carta.";
+    } elseif (!preg_match("/^[0-9]{16}$/", $carta)) {
+        $carta_err = "Il numero della carta deve essere di 16 cifre.";
+    } else {
+     // Controllo se il numero di carta esiste già nel database
+        $sql = "SELECT id_utente FROM premium WHERE numero_carta = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $carta);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
                 $carta_err = "Questo numero di carta è già stato registrato da un altro utente.";
             }
             $stmt->close();
@@ -178,16 +176,19 @@ if (empty($confirm_password)) {
         }
     }
 
-    // Se non ci sono errori, procedi con l'inserimento dei dati nel database
+    // se tutto è stato inserito correttamente si procede con l'inserimento dell'utente nella tabela del DB
     if (empty($nome_err) && empty($cognome_err) && empty($username_err) && empty($password_err) && empty($email_err) && empty($data_nascita_err) && empty($genere_err) && empty($numero_telefono_err) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
-        // Preparazione dell'istruzione SQL per l'inserimento nella tabella utente
+ 
         $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, numero_telefono, premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
 
-        // Binding dei parametri per la tabella utente
+        // parametri per la tabella utente
         $param_username = $username;
         $param_email = $email;
-        $param_password = password_hash($password, PASSWORD_DEFAULT);
+       
+
+        
+        $password_crypt = md5($password); 
         $param_nome = $nome;
         $param_cognome = $cognome;
         $param_genere = $genere;
@@ -195,7 +196,7 @@ if (empty($confirm_password)) {
         $param_numero_telefono = $numero_telefono;
         $param_premium = $premium;
 
-        $stmt->bind_param("ssssssssi", $param_username, $param_email, $param_password, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
+        $stmt->bind_param("ssssssssi", $param_username, $param_email, $password_crypt, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
 
         if ($stmt->execute()) {
             $ultimo_id = $stmt->insert_id;
@@ -216,7 +217,7 @@ if (empty($confirm_password)) {
             }
 
             // Inserimento riuscito
-            header("location: login.php");
+            header("location: home.php");
             exit();
         } else {
             echo "Errore durante l'inserimento dei dati dell'utente: " . $stmt->error;
@@ -238,7 +239,7 @@ $conn->close();
         .error {color: red;}
     </style>
 </head>
-<body>
+<body style=" text-align: center;">
     <h2>Registrazione</h2>
     <p> Compila i seguenti campi per registrarti </p>
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
@@ -319,7 +320,7 @@ $conn->close();
     </form>
 
     <script>
-        // Mostra/nascondi i campi per il premium
+        // i campi di inserimento carta vengono visualizzati solo se si fa ceck nella box del premium per evitaer di regisrare troppi dati null 
         var premiumCheckbox = document.querySelector('input[name="premium"]');
         var premiumFields = document.getElementById('premium-fields');
 
