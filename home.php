@@ -13,8 +13,25 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
 // Recupera i dati dell'utente dalla sessione
 $username = $_SESSION['username'];
-?>
+$genere = $_SESSION['genere']; // Recupera il genere dell'utente dalla sessione
 
+function getSaluto($genere) {
+    switch ($genere) {
+        case 'Maschio':
+            return 'Benvenuto';
+        case 'Femmina':
+            return 'Benvenuta';
+        case 'Altro':
+            return 'Benvenut';
+        default:
+            return 'Benvenuto'; // Restituisce "Benvenuto" come valore predefinito
+    }
+}
+
+
+// Ottieni il saluto appropriato
+$saluto = getSaluto($genere);
+?>
 
 <!DOCTYPE html>
 <html>
@@ -36,9 +53,10 @@ $username = $_SESSION['username'];
 
 <body>
 
-    <h1>Benvenut* nella tua home</h1>
+    <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
     <p>Questi sono i post più recenti dei blog che segui.</p>
 
+    <!-- Codice per visualizzare i post dei blog seguiti -->
 
 </body>
 </html>

@@ -23,6 +23,9 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
+// Variabili di errore
+$passwordError = $emailError = $intestatario_err = $carta_err = $data_scadenza_err = "";
+
 // Gestione dell'invio del modulo
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Convalida dei dati di input (omessa per brevità)
@@ -95,53 +98,100 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $premium = isset($_POST['premium']) ? 1 : 0;
             $updateFields[] = "premium = '$premium'";
 
-            // Esegui l'aggiornamento solo se ci sono campi da aggiornare, la vecchia password è corretta e l'email non è già in uso
-            if (!empty($updateFields) && empty($passwordError) && empty($emailError)) {
-                $updateQuery = "UPDATE utente SET " . implode(", ", $updateFields) . " WHERE id_utente = ?";
-                $stmt = $conn->prepare($updateQuery);
-                $stmt->bind_param("i", $userId);
-                if ($stmt->execute()) {
-                    $successMessage = "Modifiche salvate con successo!";
-                    // Reindirizza l'utente alla pagina del profilo o a una pagina di conferma
-                    header("Location: home.php");
-                    exit();
+            // Validazione dei campi della carta di credito
+            if ($premium == 1) {
+                // Validazione intestatario
+                if (empty(trim($_POST["intestatario"]))) {
+                    $intestatario_err = "Per favore inserisci l'intestatario della carta.";
+                } else {
+                    $intestatario = trim($_POST["intestatario"]);
                 }
-                $stmt->close();
+
+                // Validazione numero di carta
+                if (empty(trim($_POST["carta"]))) {
+                    $carta_err = "Per favore inserisci il numero della carta.";
+                } elseif (!preg_match("/^[0-9]{16}$/", trim($_POST["carta"]))) {
+                    $carta_err = "Il numero della carta deve essere di 16 cifre.";
+                } else {
+                    $carta = trim($_POST["carta"]);
+                }
+
+                // Validazione data di scadenza
+                if (empty(trim($_POST["data_scadenza"]))) {
+                    $data_scadenza_err = "Per favore inserisci la data di scadenza della carta.";
+                } else {
+                    $data_scadenza = trim($_POST["data_scadenza"]);
+                }
             }
 
-            // Aggiorna i dati della carta di credito
-            $updateCardFields = array();
-            if (isset($_POST['intestatario']) && !empty($_POST['intestatario'])) {
-                $intestatario = $_POST['intestatario'];
-                $updateCardFields[] = "intestatario = '$intestatario'";
-            }
+            // Procedi con l'aggiornamento del database solo se non ci sono errori
+            if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
+                if (!empty($updateFields)) {
+                    $updateQuery = "UPDATE utente SET " . implode(", ", $updateFields) . " WHERE id_utente = ?";
+                    $stmt = $conn->prepare($updateQuery);
+                    $stmt->bind_param("i", $userId);
+                    if ($stmt->execute()) {
+                        $successMessage = "Modifiche salvate con successo!";
+                        // Aggiorna il genere nella sessione
+                        if (isset($_POST['genere'])) {
+                            $_SESSION['genere'] = $_POST['genere'];
+                        }
+                        
+                        // Reindirizza l'utente alla pagina del profilo o a una pagina di conferma
+                        header("Location: home.php");
+                        exit();
+                    }
+                    $stmt->close();
+                }
 
-            if (isset($_POST['carta']) && !empty($_POST['carta'])) {
-                $carta = $_POST['carta'];
-                $updateCardFields[] = "numero_carta = '$carta'";
-            }
+                // Aggiorna i dati della carta di credito
+                $updateCardFields = array();
+                if (isset($_POST['intestatario']) && !empty($_POST['intestatario'])) {
+                    $intestatario = $_POST['intestatario'];
+                    $updateCardFields[] = "intestatario = '$intestatario'";
+                }
 
-            if (isset($_POST['data_scadenza']) && !empty($_POST['data_scadenza'])) {
-                $data_scadenza = $_POST['data_scadenza'];
-                $updateCardFields[] = "data_scadenza = '$data_scadenza'";
-            }
+                if (isset($_POST['carta']) && !empty($_POST['carta'])) {
+                    $carta = $_POST['carta'];
+                    $updateCardFields[] = "numero_carta = '$carta'";
+                }
 
-            if (!empty($updateCardFields)) {
-                if ($premium == 1) {
-                    if (!isset($user['premium']) || $user['premium'] == 0) {
-                        // Inserisci i dati della carta di credito nella tabella premium
-                        $insertCardQuery = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
-                        $stmt = $conn->prepare($insertCardQuery);
-                        $stmt->bind_param("isss", $userId, $intestatario, $carta, $data_scadenza);
-                        $stmt->execute();
-                        $stmt->close();
-                    } else {
-                        // Aggiorna i dati della carta di credito nella tabella premium
-                        $updateCardQuery = "UPDATE premium SET " . implode(", ", $updateCardFields) . " WHERE id_utente = ?";
-                        $stmt = $conn->prepare($updateCardQuery);
-                        $stmt->bind_param("i", $userId);
-                        $stmt->execute();
-                        $stmt->close();
+                if (isset($_POST['data_scadenza']) && !empty($_POST['data_scadenza'])) {
+                    $data_scadenza = $_POST['data_scadenza'];
+                    $updateCardFields[] = "data_scadenza = '$data_scadenza'";
+                }
+
+                if (!empty($updateCardFields)) {
+                    if ($premium == 1) {
+                        if (!isset($user['premium'])) {
+                            // Inserisci i dati della carta di credito nella tabella premium
+                            $insertCardQuery = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
+                            $stmt = $conn->prepare($insertCardQuery);
+                            
+                            // Binding dei parametri
+                            $stmt->bind_param("isss", $userId, $intestatario, $carta, $data_scadenza);
+                            
+                            if ($stmt->execute()) {
+                                // Inserimento riuscito
+                            } else {
+                                echo "Errore durante l'inserimento dei dati della carta di credito: " . $stmt->error;
+                            }
+                            
+                            $stmt->close();
+                        } else {
+                            // Aggiorna i dati della carta di credito nella tabella premium
+                            $updateCardQuery = "UPDATE premium SET " . implode(", ", $updateCardFields) . " WHERE id_utente = ?";
+                            $stmt = $conn->prepare($updateCardQuery);
+                            $stmt->bind_param("i", $userId);
+                            
+                            if ($stmt->execute()) {
+                                // Aggiornamento riuscito
+                            } else {
+                                echo "Errore durante l'aggiornamento dei dati della carta di credito: " . $stmt->error;
+                            }
+                            
+                            $stmt->close();
+                        }
                     }
                 }
             }
@@ -149,21 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-
-
-    // se l'utente è premium dai la possibilità di modificare intestatario, numero carta e data di scadenza 
-    // se l'utente è premium dai la possibilità di deselezionare la checkbox e diventare standard
-    // se l'utente non è premium dai la possibilità di diventarlo selezionando la checkbox e inserendo i dati della carta 
-    
-
 ?>
-
-
-
-
-
-
-
 
 <!DOCTYPE html>
 <html>
@@ -178,17 +214,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
     <div>
         <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome">
+        <input type="text" id="nome" name="nome" value="<?php echo $user['nome']; ?>">
     </div>
 
     <div> 
         <label for="cognome">Cognome:</label>
-        <input type="text" id="cognome" name="cognome">
+        <input type="text" id="cognome" name="cognome" value="<?php echo $user['cognome']; ?>">
     </div>
     
     <div> 
         <label for="email">Email:</label>
-        <input type="email" id="email" name="email">
+        <input type="email" id="email" name="email" value="<?php echo $user['email']; ?>">
         <?php if (isset($emailError) && !empty($emailError)): ?>
             <p style="color: red;"><?php echo $emailError; ?></p>
         <?php endif; ?>
@@ -201,22 +237,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     <div> 
         <label for="data_nascita">Data di Nascita:</label>
-        <input type="date" id="data_nascita" name="data_nascita">
+        <input type="date" id="data_nascita" name="data_nascita" value="<?php echo $user['data_nascita']; ?>">
     </div>
     
     <div> 
         <label for="genere">Genere:</label>
         <select id="genere" name="genere">
             <option value="">Seleziona il tuo genere</option>
-            <option value="Maschio">Maschio</option>
-            <option value="Femmina">Femmina</option>
-            <option value="Altro">Altro</option>
+            <option value="Maschio" <?php if($user['genere'] == "Maschio") echo "selected"; ?>>Maschio</option>
+            <option value="Femmina" <?php if($user['genere'] == "Femmina") echo "selected"; ?>>Femmina</option>
+            <option value="Altro" <?php if($user['genere'] == "Altro") echo "selected"; ?>>Altro</option>
         </select>
     </div>
     
     <div> 
         <label for="numero_telefono">Numero di Telefono:</label>
-        <input type="text" id="numero_telefono" name="numero_telefono"> 
+        <input type="text" id="numero_telefono" name="numero_telefono" value="<?php echo $user['numero_telefono']; ?>"> 
     </div>
 
     <div> 
@@ -225,19 +261,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
     
     
-    <div id="premiumInfo" style="display: <?php echo (isset($user['premium']) && $user['premium'] == 1) ? 'block' : 'none'; ?>;">
-        <p> Intestatario, data di scadenza e numero di carta vanno inseriti tutti e tre anche solo per la modifica </p>
+    <div id="premiumInfo" style="display: <?php echo ($user['premium'] == 1) ? 'block' : 'none'; ?>;">
+        <p>Intestatario, data di scadenza e numero di carta vanno inseriti tutti e tre anche solo per la modifica</p>
         <div>         
             <label for="intestatario">Intestatario:</label>
-            <input type="text" id="intestatario" name="intestatario">
+            <input type="text" id="intestatario" name="intestatario" value="<?php echo $user['intestatario']; ?>">
+            <span class="error"><?php echo $intestatario_err; ?></span>
         </div>
         <div> 
             <label for="carta">Numero di Carta:</label>
-            <input type="text" id="carta" name="carta">
+            <input type="text" id="carta" name="carta" value="<?php echo $user['numero_carta']; ?>">
+            <span class="error"><?php echo $carta_err; ?></span>
         </div>
         <div> 
             <label for="data_scadenza">Data di Scadenza:</label>
-            <input type="date" id="data_scadenza" name="data_scadenza">
+            <input type="date" id="data_scadenza" name="data_scadenza" value="<?php echo $user['data_scadenza']; ?>">
+            <span class="error"><?php echo $data_scadenza_err; ?></span>
         </div>
     </div>
 
@@ -263,5 +302,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         });
     </script>
+
+<button onclick="window.location.href='home.php'">Torna alla Home</button>
 </body>
 </html>

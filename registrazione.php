@@ -12,7 +12,6 @@ if ($conn->connect_error) {
     die("Connessione fallita: " . $conn->connect_error);
 }
 
-
 // Funzione per ripulire i dati in input prima che entrino nel db 
 function validateInput($data) {
     if (is_string($data)) {
@@ -182,16 +181,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, numero_telefono, premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
 
-        // parametri per la tabella utente
+        // Binding dei parametri per la tabella utente
         $param_username = $username;
         $param_email = $email;
-       
-
-        
-        $password_crypt = md5($password); 
+        $password_crypt = md5($password);
         $param_nome = $nome;
         $param_cognome = $cognome;
-        $param_genere = $genere;
+        $param_genere = $genere; // Binding del parametro $param_genere
         $param_data_nascita = $data_nascita;
         $param_numero_telefono = $numero_telefono;
         $param_premium = $premium;
