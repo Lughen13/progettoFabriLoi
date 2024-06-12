@@ -132,6 +132,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->bind_param("i", $userId);
                     if ($stmt->execute()) {
                         $successMessage = "Modifiche salvate con successo!";
+                        
                         // Aggiorna il genere nella sessione
                         if (isset($_POST['genere'])) {
                             $_SESSION['genere'] = $_POST['genere'];

@@ -16,6 +16,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_style'])) {
                          VALUES ('$styleName', '$font', '$textColor', '$backgroundColor')";
     $conn->query($createStyleQuery);
 }
+
+// Inserisci gli stili predefiniti nel database
+$predefinedStyles = array(
+    array(
+        'nome' => 'Moderno',
+        'font' => 'Arial',
+        'colore_testo' => '#333333',
+        'background' => '#FFFFFF'
+    ),
+    array(
+        'nome' => 'Classico',
+        'font' => 'Times New Roman',
+        'colore_testo' => '#000000',
+        'background' => '#F5F5F5'
+    ),
+    array(
+        'nome' => 'Minimalista',
+        'font' => 'Helvetica',
+        'colore_testo' => '#555555',
+        'background' => '#FFFFFF'
+    ),
+    array(
+        'nome' => 'Vivace',
+        'font' => 'Verdana',
+        'colore_testo' => '#FF6600',
+        'background' => '#FFFFCC'
+    ),
+    array(
+        'nome' => 'Elegante',
+        'font' => 'Georgia',
+        'colore_testo' => '#663300',
+        'background' => '#F8F8F8'
+    ),
+    array(
+        'nome' => 'Naturale',
+        'font' => 'Trebuchet MS',
+        'colore_testo' => '#336600',
+        'background' => '#F0F8E0'
+    ),
+    array(
+        'nome' => 'Retrò',
+        'font' => 'Courier New',
+        'colore_testo' => '#663399',
+        'background' => '#FFFFCC'
+    ),
+    array(
+        'nome' => 'Audace',
+        'font' => 'Impact',
+        'colore_testo' => '#CC0000',
+        'background' => '#FFFFFF'
+    ),
+    array(
+        'nome' => 'Sofisticato',
+        'font' => 'Garamond',
+        'colore_testo' => '#333333',
+        'background' => '#F0F0F0'
+    ),
+    array(
+        'nome' => 'Fresco',
+        'font' => 'Tahoma',
+        'colore_testo' => '#006699',
+        'background' => '#FFFFFF'
+    )
+);
+
+foreach ($predefinedStyles as $style) {
+    $insertStyleQuery = "INSERT INTO stile (nome, font, colore_testo, background)
+                         VALUES ('{$style['nome']}', '{$style['font']}', '{$style['colore_testo']}', '{$style['background']}')";
+    $conn->query($insertStyleQuery);
+}
+
+// Funzione per recuperare gli stili
+function getStyles() {
+    global $conn;
+    $stylesQuery = "SELECT * FROM stile";
+    $stylesResult = $conn->query($stylesQuery);
+    return $stylesResult;
+}
 ?>
 
 <!DOCTYPE html>

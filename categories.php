@@ -19,6 +19,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_subcategory'])
     $createSubcategoryQuery = "INSERT INTO sottocat (id_categoria, descrizione) VALUES ($categoryId, '$subcategoryName')";
     $conn->query($createSubcategoryQuery);
 }
+
+// Inserisci 15 categorie standard
+$standardCategories = array(
+    "Tecnologia",
+    "Moda",
+    "Viaggi",
+    "Cucina",
+    "Salute e Fitness",
+    "Intrattenimento",
+    "Notizie",
+    "Sport",
+    "Educazione",
+    "Affari",
+    "Musica",
+    "Arte e Cultura",
+    "Ambiente",
+    "Automotive",
+    "Lifestyle"
+);
+
+foreach ($standardCategories as $category) {
+    $insertCategoryQuery = "INSERT INTO categoria (descrizione) VALUES ('$category')";
+    $conn->query($insertCategoryQuery);
+}
 ?>
 
 <!DOCTYPE html>

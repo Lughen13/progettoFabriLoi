@@ -58,5 +58,7 @@ $saluto = getSaluto($genere);
 
     <!-- Codice per visualizzare i post dei blog seguiti -->
 
+    <a href="create_blog.php">Crea un nuovo blog</a>
+    <a href="create_post.php">Crea un nuovo post</a>
 </body>
 </html>
