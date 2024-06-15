@@ -9,7 +9,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-$userId = $_SESSION['user_id'];
+//$userId = $_SESSION['id_utente'];
 
 // Recupera le categorie dal database
 $categoriesQuery = "SELECT id_categoria, descrizione FROM categoria";

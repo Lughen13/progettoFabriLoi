@@ -11,7 +11,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-$userId = $_SESSION['user_id'];
+//$userId = $_SESSION['user_id'];
 
 // Recupera i dati dal modulo
 $title = $_POST['title'];

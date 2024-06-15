@@ -22,9 +22,9 @@ function getSaluto($genere) {
         case 'Femmina':
             return 'Benvenuta';
         case 'Altro':
-            return 'Benvenut';
+            return 'Benvenut*';
         default:
-            return 'Benvenuto'; // Restituisce "Benvenuto" come valore predefinito
+            return 'Benvenut*'; // Restituisce "Benvenuto" come valore predefinito
     }
 }
 
