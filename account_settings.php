@@ -7,7 +7,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-// Connessione al database
 require_once 'conn.php';
 
 // recupero i dati del'utente dal db, faccio la join perchè i dati degli utenti premium inseriscono i dati delle carte che vanno in una seconda tabella 
@@ -28,27 +27,23 @@ $passwordError = $emailError = $intestatario_err = $carta_err = $data_scadenza_e
 
 // Gestione dell'invio del modulo
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Convalida dei dati di input (omessa per brevità)
+    $oldPassword = $_POST['old_password'];
+    $hashedPassword = $user['pw'];
 
-    // Verifica la vecchia password solo quando si preme il pulsante "Salva Modifiche"
-    if (isset($_POST['save_changes'])) {
-        $oldPassword = $_POST['old_password'];
-        $hashedPassword = $user['pw'];
+    if (empty($oldPassword)) {
+        $passwordError = "Inserisci la tua password per salvare le modifiche (in caso di modifica password insersici la precedente).";
+    } elseif (md5($oldPassword) !== $hashedPassword) {
+        $passwordError = "La password non è corretta.";
+    } else {
+        $passwordError = "";
+        $updateFields = array();
 
-        if (!empty($oldPassword) && md5($oldPassword) !== $hashedPassword) {
-            $passwordError = "La vecchia password non è corretta.";
-        } else {
-            $passwordError = "";
-
-            // Array per memorizzare i campi da aggiornare
-            $updateFields = array();
-
-            // Aggiorna la password
-            if (!empty($_POST["password"])) {
-                $password = $_POST["password"];
-                $password_hash = md5($password);
-                $updateFields[] = "pw = '$password_hash'";
-            }
+        if (!empty($_POST["password"])) {
+            $password = $_POST["password"];
+            $password_hash = md5($password);
+            $updateFields[] = "pw = '$password_hash'";
+        }
+  
 
             // Aggiorna le informazioni dell'utente
             if (isset($_POST['nome']) && !empty($_POST['nome'])) {
@@ -71,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->store_result();
 
                 if ($stmt->num_rows > 0) {
-                    $emailError = "L'email inserita è già in uso da un altro utente.";
+                    $emailError = "L'email inserita è già utilizzata da un altro utente.";
                 } else {
                     $updateFields[] = "email = '$email'";
                 }
@@ -94,111 +89,90 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $updateFields[] = "numero_telefono = '$numero_telefono'";
             }
 
-            // Aggiorna lo stato premium
             $premium = isset($_POST['premium']) ? 1 : 0;
             $updateFields[] = "premium = '$premium'";
 
-            // Validazione dei campi della carta di credito
             if ($premium == 1) {
-                // Validazione intestatario
                 if (empty(trim($_POST["intestatario"]))) {
-                    $intestatario_err = "Per favore inserisci l'intestatario della carta.";
+                    $intestatario_err = "Inserisci l'intestatario della carta.";
                 } else {
                     $intestatario = trim($_POST["intestatario"]);
                 }
 
-                // Validazione numero di carta
                 if (empty(trim($_POST["carta"]))) {
-                    $carta_err = "Per favore inserisci il numero della carta.";
+                    $carta_err = "Inserisci il numero della carta.";
                 } elseif (!preg_match("/^[0-9]{16}$/", trim($_POST["carta"]))) {
                     $carta_err = "Il numero della carta deve essere di 16 cifre.";
                 } else {
                     $carta = trim($_POST["carta"]);
                 }
 
-                // Validazione data di scadenza
                 if (empty(trim($_POST["data_scadenza"]))) {
-                    $data_scadenza_err = "Per favore inserisci la data di scadenza della carta.";
+                    $data_scadenza_err = "Inserisci la data di scadenza della carta.";
                 } else {
                     $data_scadenza = trim($_POST["data_scadenza"]);
                 }
             }
 
             // Procedi con l'aggiornamento del database solo se non ci sono errori
-            if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
+           if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
                 if (!empty($updateFields)) {
                     $updateQuery = "UPDATE utente SET " . implode(", ", $updateFields) . " WHERE id_utente = ?";
                     $stmt = $conn->prepare($updateQuery);
                     $stmt->bind_param("i", $userId);
-                    if ($stmt->execute()) {
-                        $successMessage = "Modifiche salvate con successo!";
-                        
-                        // Aggiorna il genere nella sessione
-                        if (isset($_POST['genere'])) {
-                            $_SESSION['genere'] = $_POST['genere'];
-                        }
-                        
-                        // Reindirizza l'utente alla pagina del profilo o a una pagina di conferma
-                        header("Location: home.php");
-                        exit();
+                    $stmt->execute();
+                    $stmt->close();
+                }
+                if ($premium == 1) {
+                    if (empty(trim($_POST["intestatario"]))) {
+                        $intestatario_err = "Inserisci l'intestatario della carta.";
+                    } else {
+                        $intestatario = trim($_POST["intestatario"]);
                     }
+    
+                    if (empty(trim($_POST["carta"]))) {
+                        $carta_err = "Inserisci il numero della carta.";
+                    } elseif (!preg_match("/^[0-9]{16}$/", trim($_POST["carta"]))) {
+                        $carta_err = "Il numero della carta deve essere di 16 cifre.";
+                    } else {
+                        $carta = trim($_POST["carta"]);
+                    }
+    
+                    if (empty(trim($_POST["data_scadenza"]))) {
+                        $data_scadenza_err = "Inserisci la data di scadenza della carta.";
+                    } else {
+                        $data_scadenza = trim($_POST["data_scadenza"]);
+                    }
+    
+                    if (empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
+                        if (!isset($user['premium']) || ($user['premium'] == 0 && $premium == 1)) {
+                            $insertCardQuery = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
+                            $stmt = $conn->prepare($insertCardQuery);
+                            $stmt->bind_param("isss", $userId, $intestatario, $carta, $data_scadenza);
+                            $stmt->execute();
+                            $stmt->close();
+                        } else {
+                            $updateCardQuery = "UPDATE premium SET intestatario = ?, numero_carta = ?, data_scadenza = ? WHERE id_utente = ?";
+                            $stmt = $conn->prepare($updateCardQuery);
+                            $stmt->bind_param("sssi", $intestatario, $carta, $data_scadenza, $userId);
+                            $stmt->execute();
+                            $stmt->close();
+                        }
+                    }
+                } elseif (isset($user['premium']) && $user['premium'] == 1) {
+                    $deleteCardQuery = "DELETE FROM premium WHERE id_utente = ?";
+                    $stmt = $conn->prepare($deleteCardQuery);
+                    $stmt->bind_param("i", $userId);
+                    $stmt->execute();
                     $stmt->close();
                 }
 
-                // Aggiorna i dati della carta di credito
-                $updateCardFields = array();
-                if (isset($_POST['intestatario']) && !empty($_POST['intestatario'])) {
-                    $intestatario = $_POST['intestatario'];
-                    $updateCardFields[] = "intestatario = '$intestatario'";
-                }
-
-                if (isset($_POST['carta']) && !empty($_POST['carta'])) {
-                    $carta = $_POST['carta'];
-                    $updateCardFields[] = "numero_carta = '$carta'";
-                }
-
-                if (isset($_POST['data_scadenza']) && !empty($_POST['data_scadenza'])) {
-                    $data_scadenza = $_POST['data_scadenza'];
-                    $updateCardFields[] = "data_scadenza = '$data_scadenza'";
-                }
-
-                if (!empty($updateCardFields)) {
-                    if ($premium == 1) {
-                        if (!isset($user['premium'])) {
-                            // Inserisci i dati della carta di credito nella tabella premium
-                            $insertCardQuery = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
-                            $stmt = $conn->prepare($insertCardQuery);
-                            
-                            // Binding dei parametri
-                            $stmt->bind_param("isss", $userId, $intestatario, $carta, $data_scadenza);
-                            
-                            if ($stmt->execute()) {
-                                // Inserimento riuscito
-                            } else {
-                                echo "Errore durante l'inserimento dei dati della carta di credito: " . $stmt->error;
-                            }
-                            
-                            $stmt->close();
-                        } else {
-                            // Aggiorna i dati della carta di credito nella tabella premium
-                            $updateCardQuery = "UPDATE premium SET " . implode(", ", $updateCardFields) . " WHERE id_utente = ?";
-                            $stmt = $conn->prepare($updateCardQuery);
-                            $stmt->bind_param("i", $userId);
-                            
-                            if ($stmt->execute()) {
-                                // Aggiornamento riuscito
-                            } else {
-                                echo "Errore durante l'aggiornamento dei dati della carta di credito: " . $stmt->error;
-                            }
-                            
-                            $stmt->close();
-                        }
-                    }
-                }
+                $successMessage = "Modifiche salvate con successo!";
+                header("Location: home.php");
+                exit();
             }
         }
     }
-}
 
 ?>
 
