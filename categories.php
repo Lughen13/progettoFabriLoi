@@ -1,48 +1,56 @@
 <?php
 require_once 'conn.php';
 
-// Recupera tutte le categorie
-$categoriesQuery = "SELECT * FROM categoria";
-$categoriesResult = $conn->query($categoriesQuery);
 
-// Gestione dell'invio del form per la creazione di una nuova categoria
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_category'])) {
-    $categoryName = $_POST['category_name'];
-    $createCategoryQuery = "INSERT INTO categoria (descrizione) VALUES ('$categoryName')";
-    $conn->query($createCategoryQuery);
-}
-
-// Gestione dell'invio del form per la creazione di una nuova sottocategoria
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_subcategory'])) {
-    $subcategoryName = $_POST['subcategory_name'];
-    $categoryId = $_POST['category_id'];
-    $createSubcategoryQuery = "INSERT INTO sottocat (id_categoria, descrizione) VALUES ($categoryId, '$subcategoryName')";
-    $conn->query($createSubcategoryQuery);
-}
-
-// Inserisci 15 categorie standard
-$standardCategories = array(
+// Inserisci  categorie standard
+$categories = array(
     "Tecnologia",
     "Moda",
     "Viaggi",
     "Cucina",
-    "Salute e Fitness",
-    "Intrattenimento",
+    "Salute",
+    "Economia",
     "Notizie",
     "Sport",
     "Educazione",
     "Affari",
     "Musica",
-    "Arte e Cultura",
+    "Arte",
+    "cultura",
     "Ambiente",
     "Automotive",
     "Lifestyle"
 );
 
-foreach ($standardCategories as $category) {
-    $insertCategoryQuery = "INSERT INTO categoria (descrizione) VALUES ('$category')";
-    $conn->query($insertCategoryQuery);
+// Preparare la query SQL
+$sql = "INSERT INTO categorie (descrizione) VALUES (?)";
+
+// Preparare la dichiarazione
+$stmt = $conn->prepare($sql);
+
+// Controllare se la preparazione è andata a buon fine
+if ($stmt === false) {
+    die("Errore nella preparazione della query: " . $conn->error);
 }
+
+// Legare i parametri
+$stmt->bind_param("s", $descrizione);
+
+// Eseguire la query per ogni categoria nell'array
+foreach ($categories as $categoria) {
+    $descrizione = $categoria;
+    if ($stmt->execute() === false) {
+        echo "Errore nell'inserimento della categoria: " . $stmt->error;
+    } else {
+        echo "Categoria '$descrizione' inserita con successo.<br>";
+    }
+}
+
+// Chiudere la dichiarazione e la connessione
+$stmt->close();
+$conn->close();
+
+
 ?>
 
 <!DOCTYPE html>
