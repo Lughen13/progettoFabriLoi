@@ -1,74 +1,52 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', '/path/to/your/php_error.log');
 session_start();
 
+// Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    // Se l'utente non è autenticato, reindirizza alla pagina di login
     header("Location: login.php");
     exit();
 }
 
 require_once 'conn.php';
 
-// Recupero i dati dell'utente dalla tabella utente del db
-$userId = $_SESSION['id'];
-$sql = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo FROM utente WHERE id_utente = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-$stmt->close();
+$userId = $_SESSION['id'];  // ID dell'utente autenticato
+$action = isset($_GET['action']) ? $_GET['action'] : '';
 
-// Gestione dell'aggiornamento della bio
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_bio'])) {
-    $newBio = $_POST['bio'];
-    $updateBioQuery = "UPDATE utente SET bio = ? WHERE id_utente = ?";
-    $stmt = $conn->prepare($updateBioQuery);
-    $stmt->bind_param("si", $newBio, $userId);
+// Gestione del Follow
+if ($action == 'follow') {
+    $id_blog = $_GET['id_blog'];
+
+    $followQuery = "INSERT INTO follow (id_utente, id_blog) VALUES (?, ?)";
+    $stmt = $conn->prepare($followQuery);
+    $stmt->bind_param("ii", $userId, $id_blog);
     if ($stmt->execute()) {
-        $bioUpdateSuccess = true;
-        $user['bio'] = $newBio; // Aggiornamento della bio nell'array $user
+        // Follow eseguito con successo
+        header("Location: my_profile.php");  // Reindirizza alla pagina del profilo
+        exit();
     } else {
-        echo "Errore durante l'aggiornamento della bio: " . $stmt->error;
+        echo "Errore durante il follow del blog: " . $stmt->error;
     }
     $stmt->close();
 }
 
-// Gestione del caricamento dell'immagine del profilo
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = 'uploads/';
-    $fileName = basename($_FILES['profile_image']['name']);
-    $targetPath = $uploadDir . $fileName;
+// Gestione dell'Unfollow
+if ($action == 'unfollow') {
+    $id_blog = $_GET['id_blog'];
 
-    // Controllo del tipo di file
-    $fileType = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
-    $allowedTypes = array('jpg', 'jpeg', 'png', 'gif');
-    if (in_array($fileType, $allowedTypes)) {
-        if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $targetPath)) {
-            // Aggiornamento del nome del file nell'array $user
-            $updateImageQuery = "UPDATE utente SET img_profilo = ? WHERE id_utente = ?";
-            $stmt = $conn->prepare($updateImageQuery);
-            $stmt->bind_param("si", $fileName, $userId);
-            if ($stmt->execute()) {
-                $imageUpdateSuccess = true;
-                $user['img_profilo'] = $fileName; // Aggiornamento del nome del file nell'array $user
-            } else {
-                echo "Errore durante l'aggiornamento dell'immagine del profilo: " . $stmt->error;
-            }
-            $stmt->close();
-        } else {
-            echo "Errore durante il caricamento dell'immagine.";
-        }
+    $unfollowQuery = "DELETE FROM follow WHERE id_utente = ? AND id_blog = ?";
+    $stmt = $conn->prepare($unfollowQuery);
+    $stmt->bind_param("ii", $userId, $id_blog);
+    if ($stmt->execute()) {
+        // Unfollow eseguito con successo
+        header("Location: my_profile.php");  // Reindirizza alla pagina del profilo
+        exit();
     } else {
-        echo "Tipo di file non supportato. Sono ammessi solo file immagine (JPG, JPEG, PNG, GIF).";
+        echo "Errore durante l'unfollow del blog: " . $stmt->error;
     }
+    $stmt->close();
 }
 
-// Recupero dei blog dell'utente e dei relativi post
+// Recupero i blog dell'utente e dei relativi post
 $blogQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, p.id_post, p.titolo_post, p.descrizione_post, p.img_post
               FROM blog b
               LEFT JOIN post p ON b.id_blog = p.id_blog
@@ -80,41 +58,23 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Inserimento di un nuovo post
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_post'])) {
-    $id_blog = $_POST['id_blog'];
-    $titolo_post = $_POST['titolo_post'];
-    $descrizione_post = $_POST['descrizione_post'];
-    
-    // Controllo se è stato caricato un file per il post
-    if ($_FILES['img_post']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = 'uploads/';
-        $fileName = basename($_FILES['img_post']['name']);
-        $targetPath = $uploadDir . $fileName;
+// Recupero informazioni utente
+$userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo FROM utente WHERE id_utente = ?";
+$stmt = $conn->prepare($userQuery);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
 
-        // Controllo del tipo di file
-        $fileType = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
-        $allowedTypes = array('jpg', 'jpeg', 'png', 'gif');
-        if (in_array($fileType, $allowedTypes)) {
-            if (move_uploaded_file($_FILES['img_post']['tmp_name'], $targetPath)) {
-                $insertPostQuery = "INSERT INTO post (id_blog, titolo_post, descrizione_post, img_post) VALUES (?, ?, ?, ?)";
-                $stmt = $conn->prepare($insertPostQuery);
-                $stmt->bind_param("isss", $id_blog, $titolo_post, $descrizione_post, $fileName);
-                if ($stmt->execute()) {
-                    $postInsertSuccess = true;
-                } else {
-                    echo "Errore durante l'inserimento del post: " . $stmt->error;
-                }
-                $stmt->close();
-            } else {
-                echo "Errore durante il caricamento dell'immagine del post.";
-            }
-        } else {
-            echo "Tipo di file non supportato per l'immagine del post. Sono ammessi solo file immagine (JPG, JPEG, PNG, GIF).";
+// Verifica se un blog è già seguito dall'utente
+function isBlogFollowed($blogs, $id_blog) {
+    foreach ($blogs as $blog) {
+        if ($blog['id_blog'] == $id_blog) {
+            return true;
         }
-    } else {
-        echo "Errore durante il caricamento dell'immagine del post.";
     }
+    return false;
 }
 
 ?>
@@ -164,13 +124,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_post'])) {
                     <h3><?php echo $blog['titolo_blog']; ?></h3>
                     <p><?php echo $blog['descrizione']; ?></p>
                     <img src="uploads/<?php echo $blog['img_logo']; ?>" alt="Logo del Blog" width="100">
-                    <form method="post" enctype="multipart/form-data">
-                        <input type="hidden" name="id_blog" value="<?php echo $blog['id_blog']; ?>">
-                        <input type="text" name="titolo_post" placeholder="Titolo del post">
-                        <textarea name="descrizione_post" placeholder="Descrizione del post"></textarea>
-                        <input type="file" name="img_post">
-                        <button type="submit" name="submit_post">Aggiungi Post</button>
-                    </form>
+                    
+                    <?php if (isBlogFollowed($blogs, $blog['id_blog'])): ?>
+                        <a href="my_profile.php?action=unfollow&id_blog=<?php echo $blog['id_blog']; ?>">Non Seguire</a>
+                    <?php else: ?>
+                        <a href="my_profile.php?action=follow&id_blog=<?php echo $blog['id_blog']; ?>">Segui</a>
+                    <?php endif; ?>
+                    
                     <?php if (!empty($blog['id_post'])): ?>
                         <h4>Post:</h4>
                         <ul>
@@ -179,7 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_post'])) {
                                 return $item['id_blog'] == $blog['id_blog'];
                             });
                             foreach ($posts as $post):
-                            ?>
+                                ?>
                                 <li>
                                     <h5><?php echo $post['titolo_post']; ?></h5>
                                     <p><?php echo $post['descrizione_post']; ?></p>
