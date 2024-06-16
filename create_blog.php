@@ -1,4 +1,9 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
+
 // Connessione al database
 require_once 'conn.php';
 
@@ -9,15 +14,27 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-//$userId = $_SESSION['id_utente'];
-
 // Recupera le categorie dal database
-$categoriesQuery = "SELECT id_categoria, descrizione FROM categoria";
+$categoriesQuery = "SELECT id_categoria, nome_categoria FROM categoria";
 $categoriesResult = $conn->query($categoriesQuery);
+if (!$categoriesResult) {
+    die("Errore nella query delle categorie: " . $conn->error);
+}
 
 // Recupera gli stili dal file manage_styles.php
 require_once 'manage_styles.php';
 $stylesResult = getStyles();
+if (!$stylesResult) {
+    die("Errore nel recupero degli stili");
+}
+
+// Recupera tutti gli utenti tranne il proprietario corrente
+$current_user_id = $_SESSION['id'];
+$usersQuery = "SELECT id_utente, username FROM utente WHERE id_utente != ?";
+$stmt = $conn->prepare($usersQuery);
+$stmt->bind_param("i", $current_user_id);
+$stmt->execute();
+$usersResult = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -37,19 +54,27 @@ $stylesResult = getStyles();
         <label for="category">Categoria:</label>
         <select name="category" id="category" required>
             <?php while ($category = $categoriesResult->fetch_assoc()): ?>
-                <option value="<?php echo $category['id_categoria']; ?>"><?php echo $category['descrizione']; ?></option>
+                <option value="<?php echo htmlspecialchars($category['id_categoria']); ?>"><?php echo htmlspecialchars($category['nome_categoria']); ?></option>
             <?php endwhile; ?>
         </select>
 
         <label for="style">Stile:</label>
         <select name="style" id="style" required>
             <?php while ($style = $stylesResult->fetch_assoc()): ?>
-                <option value="<?php echo $style['id_stile']; ?>"><?php echo $style['nome']; ?></option>
+                <option value="<?php echo htmlspecialchars($style['id_stile']); ?>"><?php echo htmlspecialchars($style['nome']); ?></option>
             <?php endwhile; ?>
         </select>
 
         <label for="logo">Logo del blog (opzionale):</label>
         <input type="file" name="logo" id="logo">
+
+        <label for="co_autore">Seleziona il co-autore (opzionale):</label>
+        <select name="co_autore" id="co_autore">
+            <option value="">Nessun co-autore</option>
+            <?php while ($user = $usersResult->fetch_assoc()): ?>
+                <option value="<?php echo htmlspecialchars($user['id_utente']); ?>"><?php echo htmlspecialchars($user['username']); ?></option>
+            <?php endwhile; ?>
+        </select>
 
         <input type="submit" value="Crea blog">
     </form>

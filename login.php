@@ -1,93 +1,73 @@
 <?php
+// Mostra tutti gli errori
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
+
 // Connessione al database
-include 'conn.php';
+require_once 'conn.php';
 
-// Inizializzazione delle variabili
-$username = $password = "";
-$username_err = $password_err = $login_err = "";
-
+// Inizia la sessione
 session_start();
 
-// Elaborazione dei dati del modulo quando viene inviato
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Validazione username
-    $username = trim($_POST["username"]);
-    if (empty($username)) {
-        $username_err = "Inserisci un username.";
-    }
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Recupera i dati dal modulo di login
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-    // Validazione password
-    $password = trim($_POST["password"]);
-    if (empty($password)) {
-        $password_err = "Inserisci una password.";
-    }
-
-    // Verifica delle credenziali
-    if (empty($username_err) && empty($password_err)) {
-        $sql = "SELECT id_utente, username, pw FROM utente WHERE username = ?";
-        $stmt = $conn->prepare($sql);
+    // Prepara una dichiarazione SQL per evitare attacchi di SQL injection
+    $sql = "SELECT id_utente, username, password FROM utenti WHERE username = ?";
+    if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $stmt->store_result();
 
+        // Verifica se l'utente esiste, se sì, verifica la password
         if ($stmt->num_rows == 1) {
-            $stmt->bind_result($id, $username, $hashed_password);
-            if ($stmt->fetch()) {
-                $password_crypt = md5($password);
-                if ($password_crypt === $hashed_password){
-                  //  session_start();
-                    $_SESSION["loggedin"] = true;
-                    $_SESSION["id"] = $id;
-                    $_SESSION["username"] = $username;
-                    header("location: home.php");
-                } else {
-                    $login_err = "Username o password non validi.";
-                }
+            $stmt->bind_result($id_utente, $db_username, $db_password);
+            $stmt->fetch();
+
+            if (password_verify($password, $db_password)) {
+                // Imposta le variabili di sessione
+                $_SESSION['loggedin'] = true;
+                $_SESSION['id'] = $id_utente; // Cambia 'id_utente' in 'id'
+                $_SESSION['username'] = $db_username;
+
+                // Reindirizza l'utente alla pagina principale
+                header("Location: index.php");
+                exit();
+            } else {
+                // Password non valida
+                echo "La password non è valida.";
             }
         } else {
-            $login_err = "Username o password non validi.";
+            // Username non trovato
+            echo "Nessun account trovato con questo username.";
         }
 
         $stmt->close();
+    } else {
+        echo "Errore: Impossibile preparare la query SQL.";
     }
 
     $conn->close();
 }
 ?>
 
-
-
 <!DOCTYPE html>
-<html lang="it">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Login</title>
-    <style>
-        .error {color: red;}
-    </style>
 </head>
-<body style=" text-align: center;">
+<body>
     <h2>Login</h2>
-    <p>Per favore inserisci le tue credenziali per accedere alla Home.</p>
-    <?php if (!empty($login_err)) { ?>
-        <div class="error"><?php echo $login_err; ?></div>
-    <?php } ?>
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-        <div>
-            <label>Username:</label>
-            <input type="text" name="username" value="<?php echo $username; ?>">
-            <span class="error"><?php echo $username_err; ?></span>
-        </div>
-        <div>
-            <label>Password:</label>
-            <input type="password" name="password">
-            <span class="error"><?php echo $password_err; ?></span>
-        </div>
-        <div>
-            <input type="submit" value="Accedi">
-        </div>
-        <p> Se non hai un account puoi <a href="registrazione.php"> registrarti qui</a>.</p>
+    <form method="post" action="login.php">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required><br><br>
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required><br><br>
+        <input type="submit" value="Login">
     </form>
 </body>
 </html>
-
