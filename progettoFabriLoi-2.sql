@@ -164,8 +164,7 @@ CREATE TABLE `premium` (
 -- Dump dei dati per la tabella `premium`
 --
 
-INSERT INTO `premium` (`id_utente`, `intestatario`, `numero_carta`, `data_scadenza`) VALUES
-(12, 'asdic', '1234567890123456', '2024-06-30');
+
 
 -- --------------------------------------------------------
 
