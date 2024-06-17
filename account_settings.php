@@ -167,6 +167,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->close();
                 }
 
+
+
                 $successMessage = "Modifiche salvate con successo!";
                 header("Location: home.php");
                 exit();
