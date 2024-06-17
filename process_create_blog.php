@@ -39,19 +39,21 @@ if ($stmt_blog->execute()) {
     $blog_id = $stmt_blog->insert_id; // Recupera l'id del blog appena inserito
     $stmt_blog->close();
 
-    // Inserisci il co-autore se specificato
-    if (!empty($co_author)) {
+    // Inserisci il proprietario nella tabella 'co_autore'
+    $insert_owner_query = "INSERT INTO co_autore (id_utente, id_blog) VALUES (?, ?)";
+    $stmt_owner = $conn->prepare($insert_owner_query);
+    $stmt_owner->bind_param("ii", $_SESSION['id'], $blog_id);
+    $stmt_owner->execute();
+    $stmt_owner->close();
+
+    // Se è stato selezionato un co-autore, inseriscilo nella tabella 'co_autore'
+    if (!empty($co_autore_id) && $co_autore_id != $_SESSION['id']) {
         $insert_co_author_query = "INSERT INTO co_autore (id_utente, id_blog) VALUES (?, ?)";
         $stmt_co_author = $conn->prepare($insert_co_author_query);
-        $stmt_co_author->bind_param("ii", $co_author, $blog_id);
-
-        if ($stmt_co_author->execute()) {
-            echo "Blog creato con successo con co-autore!";
-        } else {
-            echo "Errore durante l'inserimento del coautore: " . $stmt_co_author->error;
-        }
-
+        $stmt_co_author->bind_param("ii", $co_autore_id, $blog_id);
+        $stmt_co_author->execute();
         $stmt_co_author->close();
+        echo "Blog creato con successo con co-autore!";
     } else {
         echo "Blog creato con successo!";
     }

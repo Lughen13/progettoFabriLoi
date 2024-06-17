@@ -7,6 +7,7 @@ ini_set('error_log', '/path/to/your/php_error.log');
 // Connessione al database
 require_once 'conn.php';
 
+
 // Verifica se l'utente è autenticato
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
@@ -35,6 +36,8 @@ $stmt = $conn->prepare($usersQuery);
 $stmt->bind_param("i", $current_user_id);
 $stmt->execute();
 $usersResult = $stmt->get_result();
+
+
 ?>
 
 <!DOCTYPE html>
