@@ -3,11 +3,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
-
-// Connessione al database
 require_once 'conn.php';
 
-// Verifica se l'utente è autenticato
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: login.php");
@@ -20,8 +17,7 @@ $userId = $_SESSION['id'];
 $blogId = $_POST['blog_id'];
 $title = $_POST['title'];
 $description = $_POST['description'];
-$category = $_POST['category'];
-$subcategory = $_POST['subcategory'];
+$subcategoryId = $_POST['subcategory'];
 
 // Carica l'immagine del post, se presente
 $imageName = '';
@@ -32,9 +28,9 @@ if (!empty($_FILES['image']['name'])) {
 }
 
 // Inserisci il nuovo post nel database
-$sql = "INSERT INTO post (titolo_post, descrizione_post, img_post, id_autore, id_sottocat, id_blog) VALUES (?, ?, ?, ?, ?, ?)";
+$sql = "INSERT INTO post (titolo_post, descrizione_post, img_post, id_autore, id_sottocat, id_blog, data_post) VALUES (?, ?, ?, ?, ?, ?, NOW())";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("sssiis", $title, $description, $imageName, $userId, $subcategory, $blogId);
+$stmt->bind_param("sssiii", $title, $description, $imageName, $userId, $subcategoryId, $blogId);
 
 if ($stmt->execute()) {
     echo "Post creato con successo!";
