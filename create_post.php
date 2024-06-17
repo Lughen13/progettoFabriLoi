@@ -1,39 +1,53 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', '/path/to/your/php_error.log');
+// Connessione al database
 require_once 'conn.php';
 
+// Verifica se l'utente è autenticato
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: login.php");
     exit();
 }
 
-$userId = $_SESSION['id']; // Assicurati che questo corrisponda al nome della variabile di sessione corretta
+// Recupera l'id dell'utente dalla sessione
+$userId = $_SESSION['id'];
 
-// Recupera i blog di cui l'utente è proprietario o co-autore
-$blogsQuery = "SELECT b.id_blog, b.titolo_blog, b.id_categoria, c.nome_categoria
+// Query per recuperare i blog di cui l'utente è proprietario o co-autore
+$blogsQuery = "SELECT b.id_blog, b.titolo_blog
                FROM blog b
-               LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog AND ca.id_utente = ?
-               LEFT JOIN categoria c ON b.id_categoria = c.id_categoria
-               WHERE b.id_proprietario = ? OR ca.id_utente = ?";
-$stmt = $conn->prepare($blogsQuery);
-$stmt->bind_param("iii", $userId, $userId, $userId);
-$stmt->execute();
-$blogsResult = $stmt->get_result();
+               LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog
+               WHERE b.id_proprietario = $userId OR ca.id_utente = $userId";
 
-// Recupera le sottocategorie dal database
-$sqlSottocategorie = "SELECT id_sottocat, nome_sottocat, id_categoria FROM sottocat";
-$sottocategorieResult = $conn->query($sqlSottocategorie);
+$blogsResult = $conn->query($blogsQuery);
 
+// Funzione per ottenere le categorie
+function getCategories($conn) {
+    $sql = "SELECT id_categoria, nome_categoria FROM categoria ORDER BY nome_categoria";
+    $result = $conn->query($sql);
+    $categories = [];
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $categories[] = $row;
+        }
+    }
+    return $categories;
+}
+
+// Chiudi la connessione
+$conn->close();
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crea un nuovo post</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        .error { color: red; }
+        .success { color: green; }
+    </style>
 </head>
 <body>
     <h1>Crea un nuovo post</h1>
@@ -41,7 +55,7 @@ $sottocategorieResult = $conn->query($sqlSottocategorie);
         <label for="blog">Seleziona il blog:</label>
         <select name="blog_id" id="blog" required>
             <?php while ($blog = $blogsResult->fetch_assoc()): ?>
-                <option value="<?php echo $blog['id_blog']; ?>"><?php echo $blog['titolo_blog']; ?> (<?php echo $blog['nome_categoria']; ?>)</option>
+                <option value="<?php echo $blog['id_blog']; ?>"><?php echo $blog['titolo_blog']; ?></option>
             <?php endwhile; ?>
         </select>
 
@@ -51,11 +65,17 @@ $sottocategorieResult = $conn->query($sqlSottocategorie);
         <label for="description">Descrizione del post:</label>
         <textarea name="description" id="description" required></textarea>
 
-        <label for="category">Sottocategoria:</label>
-        <select name="sottocat" id="sottocat" required>
-            <?php while ($sottocategoria = $sottocategorieResult->fetch_assoc()): ?>
-                <option value="<?php echo $sottocategoria['id_sottocat']; ?>"><?php echo $sottocategoria['nome_sottocat']; ?></option>
-            <?php endwhile; ?>
+        <label for="category">Categoria:</label>
+        <select name="category" id="category" required>
+            <option value="">Seleziona una categoria</option>
+            <?php foreach ($categories as $category): ?>
+                <option value="<?php echo $category['id_categoria']; ?>"><?php echo $category['nome_categoria']; ?></option>
+            <?php endforeach; ?>
+        </select>
+
+        <label for="subcategory">Sottocategoria:</label>
+        <select name="subcategory" id="subcategory" required>
+            <option value="">Seleziona una sottocategoria</option>
         </select>
 
         <label for="image">Immagine del post (opzionale):</label>
@@ -63,5 +83,21 @@ $sottocategorieResult = $conn->query($sqlSottocategorie);
 
         <input type="submit" value="Crea post">
     </form>
+
+    <script>
+        $(document).ready(function() {
+            $('#category').change(function() {
+                var categoria = $(this).val();
+                $.ajax({
+                    url: 'get_sottocategorie.php',
+                    method: 'POST',
+                    data: {categoria: categoria},
+                    success: function(response) {
+                        $('#subcategory').html(response);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -36,8 +36,9 @@ $stmt = $conn->prepare($usersQuery);
 $stmt->bind_param("i", $current_user_id);
 $stmt->execute();
 $usersResult = $stmt->get_result();
-
-
+if (!$usersResult) {
+    die("Errore nella query degli utenti: " . $stmt->error);
+}
 ?>
 
 <!DOCTYPE html>
