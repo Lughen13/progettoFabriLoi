@@ -13,11 +13,13 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
 // Recupera i dati dell'utente dalla sessione
 $username = $_SESSION['username'];
-$genere = $_SESSION['genere']; // Recupera il genere dell'utente dalla sessione
+//genere = $_SESSION['genere']; // Recupera il genere dell'utente dalla sessione
+$genere = isset($_SESSION['genere']) ? $_SESSION['genere'] : 'Altro'; // Valore predefinito se genere non è impostato
+
 
 function getSaluto($genere) {
-    switch ($genere) {
-        case 'Maschio':
+     switch ($genere) {
+     case 'Maschio':
             return 'Benvenuto';
         case 'Femmina':
             return 'Benvenuta';
