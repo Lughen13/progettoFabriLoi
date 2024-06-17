@@ -21,6 +21,7 @@ $description = $_POST['description'] ?? '';
 $category_id = $_POST['category'] ?? '';
 $style_id = $_POST['style'] ?? '';
 $co_autore_id = $_POST['co_autore'] ?? null; // recupero l'id dell'utente che è stato selezionato come co-autore 
+$current_user_id = $_SESSION['id']; 
 
 // Carica logo del blog
 $logo_destination = 'default.png'; // Valore di default
@@ -35,16 +36,10 @@ if (!empty($_FILES['logo']['name'])) {
 $insert_blog_query = "INSERT INTO blog (data_blog, titolo_blog, descrizione, img_logo, id_categoria, id_stile, id_proprietario, followers_count) VALUES (NOW(), ?, ?, ?, ?, ?, ?, 0)";
 $stmt_blog = $conn->prepare($insert_blog_query);
 $stmt_blog->bind_param("ssssii", $title, $description, $logo_destination, $category_id, $style_id, $_SESSION['id']);
+
 if ($stmt_blog->execute()) {
     $blog_id = $stmt_blog->insert_id; // Recupera l'id del blog appena inserito
     $stmt_blog->close();
-
-    // Inserisci il proprietario nella tabella 'co_autore'
-  //  $insert_owner_query = "INSERT INTO co_autore (id_utente, id_blog) VALUES (?, ?)";
-  //  $stmt_owner = $conn->prepare($insert_owner_query);
-  //  $stmt_owner->bind_param("ii", $_SESSION['id'], $blog_id);
-  //  $stmt_owner->execute();
-  //  $stmt_owner->close();
 
     // Se è stato selezionato un co-autore, inseriscilo nella tabella 'co_autore'
     if (!empty($co_autore_id)) {
