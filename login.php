@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $result = $stmt->get_result();
 
-<<<<<<< HEAD
+
         // Verifica se l'utente esiste, se sì, verifica la password
         if ($stmt->num_rows == 1) {
             $stmt->bind_result($id_utente, $db_username, $db_password);
