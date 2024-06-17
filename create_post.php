@@ -1,24 +1,27 @@
 <?php
-// Connessione al database
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
 require_once 'conn.php';
 
-// Verifica se l'utente è autenticato
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: login.php");
     exit();
 }
 
-$userId = $_SESSION['user_id'];
+$userId = $_SESSION['id']; // Aggiornato
 
-// Recupera i blog di cui l'utente è proprietario o co-autore
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog
                FROM blog b
-               LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog AND ca.id_utente = $userId
-               WHERE b.id_proprietario = $userId OR ca.id_utente = $userId";
-$blogsResult = $conn->query($blogsQuery);
+               LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog AND ca.id_utente = ?
+               WHERE b.id_proprietario = ? OR ca.id_utente = ?";
+$stmt = $conn->prepare($blogsQuery);
+$stmt->bind_param("iii", $userId, $userId, $userId);
+$stmt->execute();
+$blogsResult = $stmt->get_result();
 
-// Recupera le categorie dal database
 require_once 'categories.php';
 ?>
 
@@ -32,9 +35,13 @@ require_once 'categories.php';
     <form method="post" action="process_create_post.php" enctype="multipart/form-data">
         <label for="blog">Seleziona il blog:</label>
         <select name="blog_id" id="blog" required>
-            <?php while ($blog = $blogsResult->fetch_assoc()): ?>
-                <option value="<?php echo $blog['id_blog']; ?>"><?php echo $blog['titolo_blog']; ?></option>
-            <?php endwhile; ?>
+            <?php if ($blogsResult->num_rows > 0): ?>
+                <?php while ($blog = $blogsResult->fetch_assoc()): ?>
+                    <option value="<?php echo $blog['id_blog']; ?>"><?php echo $blog['titolo_blog']; ?></option>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <option value="">Non possiedi alcun blog</option>
+            <?php endif; ?>
         </select>
 
         <label for="title">Titolo del post:</label>
