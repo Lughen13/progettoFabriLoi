@@ -19,10 +19,10 @@ $genere = $_SESSION['genere']; // Recupera il genere dell'utente dalla sessione
 
 // Funzione per ottenere il saluto appropriato
 function getSaluto($genere) {
-    if ($genere === 'Maschio') {
+    if ($genere == 'Maschio') {
         return 'Benvenuto';
     } 
-    if ($genere === 'Femmina') {
+    if ($genere == 'Femmina') {
         return 'Benvenuta';
     } 
     else {
