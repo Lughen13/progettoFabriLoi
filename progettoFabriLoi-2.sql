@@ -40,12 +40,8 @@ CREATE TABLE `blog` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dump dei dati per la tabella `blog`
 --
-
-INSERT INTO `blog` (`id_blog`, `data_blog`, `titolo_blog`, `descrizione`, `img_logo`, `id_categoria`, `id_stile`, `id_proprietario`, `followers_count`) VALUES
-(1, '2024-06-16 16:49:26', 'sfdggnhmn', 'jgvhbmn,', 'default.png', 10, 1, 12, 0),
-(2, '2024-06-16 17:42:28', 'sfdv', 'dsf', 'uploads/Risorsa 7.png', 10, 1, 12, 0);
+--
 
 -- --------------------------------------------------------
 
@@ -58,26 +54,6 @@ CREATE TABLE `categoria` (
   `nome_categoria` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dump dei dati per la tabella `categoria`
---
-
-INSERT INTO `categoria` (`id_categoria`, `nome_categoria`) VALUES
-(10, 'Affari'),
-(13, 'Ambiente'),
-(12, 'Arte e Cultura'),
-(14, 'Automotive'),
-(4, 'Cucina'),
-(9, 'Educazione'),
-(6, 'Intrattenimento'),
-(15, 'Lifestyle'),
-(2, 'Moda'),
-(11, 'Musica'),
-(7, 'Notizie'),
-(5, 'Salute e Fitness'),
-(8, 'Sport'),
-(1, 'Tecnologia'),
-(3, 'Viaggi');
 
 -- --------------------------------------------------------
 
@@ -199,7 +175,8 @@ INSERT INTO `premium` (`id_utente`, `intestatario`, `numero_carta`, `data_scaden
 
 CREATE TABLE `sottocat` (
   `id_sottocat` int(10) NOT NULL,
-  `id_categoria` int(10) NOT NULL
+  `id_categoria` int(10) NOT NULL,
+  `nome_sottocat` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -250,15 +227,7 @@ CREATE TABLE `utente` (
 
 --
 -- Dump dei dati per la tabella `utente`
---
 
-INSERT INTO `utente` (`id_utente`, `username`, `email`, `pw`, `img_profilo`, `nome`, `cognome`, `genere`, `data_nascita`, `bio`, `numero_telefono`, `premium`) VALUES
-(9, 'loiluca', 'loiluca4@gmail.com', '$2y$10$QlydgHBZX7L7xVjWA2q3COPtmWLDEJ0FPXpVnfA7aXFZdMY1Dg3Ha', 'default.png', 'Luca', 'Loi', 'Maschio', '1999-02-08', NULL, '3319332823', 0),
-(10, 'n', 'nn@hmm.com', '$2y$10$6f6omr9j4p2QvzUTwqc3rubgWl2KpWo52qV47m1cwXebuPp9ZC61K', 'default.png', 'n', 'b', 'Femmina', '2024-05-14', NULL, '', 0),
-(11, 'loiluca1', 'loiluca6@gmail.com', '25d55ad283aa400af464c76d713c07ad', 'default.png', 'luca', 'loi', 'Altro', '1999-02-08', 'rwaestdrfhtgjyhjnk', '3319332823', 1),
-(12, 'lughen13', 'loiluca@gmail.com', '25d55ad283aa400af464c76d713c07ad', 'default.png', 'luca', 'loi', 'Maschio', '1999-02-08', 'wdaefgrdd', '3319332823', 1);
-
---
 -- Indici per le tabelle scaricate
 --
 

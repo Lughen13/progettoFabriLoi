@@ -1,41 +1,79 @@
 <?php
-// categories.php
-
 require_once 'conn.php';
 
-// Inserisci categorie
-$sqlCategorie = "INSERT INTO categoria (nome_categoria) VALUES (?)";
-$stmtCategorie = $conn->prepare($sqlCategorie);
+// Definisci un array associativo con le categorie e le sottocategorie
+$categoriesAndSubcategories = [
+    'Tecnologia' => [
+        'Internet',
+        'Hardware',
+        'Software',
+        'Sicurezza informatica',
+    ],
+    'Moda' => [
+        'Abbigliamento',
+        'Accessori',
+    ],
+    'Lifestyle' => [
+        'Benessere',
+        'Tempo libero',
+    ],
+    'Viaggi' => [
+        'Destinazioni',
+        'Trasporti',
+    ],
+    'Cucina' => [
+        'Ricette',
+        'Tecniche di cucina',
+    ],
+];
 
-$categorie = array("Tecnologia", "Sport", "Economia", "Politica");
+// Funzione per creare categorie e sottocategorie
+function createCategoriesAndSubcategories($conn, $categoriesAndSubcategories)
+{
+    foreach ($categoriesAndSubcategories as $categoryName => $subcategories) {
+        // Verifica se la categoria esiste già
+        $checkCategoryQuery = "SELECT id_categoria FROM categoria WHERE nome_categoria = ?";
+        $stmt = $conn->prepare($checkCategoryQuery);
+        $stmt->bind_param('s', $categoryName);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-foreach ($categorie as $categoria) {
-    $stmtCategorie->bind_param("s", $categoria);
-    $stmtCategorie->execute();
+        if ($result->num_rows === 0) {
+            // Crea la categoria
+            $sql = "INSERT INTO categoria (nome_categoria) VALUES (?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param('s', $categoryName);
+            $stmt->execute();
+
+            // Recupera l'ID della categoria appena creata
+            $categoryId = $stmt->insert_id;
+
+            // Crea le sottocategorie
+            foreach ($subcategories as $subcategoryName) {
+                $sql = "INSERT INTO sottocat (id_categoria, nome_sottocat) VALUES (?, ?)";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('is', $categoryId, $subcategoryName);
+                $stmt->execute();
+            }
+        } else {
+            // Recupera l'ID della categoria esistente
+            $row = $result->fetch_assoc();
+            $categoryId = $row['id_categoria'];
+
+            // Crea le sottocategorie per la categoria esistente
+            foreach ($subcategories as $subcategoryName) {
+                $sql = "INSERT INTO sottocat (id_categoria, nome_sottocat) VALUES (?, ?)";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('is', $categoryId, $subcategoryName);
+                $stmt->execute();
+            }
+        }
+    }
 }
 
-// Inserisci sottocategorie
-$sqlSottocategorie = "INSERT INTO sottocat (id_categoria, nome_sottocat) VALUES (?, ?)";
-$stmtSottocategorie = $conn->prepare($sqlSottocategorie);
+// Connessione al database
+require_once 'conn.php';
 
-$sottocategorie = array(
-    array(1, "Internet"),
-    array(1, "Hardware"),
-    array(2, "Calcio"),
-    array(2, "Basket"),
-    array(3, "Finanza"),
-    array(3, "Mercato azionario"),
-    array(4, "Elezioni"),
-    array(4, "Politica estera")
-);
-
-foreach ($sottocategorie as $sottocategoria) {
-    $stmtSottocategorie->bind_param("is", $sottocategoria[0], $sottocategoria[1]);
-    $stmtSottocategorie->execute();
-}
-
-$stmtCategorie->close();
-$stmtSottocategorie->close();
-
-$conn->close();
+// Creazione delle categorie e sottocategorie
+createCategoriesAndSubcategories($conn, $categoriesAndSubcategories);
 ?>
