@@ -30,7 +30,6 @@ function getSaluto($genere) {
     }
 }
 
-
 // Ottieni il saluto appropriato
 $saluto = getSaluto($genere);
 ?>
