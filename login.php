@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['username'] = $db_username;
 
                 // Reindirizza l'utente alla pagina principale
-                header("Location: index.php");
+                header("Location: home.php");
                 exit();
             } else {
                 // Password non valida
