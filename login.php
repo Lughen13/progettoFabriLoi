@@ -39,6 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION["loggedin"] = true;
                     $_SESSION["id"] = $id;
                     $_SESSION["username"] = $username;
+                    $_SESSION['genere'] = $db_genere; 
                     header("location: home.php");
                 } else {
                     $login_err = "Username o password non validi.";

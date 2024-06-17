@@ -13,23 +13,25 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
 // Recupera i dati dell'utente dalla sessione
 $username = $_SESSION['username'];
-//genere = $_SESSION['genere']; // Recupera il genere dell'utente dalla sessione
-$genere = isset($_SESSION['genere']); 
+$genere = $_SESSION['genere']; // Recupera il genere dell'utente dalla sessione
 
 
+
+// Funzione per ottenere il saluto appropriato
 function getSaluto($genere) {
-     switch ($genere) {
-     case 'Maschio':
-            return 'Benvenuto';
-        case 'Femmina':
-            return 'Benvenuta';
-        case 'Altro':
-            return 'Benvenut*';
-        default:
-            return 'Benvenut*'; // Restituisce "Benvenuto" come valore predefinito
+    if ($genere === 'Maschio') {
+        return 'Benvenuto';
+    } 
+    if ($genere === 'Femmina') {
+        return 'Benvenuta';
+    } 
+    else {
+        return 'Benvenut*';
     }
 }
 
+// Ottieni il saluto appropriato
+$saluto = getSaluto($genere);
 // Ottieni il saluto appropriato
 $saluto = getSaluto($genere);
 ?>
