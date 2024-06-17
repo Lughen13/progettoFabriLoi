@@ -16,24 +16,14 @@ $userId = $_SESSION['id'];
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog
                FROM blog b
                LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog
-               WHERE b.id_proprietario = $userId OR ca.id_utente = $userId";
+               WHERE b.id_proprietario = ? OR ca.id_utente = ?";
+$stmt = $conn->prepare($blogsQuery);
+$stmt->bind_param("ii", $userId, $userId);
+$stmt->execute();
+$blogsResult = $stmt->get_result();
 
-$blogsResult = $conn->query($blogsQuery);
-
-// Funzione per ottenere le categorie
-function getCategories($conn) {
-    $sql = "SELECT id_categoria, nome_categoria FROM categoria ORDER BY nome_categoria";
-    $result = $conn->query($sql);
-    $categories = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $categories[] = $row;
-        }
-    }
-    return $categories;
-}
-
-// Chiudi la connessione
+// Chiudi la connessione al database
+$stmt->close();
 $conn->close();
 ?>
 
@@ -54,6 +44,7 @@ $conn->close();
     <form method="post" action="process_create_post.php" enctype="multipart/form-data">
         <label for="blog">Seleziona il blog:</label>
         <select name="blog_id" id="blog" required>
+            <option value="">Seleziona un blog</option>
             <?php while ($blog = $blogsResult->fetch_assoc()): ?>
                 <option value="<?php echo $blog['id_blog']; ?>"><?php echo $blog['titolo_blog']; ?></option>
             <?php endwhile; ?>
@@ -64,14 +55,6 @@ $conn->close();
 
         <label for="description">Descrizione del post:</label>
         <textarea name="description" id="description" required></textarea>
-
-        <label for="category">Categoria:</label>
-        <select name="category" id="category" required>
-            <option value="">Seleziona una categoria</option>
-            <?php foreach ($categories as $category): ?>
-                <option value="<?php echo $category['id_categoria']; ?>"><?php echo $category['nome_categoria']; ?></option>
-            <?php endforeach; ?>
-        </select>
 
         <label for="subcategory">Sottocategoria:</label>
         <select name="subcategory" id="subcategory" required>
@@ -86,16 +69,23 @@ $conn->close();
 
     <script>
         $(document).ready(function() {
-            $('#category').change(function() {
-                var categoria = $(this).val();
-                $.ajax({
-                    url: 'get_sottocategorie.php',
-                    method: 'POST',
-                    data: {categoria: categoria},
-                    success: function(response) {
-                        $('#subcategory').html(response);
-                    }
-                });
+            $('#blog').change(function() {
+                var blogId = $(this).val();
+                if (blogId) {
+                    $.ajax({
+                        url: 'get_subcategories_by_blog.php',
+                        method: 'POST',
+                        data: {blog_id: blogId},
+                        success: function(response) {
+                            $('#subcategory').html(response);
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Errore AJAX: ' + status + ' - ' + error);
+                        }
+                    });
+                } else {
+                    $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
+                }
             });
         });
     </script>
