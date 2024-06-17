@@ -23,7 +23,7 @@ $categories = array(
 );
 
 // Preparare la query SQL
-$sql = "INSERT INTO categorie (descrizione) VALUES (?)";
+$sql = "INSERT INTO categoria (nome_categoria) VALUES (?)";
 
 // Preparare la dichiarazione
 $stmt = $conn->prepare($sql);
@@ -65,7 +65,7 @@ $conn->close();
     <ul>
         <?php while ($category = $categoriesResult->fetch_assoc()): ?>
             <li>
-                <?php echo $category['descrizione']; ?>
+                <?php echo $category['nome_cateforia']; ?>
                 <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
                     <input type="hidden" name="category_id" value="<?php echo $category['id_categoria']; ?>">
                     <input type="text" name="subcategory_name" placeholder="Nuova sottocategoria" required>
@@ -77,7 +77,7 @@ $conn->close();
 
     <h2>Crea una nuova categoria</h2>
     <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-        <input type="text" name="category_name" placeholder="Nome della categoria" required>
+        <input type="text" name="nome_categoria" placeholder="Nome della categoria" required>
         <button type="submit" name="create_category">Crea Categoria</button>
     </form>
 </body>
