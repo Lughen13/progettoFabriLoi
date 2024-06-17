@@ -1,6 +1,4 @@
 <?php
-// in home l'utente potrà vedere il post dei blog che segue
-//avrà accesso al proprio profilo per visualizzarlo, al setting per modificare i propri dati, ai comandi per creare poste e blog
 
 include 'conn.php';
 session_start();
@@ -11,29 +9,36 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
-// Recupera i dati dell'utente dalla sessione
-$username = $_SESSION['username'];
-$genere = $_SESSION['genere']; // Recupera il genere dell'utente dalla sessione
+
+// recupera l'id dell'utente dalla sessione
+$userId = $_SESSION['id'];
+
+// recupero genere e username dell'utente dal db per gestire il codice del saluto 
+$query = "SELECT genere, username FROM utente WHERE id_utente = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+$genere = $row['genere'];
+$username = $row['username'];
+$stmt->close();
 
 
-
-// Funzione per ottenere il saluto appropriato
-function getSaluto($genere) {
-    if ($genere == 'Maschio') {
+function Saluta($genere) {
+    if ($genere === 'Maschio') {
         return 'Benvenuto';
-    } 
-    if ($genere == 'Femmina') {
+    } elseif ($genere === 'Femmina') {
         return 'Benvenuta';
-    } 
-    else {
+    } elseif ($genere === 'Altro') {
         return 'Benvenut*';
+    } else {
+        return 'Benvenut*'; // Restituisce "Benvenut*" come valore predefinito
     }
 }
 
-// Ottieni il saluto appropriato
-$saluto = getSaluto($genere);
-// Ottieni il saluto appropriato
-$saluto = getSaluto($genere);
+$saluto = Saluta($genere);
+
 ?>
 
 <!DOCTYPE html>
@@ -56,7 +61,7 @@ $saluto = getSaluto($genere);
 
 <body>
 
-    <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
+    <h1><?php echo $saluto . ', ' . $username; ?> nella tua home </h1>
     <p>Questi sono i post più recenti dei blog che segui.</p>
 
     <!-- Codice per visualizzare i post dei blog seguiti -->
