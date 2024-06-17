@@ -1,28 +1,25 @@
 <?php
-// Mostra tutti gli errori
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
 
-// Connessione al database
-require_once 'conn.php';
-
-// Inizia la sessione
 session_start();
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Recupera i dati dal modulo di login
+require_once 'conn.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Prepara una dichiarazione SQL per evitare attacchi di SQL injection
-    $sql = "SELECT id_utente, username, password FROM utente WHERE username = ?";
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("s", $username);
-        $stmt->execute();
-        $stmt->store_result();
+    // Query per selezionare l'utente con la colonna della password corretta
+    $sql = "SELECT id_utente, username, pw FROM utente WHERE username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
+<<<<<<< HEAD
         // Verifica se l'utente esiste, se sì, verifica la password
         if ($stmt->num_rows == 1) {
             $stmt->bind_result($id_utente, $db_username, $db_password);
@@ -41,18 +38,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 // Password non valida
                 echo "La password non è valida.";
             }
+=======
+    if ($result->num_rows === 1) {
+        $row = $result->fetch_assoc();
+        // Verifica la password
+        if (password_verify($password, $row['pw'])) {
+            $_SESSION['loggedin'] = true;
+            $_SESSION['id'] = $row['id_utente'];
+            $_SESSION['username'] = $row['username'];
+            header("Location: my_profile.php");
+            exit();
+>>>>>>> 4e872e2 (tes5t)
         } else {
-            // Username non trovato
-            echo "Nessun account trovato con questo username.";
+            echo "Password errata.";
         }
-
-        $stmt->close();
     } else {
-        echo "Errore: Impossibile preparare la query SQL.";
+        echo "Nessun utente trovato con questo username.";
     }
 
-    $conn->close();
+    $stmt->close();
 }
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -64,10 +71,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <h2>Login</h2>
     <form method="post" action="login.php">
         <label for="username">Username:</label>
-        <input type="text" name="username" id="username" required><br><br>
+        <input type="text" id="username" name="username" required>
+        <br>
         <label for="password">Password:</label>
-        <input type="password" name="password" id="password" required><br><br>
-        <input type="submit" value="Login">
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
     </form>
 </body>
 </html>
