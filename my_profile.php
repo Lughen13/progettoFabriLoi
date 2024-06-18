@@ -1,52 +1,65 @@
 <?php
 session_start();
-
+require_once 'conn.php';
 // Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: login.php");
     exit();
 }
 
-require_once 'conn.php';
+//$userId = $_SESSION['id'];  // ID dell'utente autenticato
+//$action = isset($_GET['action']) ? $_GET['action'] : '';
 
-$userId = $_SESSION['id'];  // ID dell'utente autenticato
-$action = isset($_GET['action']) ? $_GET['action'] : '';
+// recupero 
+$userId = $_SESSION['id'];
+$sql = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, pw FROM utente WHERE id_utente = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
 
-// Gestione del Follow
-if ($action == 'follow') {
-    $id_blog = $_GET['id_blog'];
 
-    $followQuery = "INSERT INTO follow (id_utente, id_blog) VALUES (?, ?)";
-    $stmt = $conn->prepare($followQuery);
-    $stmt->bind_param("ii", $userId, $id_blog);
-    if ($stmt->execute()) {
-        // Follow eseguito con successo
-        header("Location: my_profile.php");  // Reindirizza alla pagina del profilo
-        exit();
-    } else {
-        echo "Errore durante il follow del blog: " . $stmt->error;
-    }
-    $stmt->close();
-}
+// Gestione del caricamento dell'immagine del profilo
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!empty($_FILES['img_profilo']['name'])) {
+        $imgFile = $_FILES['img_profilo'];
+        $imgFileName = $imgFile['name'];
+        $imgTmpName = $imgFile['tmp_name'];
+        $imgSize = $imgFile['size'];
+        $imgError = $imgFile['error'];
 
-// Gestione dell'Unfollow
-if ($action == 'unfollow') {
-    $id_blog = $_GET['id_blog'];
+        
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+        $imgExtension = strtolower(pathinfo($imgFileName, PATHINFO_EXTENSION));
 
-    $unfollowQuery = "DELETE FROM follow WHERE id_utente = ? AND id_blog = ?";
-    $stmt = $conn->prepare($unfollowQuery);
-    $stmt->bind_param("ii", $userId, $id_blog);
-    if ($stmt->execute()) {
-        // Unfollow eseguito con successo
-        header("Location: my_profile.php");  // Reindirizza alla pagina del profilo
-        exit();
-    } else {
-        echo "Errore durante l'unfollow del blog: " . $stmt->error;
-    }
-    $stmt->close();
-}
+        if (in_array($imgExtension, $allowedExtensions) && $imgError === 0) {
+            $newImgFileName =  $user['username'] . '_profilo.' . $imgExtension;
+            $imgDestination = 'uploads/' . $newImgFileName;
 
-// Recupero i blog dell'utente e dei relativi post
+            if (move_uploaded_file($imgTmpName, $imgDestination)) {
+                // Aggiorna l'immagine del profilo nel database
+                $updateQuery = "UPDATE utente SET img_profilo = ? WHERE id_utente = ?";
+                $stmt = $conn->prepare($updateQuery);
+                $stmt->bind_param('si', $newImgFileName, $userId);
+                $stmt->execute();
+
+                // Aggiorna i dati dell'utente
+                $sql = "SELECT * FROM utente WHERE id_utente = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $userId);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $user = $result->fetch_assoc();
+            } else {
+                echo "Errore durante il caricamento dell'immagine.";
+            }
+        } else {
+            echo "Formato dell'immagine non valido.";
+        }}}
+
+// recupero i blog e i relativi post dell'utente 
 $blogQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, p.id_post, p.titolo_post, p.descrizione_post, p.img_post
               FROM blog b
               LEFT JOIN post p ON b.id_blog = p.id_blog
@@ -58,24 +71,14 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Recupero informazioni utente
-$userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo FROM utente WHERE id_utente = ?";
+// Recupero informazioni utente da mettere nei dati personali 
+$userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, numero_telefono FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($userQuery);
 $stmt->bind_param("i", $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
-
-// Verifica se un blog è già seguito dall'utente
-function isBlogFollowed($blogs, $id_blog) {
-    foreach ($blogs as $blog) {
-        if ($blog['id_blog'] == $id_blog) {
-            return true;
-        }
-    }
-    return false;
-}
 
 ?>
 
@@ -88,24 +91,28 @@ function isBlogFollowed($blogs, $id_blog) {
 </head>
 <body>
     <h1>Il Mio Profilo</h1>
+    <style>
+        .profile-picture {
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
+
+<form method="post" enctype="multipart/form-data">
+        <label for="img_profilo">Immagine del profilo:</label>
+        <input type="file" name="img_profilo" id="img_profilo">
+        <input type="submit" value="Carica immagine">
+    </form>
 
     <div>
-        <img src="uploads/<?php echo $user['img_profilo']; ?>" alt="Immagine del Profilo" width="200">
-        <form method="post" enctype="multipart/form-data">
-            <input type="file" name="profile_image">
-            <button type="submit">Carica Immagine</button>
-        </form>
-        <?php if (isset($imageUpdateSuccess) && $imageUpdateSuccess): ?>
-            <p>Immagine del profilo aggiornata con successo.</p>
-        <?php endif; ?>
-    </div>
-
-    <div>
-        <h2>Informazioni Personali</h2>       
+         
+    <img src="uploads/<?php echo $user['img_profilo']; ?>" class="profile-picture" alt="Immagine del profilo">
+        <h2>Informazioni Personali</h2> 
         <p>Username: <?php echo $user['username']; ?></p>
         <p>Nome: <?php echo $user['nome']; ?></p>
         <p>Cognome: <?php echo $user['cognome']; ?></p>
- 
+        <p>Genere: <?php echo $user['genere']; ?></p>
+        <p>Numero di telefono: <?php echo $user['numero_telefono']; ?></p>
         <p>Bio:</p>
         <form method="post">
             <textarea name="bio"><?php echo $user['bio']; ?></textarea>
