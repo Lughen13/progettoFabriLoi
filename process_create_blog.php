@@ -23,14 +23,13 @@ $style_id = $_POST['style'] ?? '';
 $co_autore_id = $_POST['co_autore'] ?? null; // recupero l'id dell'utente che è stato selezionato come co-autore 
 $current_user_id = $_SESSION['id']; 
 
-// Carica logo del blog
-$logo_destination = 'default.png'; // Valore di default
-if (!empty($_FILES['logo']['name'])) {
-    $logo_name = $_FILES['logo']['name'];
-    $logo_tmp = $_FILES['logo']['tmp_name'];
-    $logo_destination = 'uploads/' . $logo_name;
-    move_uploaded_file($logo_tmp, $logo_destination);
-}
+
+// Carica l'immagine del logo
+$logo_tmp = $_FILES['logo']['tmp_name'];
+$logo_extension = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
+$logo_name = $title . $logo_extension; // Nuovo nome del file del logo
+$logo_destination = 'blog_logo/' . $logo_name;
+move_uploaded_file($logo_tmp, $logo_destination);
 
 // sessione per inserire il nuovo blog nel db 
 $insert_blog_query = "INSERT INTO blog (data_blog, titolo_blog, descrizione, img_logo, id_categoria, id_stile, id_proprietario, followers_count) VALUES (NOW(), ?, ?, ?, ?, ?, ?, 0)";

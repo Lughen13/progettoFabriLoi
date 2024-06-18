@@ -160,6 +160,10 @@ $stmt->close();
             max-width: 200px;
             max-height: 200px;
         }
+        .blog_logo {
+            max-width: 75px;
+            max-height: 75px;
+        }
     </style>
 
 <form method="post" enctype="multipart/form-data">
@@ -192,21 +196,23 @@ $stmt->close();
         <?php if (!empty($blogs)): ?>
             <?php foreach ($blogs as $blog): ?>
                 <div>
-                    <h3><?php echo $blog['titolo_blog']; ?></h3>
-                    <p><?php echo $blog['descrizione']; ?></p>
-                    <img src="blog_logo/<?php echo $blog['img_logo']; ?>" class="blog_logo" alt="Logo del blog">
-                    
-                    <a href="my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
-                    
-                    <?php if (!empty($blog['id_post'])): ?>
-                        <h4>Post:</h4>
-                        <ul>
-                            <?php
-                            $posts = array_filter($blogs, function ($item) use ($blog) {
-                                return $item['id_blog'] == $blog['id_blog'];
-                            });
-                            foreach ($posts as $post):
-                                ?>
+                <h3><?php echo $blog['titolo_blog']; ?></h3>
+            <p><?php echo $blog['descrizione']; ?></p>
+            <?php if (!empty($blog['img_logo'])): ?>
+                <img src="blog_logo/<?php echo basename($blog['img_logo']); ?>" class="blog_logo" alt="Logo del blog">
+            <?php endif; ?>
+            
+            <a href="my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
+            
+            <?php if (!empty($blog['id_post'])): ?>
+                <h4>Post:</h4>
+                <ul>
+                    <?php
+                    $posts = array_filter($blogs, function ($item) use ($blog) {
+                        return $item['id_blog'] == $blog['id_blog'];
+                    });
+                    foreach ($posts as $post):
+                        ?>
                                 <li>
                                     <h5><?php echo $post['titolo_post']; ?></h5>
                                     <p><?php echo $post['descrizione_post']; ?></p>
