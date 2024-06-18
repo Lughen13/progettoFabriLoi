@@ -127,6 +127,12 @@ $conn->close();
     <title>Visualizza Blog</title>
 </head>
 <body>
+<style>
+        .blog_logo {
+            max-width: 75px;
+            max-height: 75px;
+        }
+    </style>
     <nav>
         <ul>
             <li><a href="home.php">Home</a></li>
@@ -142,7 +148,7 @@ $conn->close();
 
     <h1>Benvenuto nella home di <?php echo htmlspecialchars($blog['titolo_blog']); ?></h1>
     <p><?php echo htmlspecialchars($blog['descrizione']); ?></p>
-    <img src="uploads/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
+    <img src="blog_logo/<?php echo basename($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
 
     <?php if ($resultPosts->num_rows > 0): ?>
         <h2>Post:</h2>
