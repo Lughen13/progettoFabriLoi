@@ -11,6 +11,50 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
+$userId = $_SESSION['id'];  // ID dell'utente autenticato
+$action = isset($_GET['action']) ? $_GET['action'] : '';
+
+// Gestione dell'eliminazione del blog
+if ($action == 'delete_blog') {
+    $id_blog = $_GET['id_blog'];
+
+    // Prima eliminare i post associati al blog
+    $deletePostsQuery = "DELETE FROM post WHERE id_blog = ?";
+    $stmt = $conn->prepare($deletePostsQuery);
+    $stmt->bind_param("i", $id_blog);
+    $stmt->execute();
+    $stmt->close();
+
+    // Ora eliminare il blog
+    $deleteBlogQuery = "DELETE FROM blog WHERE id_blog = ? AND id_proprietario = ?";
+    $stmt = $conn->prepare($deleteBlogQuery);
+    $stmt->bind_param("ii", $id_blog, $userId);
+    if ($stmt->execute()) {
+        // Eliminazione del blog eseguita con successo
+        header("Location: my_profile.php");  // Reindirizza alla pagina del profilo
+        exit();
+    } else {
+        echo "Errore durante l'eliminazione del blog: " . $stmt->error;
+    }
+    $stmt->close();
+}
+
+// Gestione dell'eliminazione del post
+if ($action == 'delete_post') {
+    $id_post = $_GET['id_post'];
+
+    $deletePostQuery = "DELETE FROM post WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
+    $stmt = $conn->prepare($deletePostQuery);
+    $stmt->bind_param("ii", $id_post, $userId);
+    if ($stmt->execute()) {
+        // Eliminazione del post eseguita con successo
+        header("Location: my_profile.php");  // Reindirizza alla pagina del profilo
+        exit();
+    } else {
+        echo "Errore durante l'eliminazione del post: " . $stmt->error;
+    }
+    $stmt->close();
+}
 //$userId = $_SESSION['id'];  // ID dell'utente autenticato
 //$action = isset($_GET['action']) ? $_GET['action'] : '';
 
@@ -95,6 +139,30 @@ $stmt->close();
 </head>
 <body>
     <h1>Il Mio Profilo</h1>
+    
+    <nav>
+        <ul>
+            <li><a href="home.php"> Home </a></li>
+            <li><a href="my_profile.php">Il mio profilo </a></li>
+            <li><a href="account_settings.php">Impostazioni profilo</a></li>
+            <li><a href="logout.php">Logout</a></li>
+        </ul>
+        <form action="search.php" method="GET">
+            <input type="text" name="query" placeholder="Cerca blog o post">
+            <button type="submit">Cerca</button>
+        </form>
+    </nav>
+
+    <div>
+        <img src="uploads/<?php echo $user['img_profilo']; ?>" alt="Immagine del Profilo" width="200">
+        <form method="post" enctype="multipart/form-data">
+            <input type="file" name="profile_image">
+            <button type="submit">Carica Immagine</button>
+        </form>
+        <?php if (isset($imageUpdateSuccess) && $imageUpdateSuccess): ?>
+            <p>Immagine del profilo aggiornata con successo.</p>
+        <?php endif; ?>
+    </div>
     <style>
         .profile-picture {
             max-width: 200px;
@@ -135,12 +203,6 @@ $stmt->close();
                     <h3><?php echo $blog['titolo_blog']; ?></h3>
                     <p><?php echo $blog['descrizione']; ?></p>
                     <img src="uploads/<?php echo $blog['img_logo']; ?>" alt="Logo del Blog" width="100">
-                    
-                    <?php if (isBlogFollowed($blogs, $blog['id_blog'])): ?>
-                        <a href="my_profile.php?action=unfollow&id_blog=<?php echo $blog['id_blog']; ?>">Non Seguire</a>
-                    <?php else: ?>
-                        <a href="my_profile.php?action=follow&id_blog=<?php echo $blog['id_blog']; ?>">Segui</a>
-                    <?php endif; ?>
                     
                     <a href="my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
                     
