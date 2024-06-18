@@ -9,7 +9,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
-
 // recupera l'id dell'utente dalla sessione
 $userId = $_SESSION['id'];
 
@@ -23,7 +22,6 @@ $row = $result->fetch_assoc();
 $genere = $row['genere'];
 $username = $row['username'];
 $stmt->close();
-
 
 function Saluta($genere) {
     if ($genere === 'Maschio') {
@@ -39,6 +37,18 @@ function Saluta($genere) {
 
 $saluto = Saluta($genere);
 
+// Recupera tutti i blog tranne quelli dell'utente autenticato
+$query = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, u.username
+          FROM blog b
+          INNER JOIN utente u ON b.id_proprietario = u.id_utente
+          WHERE b.id_proprietario != ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+$blogs = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 ?>
 
 <!DOCTYPE html>
@@ -46,6 +56,7 @@ $saluto = Saluta($genere);
 <head>
     <title>Home</title>
 </head>    
+<body>
     <nav>
         <ul>
             <li><a href="home.php"> Home </a></li>
@@ -59,12 +70,25 @@ $saluto = Saluta($genere);
         </form>
     </nav>
 
-<body>
-
     <h1><?php echo $saluto . ', ' . $username; ?> nella tua home </h1>
-    <p>Questi sono i post più recenti dei blog che segui.</p>
+    <p>Questi sono i blog degli altri utenti.</p>
 
-    <!-- Codice per visualizzare i post dei blog seguiti -->
+    <?php if (!empty($blogs)): ?>
+        <ul>
+            <?php foreach ($blogs as $blog): ?>
+                <li>
+                    <h2><?php echo $blog['titolo_blog']; ?></h2>
+                    <p><?php echo $blog['descrizione']; ?></p>
+                    <p>Proprietario: <?php echo $blog['username']; ?></p>
+                    <img src="uploads/<?php echo $blog['img_logo']; ?>" alt="Logo del Blog" width="100">
+
+                    <a href="view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>">Visualizza Post</a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    <?php else: ?>
+        <p>Non ci sono blog da mostrare.</p>
+    <?php endif; ?>
 
     <a href="create_blog.php">Crea un nuovo blog</a>
     <a href="create_post.php">Crea un nuovo post</a>
