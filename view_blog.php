@@ -125,72 +125,110 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizza Blog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-<style>
-        .blog_logo {
-            max-width: 75px;
-            max-height: 75px;
-        }
-    </style>
-    <nav>
-        <ul>
-            <li><a href="home.php">Home</a></li>
-            <li><a href="my_profile.php">Il mio profilo</a></li>
-            <li><a href="account_settings.php">Impostazioni profilo</a></li>
-            <li><a href="logout.php">Logout</a></li>
-        </ul>
-        <form action="search.php" method="GET">
-            <input type="text" name="query" placeholder="Cerca blog o post">
-            <button type="submit">Cerca</button>
-        </form>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Visualizza Blog</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="home.php">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="my_profile.php">Il mio profilo</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="account_settings.php">Impostazioni profilo</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="logout.php">Logout</a>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+            </form>
+        </div>
     </nav>
 
-    <h1>Benvenuto nella home di <?php echo htmlspecialchars($blog['titolo_blog']); ?></h1>
-    <p><?php echo htmlspecialchars($blog['descrizione']); ?></p>
-    <img src="blog_logo/<?php echo basename($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
+    <div class="container mt-5">
+        <h1>Benvenuto nella home di <?php echo htmlspecialchars($blog['titolo_blog']); ?></h1>
+        <p><?php echo htmlspecialchars($blog['descrizione']); ?></p>
+        <img src="uploads/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
 
-    <?php if ($resultPosts->num_rows > 0): ?>
-        <h2>Post:</h2>
-        <ul>
+        <?php if ($resultPosts->num_rows > 0): ?>
+            <h2 class="mt-5">Post:</h2>
             <?php while ($post = $resultPosts->fetch_assoc()): ?>
-                <li>
-                    <h3><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
-                    <p><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
-                    <?php if (!empty($post['img_post'])): ?>
-                        <img src="uploads/<?php echo htmlspecialchars($post['img_post']); ?>" alt="Immagine del Post" width="100">
-                    <?php endif; ?>
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
+                        <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
+                        <?php if (!empty($post['img_post'])): ?>
+                            <img src="uploads/<?php echo htmlspecialchars($post['img_post']); ?>" class="card-img-top" alt="Immagine del Post" width="100">
+                        <?php endif; ?>
 
-                    <!-- Visualizzazione dei commenti -->
-                    <?php if (isset($comments[$post['id_post']])): ?>
-                        <h4>Commenti:</h4>
-                        <?php foreach ($comments[$post['id_post']] as $comment): ?>
-                            <p><strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>): <?php echo htmlspecialchars($comment['contenuto']); ?></p>
+                        <!-- Visualizzazione dei commenti -->
+                        <?php if (isset($comments[$post['id_post']])): ?>
+                            <h4>Commenti:</h4>
+                            <?php foreach ($comments[$post['id_post']] as $comment): ?>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p class="card-text"><strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>): <?php echo htmlspecialchars($comment['contenuto']); ?></p>
+                                        </div>
+                            </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
 
                     <!-- Form per inserire un commento -->
-                    <form method="post">
+                    <form method="post" class="mt-3">
                         <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-                        <textarea name="comment" placeholder="Inserisci il tuo commento"></textarea>
-                        <button type="submit" name="action" value="comment">Inserisci Commento</button>
+                        <div class="form-group">
+                            <textarea class="form-control" name="comment" placeholder="Inserisci il tuo commento"></textarea>
+                        </div>
+                        <button type="submit" name="action" value="comment" class="btn btn-primary">Commenta</button>
                     </form>
 
-                    <!-- Form per mettere e togliere Mi Piace -->
-                    <form method="post">
-                        <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-                        <?php if (isset($likeCounts[$post['id_post']])): ?>
-                            <button type="submit" name="action" value="unlike">Togli Mi Piace</button>
-                        <?php else: ?>
-                            <button type="submit" name="action" value="like">Mi Piace</button>
-                        <?php endif; ?>
-                        <span><?php echo isset($likeCounts[$post['id_post']]) ? $likeCounts[$post['id_post']] : 0; ?> Mi Piace</span>
-                    </form>
-                </li>
-            <?php endwhile; ?>
-        </ul>
+                    <!-- Gestione Mi Piace -->
+                    <div class="mt-3">
+                        <?php
+                        $totalLikes = isset($likeCounts[$post['id_post']]) ? $likeCounts[$post['id_post']] : 0;
+                        $likeAction = 'like';
+                        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
+                            $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
+                            $stmt = $conn->prepare($likeQuery);
+                            $stmt->bind_param("ii", $post['id_post'], $userId);
+                            $stmt->execute();
+                            $likeResult = $stmt->get_result();
+                            if ($likeResult->num_rows > 0) {
+                                $likeAction = 'unlike';
+                            }
+                            $stmt->close();
+                        }
+                        ?>
+                        <form method="post">
+                            <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
+                            <button type="submit" name="action" value="<?php echo $likeAction; ?>" class="btn btn-success">
+                                Mi Piace <?php echo "($totalLikes)"; ?>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <?php endwhile; ?>
     <?php else: ?>
-        <p>Questo blog non ha ancora post.</p>
+        <p>Non ci sono post da mostrare.</p>
     <?php endif; ?>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
+```

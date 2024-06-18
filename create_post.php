@@ -25,9 +25,9 @@ $stmt = $conn->prepare($blogsQuery);
 $stmt->bind_param("ii", $userId, $userId);
 $stmt->execute();
 $blogsResult = $stmt->get_result();
+$stmt->close();
 
 // Chiudi la connessione al database
-$stmt->close();
 $conn->close();
 ?>
 
@@ -39,8 +39,55 @@ $conn->close();
     <title>Crea un nuovo post</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
-        .error { color: red; }
-        .success { color: green; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        input[type="text"], textarea, select, input[type="file"], input[type="submit"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        select {
+            appearance: auto;
+            -webkit-appearance: menulist;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
     </style>
 </head>
 <body>
@@ -50,7 +97,7 @@ $conn->close();
         <select name="blog_id" id="blog" required>
             <option value="">Seleziona un blog</option>
             <?php while ($blog = $blogsResult->fetch_assoc()): ?>
-                <option value="<?php echo $blog['id_blog']; ?>"><?php echo $blog['titolo_blog']; ?></option>
+                <option value="<?php echo $blog['id_blog']; ?>"><?php echo htmlspecialchars($blog['titolo_blog']); ?></option>
             <?php endwhile; ?>
         </select>
 

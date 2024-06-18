@@ -7,7 +7,6 @@ ini_set('error_log', '/path/to/your/php_error.log');
 // Connessione al database
 require_once 'conn.php';
 
-
 // Verifica se l'utente è autenticato
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
@@ -42,12 +41,95 @@ if (!$usersResult) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crea un nuovo blog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            margin: 0;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: center;
+            background-color: #444;
+            margin: 0;
+        }
+        nav ul li {
+            display: inline;
+            padding: 10px;
+        }
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+        nav ul li a:hover {
+            background-color: #555;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type=text], input[type=file], textarea, select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type=submit] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>Crea un nuovo blog</h1>
+    <header>
+        <h1>Crea un nuovo blog</h1>
+    </header>
+    <nav>        
+        <ul>
+            <li><a href="home.php"> Home </a></li>
+            <li><a href="my_profile.php">Il mio profilo </a></li>
+            <li><a href="account_settings.php">Impostazioni profilo</a></li>
+            <li><a href="logout.php">Logout</a></li>
+        </ul>
+    </nav>
     <form method="post" action="process_create_blog.php" enctype="multipart/form-data">
         <label for="title">Titolo del blog:</label>
         <input type="text" name="title" id="title" required>
