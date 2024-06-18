@@ -1,5 +1,10 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
 session_start();
+require_once 'conn.php';
 
 // Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
@@ -7,41 +12,48 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-require_once 'conn.php';
-
 $userId = $_SESSION['id'];  // ID dell'utente autenticato
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
-// Gestione del Follow
-if ($action == 'follow') {
+
+// Gestione dell'eliminazione del blog
+if ($action == 'delete_blog') {
     $id_blog = $_GET['id_blog'];
 
-    $followQuery = "INSERT INTO follow (id_utente, id_blog) VALUES (?, ?)";
-    $stmt = $conn->prepare($followQuery);
-    $stmt->bind_param("ii", $userId, $id_blog);
+    // Prima eliminare i post associati al blog
+    $deletePostsQuery = "DELETE FROM post WHERE id_blog = ?";
+    $stmt = $conn->prepare($deletePostsQuery);
+    $stmt->bind_param("i", $id_blog);
+    $stmt->execute();
+    $stmt->close();
+
+    // Ora eliminare il blog
+    $deleteBlogQuery = "DELETE FROM blog WHERE id_blog = ? AND id_proprietario = ?";
+    $stmt = $conn->prepare($deleteBlogQuery);
+    $stmt->bind_param("ii", $id_blog, $userId);
     if ($stmt->execute()) {
-        // Follow eseguito con successo
+        // Eliminazione del blog eseguita con successo
         header("Location: my_profile.php");  // Reindirizza alla pagina del profilo
         exit();
     } else {
-        echo "Errore durante il follow del blog: " . $stmt->error;
+        echo "Errore durante l'eliminazione del blog: " . $stmt->error;
     }
     $stmt->close();
 }
 
-// Gestione dell'Unfollow
-if ($action == 'unfollow') {
-    $id_blog = $_GET['id_blog'];
+// Gestione dell'eliminazione del post
+if ($action == 'delete_post') {
+    $id_post = $_GET['id_post'];
 
-    $unfollowQuery = "DELETE FROM follow WHERE id_utente = ? AND id_blog = ?";
-    $stmt = $conn->prepare($unfollowQuery);
-    $stmt->bind_param("ii", $userId, $id_blog);
+    $deletePostQuery = "DELETE FROM post WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
+    $stmt = $conn->prepare($deletePostQuery);
+    $stmt->bind_param("ii", $id_post, $userId);
     if ($stmt->execute()) {
-        // Unfollow eseguito con successo
+        // Eliminazione del post eseguita con successo
         header("Location: my_profile.php");  // Reindirizza alla pagina del profilo
         exit();
     } else {
-        echo "Errore durante l'unfollow del blog: " . $stmt->error;
+        echo "Errore durante l'eliminazione del post: " . $stmt->error;
     }
     $stmt->close();
 }
@@ -131,6 +143,8 @@ function isBlogFollowed($blogs, $id_blog) {
                         <a href="my_profile.php?action=follow&id_blog=<?php echo $blog['id_blog']; ?>">Segui</a>
                     <?php endif; ?>
                     
+                    <a href="my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
+                    
                     <?php if (!empty($blog['id_post'])): ?>
                         <h4>Post:</h4>
                         <ul>
@@ -144,6 +158,7 @@ function isBlogFollowed($blogs, $id_blog) {
                                     <h5><?php echo $post['titolo_post']; ?></h5>
                                     <p><?php echo $post['descrizione_post']; ?></p>
                                     <img src="uploads/<?php echo $post['img_post']; ?>" alt="Immagine del Post" width="100">
+                                    <a href="my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
