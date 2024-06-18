@@ -194,7 +194,7 @@ $stmt->close();
                 <div>
                     <h3><?php echo $blog['titolo_blog']; ?></h3>
                     <p><?php echo $blog['descrizione']; ?></p>
-                    <img src="uploads/<?php echo $blog['img_logo']; ?>" alt="Logo del Blog" width="100">
+                    <img src="blog_logo/<?php echo $blog['img_logo']; ?>" class="blog_logo" alt="Logo del blog">
                     
                     <a href="my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
                     
