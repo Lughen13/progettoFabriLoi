@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
 session_start();
 require_once 'conn.php';
 // Verifica se l'utente è autenticato
@@ -138,6 +142,8 @@ $stmt->close();
                         <a href="my_profile.php?action=follow&id_blog=<?php echo $blog['id_blog']; ?>">Segui</a>
                     <?php endif; ?>
                     
+                    <a href="my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
+                    
                     <?php if (!empty($blog['id_post'])): ?>
                         <h4>Post:</h4>
                         <ul>
@@ -151,6 +157,7 @@ $stmt->close();
                                     <h5><?php echo $post['titolo_post']; ?></h5>
                                     <p><?php echo $post['descrizione_post']; ?></p>
                                     <img src="uploads/<?php echo $post['img_post']; ?>" alt="Immagine del Post" width="100">
+                                    <a href="my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
