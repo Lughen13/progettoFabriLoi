@@ -140,29 +140,21 @@ $stmt->close();
 <body>
     <h1>Il Mio Profilo</h1>
     
-    <nav>
+    <nav>        
+        <form action="search.php" method="GET">
+            <input type="text" name="query" placeholder="Cerca blog o post">
+            <button type="submit">Cerca</button>
+        </form>
         <ul>
             <li><a href="home.php"> Home </a></li>
             <li><a href="my_profile.php">Il mio profilo </a></li>
             <li><a href="account_settings.php">Impostazioni profilo</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
-        <form action="search.php" method="GET">
-            <input type="text" name="query" placeholder="Cerca blog o post">
-            <button type="submit">Cerca</button>
-        </form>
+
     </nav>
 
-    <div>
-        <img src="uploads/<?php echo $user['img_profilo']; ?>" alt="Immagine del Profilo" width="200">
-        <form method="post" enctype="multipart/form-data">
-            <input type="file" name="profile_image">
-            <button type="submit">Carica Immagine</button>
-        </form>
-        <?php if (isset($imageUpdateSuccess) && $imageUpdateSuccess): ?>
-            <p>Immagine del profilo aggiornata con successo.</p>
-        <?php endif; ?>
-    </div>
+
     <style>
         .profile-picture {
             max-width: 200px;
