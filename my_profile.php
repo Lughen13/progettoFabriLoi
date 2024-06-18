@@ -55,10 +55,11 @@ if ($action == 'delete_post') {
     }
     $stmt->close();
 }
+
 //$userId = $_SESSION['id'];  // ID dell'utente autenticato
 //$action = isset($_GET['action']) ? $_GET['action'] : '';
 
-// recupero 
+// recupero i dati dalla tabella utente perchè ho bisogno dell'username per rinominare l'immagine
 $userId = $_SESSION['id'];
 $sql = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, pw FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($sql);
@@ -137,7 +138,7 @@ $stmt->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Il Mio Profilo</title>
 </head>
-<body>
+<<body style=" text-align: center;">
     <h1>Il Mio Profilo</h1>
     
     <nav>        
@@ -153,7 +154,6 @@ $stmt->close();
         </ul>
 
     </nav>
-
 
     <style>
         .profile-picture {
