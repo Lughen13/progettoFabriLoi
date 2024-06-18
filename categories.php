@@ -48,11 +48,18 @@ $categories = [
 
     function createCategories($conn, $categories)
     {
-        // Crea tutte le categorie nella tabella 'categoria'
+        // Crea tutte le categorie nella tabella categoria e le sottocategorie nella tabella sottocat
         foreach ($categories as $categoryName) {
             $sql = "INSERT INTO categoria (nome_categoria) VALUES (?)";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param('s', $categoryName);
+            $stmt->execute();
+            $categoryId = $stmt->insert_id;
+    
+            // Inserisci la stessa categoria nella tabella 'sottocategoria'
+            $sql = "INSERT INTO sottocat (nome_sottocat, id_categoria) VALUES (?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param('si', $categoryName, $categoryId);
             $stmt->execute();
         }
     }
