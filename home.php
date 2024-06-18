@@ -57,6 +57,13 @@ $stmt->close();
     <title>Home</title>
 </head>    
 <body>
+    
+<style>
+        .blog_logo {
+            max-width: 75px;
+            max-height: 75px;
+        }
+    </style>
     <nav>
         <ul>
             <li><a href="home.php"> Home </a></li>
@@ -80,7 +87,7 @@ $stmt->close();
                     <h2><?php echo $blog['titolo_blog']; ?></h2>
                     <p><?php echo $blog['descrizione']; ?></p>
                     <p>Proprietario: <?php echo $blog['username']; ?></p>
-                    <img src="uploads/<?php echo $blog['img_logo']; ?>" alt="Logo del Blog" width="100">
+                    <img src="blog_logo/<?php echo  basename($blog['img_logo']); ?>" alt="Logo del Blog">
 
                     <a href="view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>">Visualizza Post</a>
                 </li>

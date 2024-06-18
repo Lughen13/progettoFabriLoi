@@ -138,7 +138,7 @@ $stmt->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Il Mio Profilo</title>
 </head>
-<<body style=" text-align: center;">
+<body style=" text-align: center;">
     <h1>Il Mio Profilo</h1>
     
     <nav>        
