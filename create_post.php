@@ -119,26 +119,26 @@ $conn->close();
     </form>
 
     <script>
-        $(document).ready(function() {
-            $('#blog').change(function() {
-                var blogId = $(this).val();
-                if (blogId) {
-                    $.ajax({
-                        url: 'get_subcategories_by_blog.php',
-                        method: 'POST',
-                        data: {blog_id: blogId},
-                        success: function(response) {
-                            $('#subcategory').html(response);
-                        },
-                        error: function(xhr, status, error) {
-                            alert('Errore AJAX: ' + status + ' - ' + error);
-                        }
-                    });
-                } else {
-                    $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
+$(document).ready(function() {
+    $('#blog').on('change', function() {
+        var blogId = $(this).val();
+        if (blogId) {
+            $.ajax({
+                url: 'get_subcategories_by_blog.php', // Modifica qui
+                type: 'POST',
+                data: {id_blog: blogId},
+                success: function(response) {
+                    $('#subcategory').html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.log('Errore AJAX: ' + status + ' - ' + error);
                 }
             });
-        });
+        } else {
+            $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
+        }
+    });
+});
     </script>
 </body>
 </html>

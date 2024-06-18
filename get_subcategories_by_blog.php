@@ -7,8 +7,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blog_id'])) {
     // Query per ottenere le sottocategorie in base al blog
     $sql = "SELECT sc.id_sottocat, sc.nome_sottocat
             FROM sottocat sc
-            JOIN blog b ON sc.id_categoria = b.id_categoria
-            WHERE b.id_blog = ?";
+            WHERE id_categoria NOT IN (
+                SELECT id_categoria
+                FROM blog
+                WHERE id_blog = ?
+            )";
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $blogId);
     $stmt->execute();
