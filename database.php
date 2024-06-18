@@ -1,9 +1,9 @@
 <?php
-// Informazioni di connessione al database
-$host = "localhost";
-$user = "root";
-$password = "root"; // Inserisci la password di root per MAMP
-$database = "progettoFabriLoi";
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
+require_once 'conn.php';
 
 // Connessione al database
 $conn = new mysqli($host, $user, $password, $database);
@@ -13,8 +13,8 @@ if ($conn->connect_error) {
     die("Connessione fallita: " . $conn->connect_error);
 }
 
-// Funzione per eseguire una query
-function executeQuery($query, $params = []) {
+// Funzione per eseguire una query e restituire un singolo record
+function fetchRecord($query, $params = []) {
     global $conn;
     $stmt = $conn->prepare($query);
     if (!empty($params)) {
@@ -22,23 +22,25 @@ function executeQuery($query, $params = []) {
     }
     $stmt->execute();
     $result = $stmt->get_result();
+    $record = $result->fetch_assoc();
     $stmt->close();
-    return $result;
+    return $record;
 }
 
-// Funzione per recuperare un singolo record
-function fetchRecord($query, $params = []) {
-    $result = executeQuery($query, $params);
-    return $result->fetch_assoc();
-}
-
-// Funzione per recuperare più record
+// Funzione per eseguire una query e restituire più record
 function fetchRecords($query, $params = []) {
-    $result = executeQuery($query, $params);
+    global $conn;
+    $stmt = $conn->prepare($query);
+    if (!empty($params)) {
+        $stmt->bind_param(str_repeat('s', count($params)), ...$params);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
     $records = [];
     while ($row = $result->fetch_assoc()) {
         $records[] = $row;
     }
+    $stmt->close();
     return $records;
 }
 
@@ -53,3 +55,4 @@ function executeStatement($query, $params = []) {
     $stmt->close();
     return $conn->affected_rows;
 }
+?>
