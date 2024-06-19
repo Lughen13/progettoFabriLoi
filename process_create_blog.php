@@ -66,11 +66,13 @@ if ($stmt_blog->execute()) {
         $stmt_co_author->execute();
         $stmt_co_author->close();
         echo "Blog creato con successo con co-autore!";
+        echo '<script>setTimeout(function(){ window.location.href = "home.php"; }, 2000);</script>';
     } else {
         echo "Blog creato con successo!";
+        echo '<script>setTimeout(function(){ window.location.href = "home.php"; }, 2000);</script>';
     }
 } else {
-    echo "Errore durante la creazione del blog: " . $stmt_blog->error;
+    echo "Errore nella creazione del blog: " . $stmt_blog->error;
 }
 
 $conn->close();
