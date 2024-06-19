@@ -117,11 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['img_profilo'])) {
     }
 }
 
-// Recupero dei blog e dei relativi post dell'utente
-$blogsQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, p.id_post, p.titolo_post, p.descrizione_post, p.img_post
-               FROM blog b
-               LEFT JOIN post p ON b.id_blog = p.id_blog
-               WHERE b.id_proprietario = ?";
+// Recupero dei blog dell'utente
+$blogsQuery = "SELECT id_blog, titolo_blog, descrizione, img_logo FROM blog WHERE id_proprietario = ?";
 $stmt = $conn->prepare($blogsQuery);
 $stmt->bind_param("i", $userId);
 $stmt->execute();
@@ -231,28 +228,27 @@ $stmt->close();
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-        }
-        form button[type="submit"]:hover {
+            }
+            form button[type=“submit”]:hover {
             background-color: #45a049;
-        }
-    </style>
-</head>
+            }
+            </style>
+            </head>
 <body>
     <h1>Il Mio Profilo </h1>
     <nav>        
-    <form action="search.php" method="GET">
-        <input type="text" name="query" placeholder="Cerca blog o post">
-        <button type="submit">Cerca</button>
-    </form>
-    <ul>
-        <li><a href="home.php">Home</a></li>
-        <li><a href="my_profile.php">Il mio profilo</a></li>
-        <li><a href="account_settings.php">Impostazioni profilo</a></li>
-        <li><a href="logout.php">Logout</a></li>
-    </ul>
-</nav>
-
-<form method="post" enctype="multipart/form-data">
+        <form action="search.php" method="GET">
+            <input type="text" name="query" placeholder="Cerca blog o post">
+            <button type="submit">Cerca</button>
+        </form>
+        <ul>
+            <li><a href="home.php">Home</a></li>
+            <li><a href="my_profile.php">Il mio profilo</a></li>
+            <li><a href="account_settings.php">Impostazioni profilo</a></li>
+            <li><a href="logout.php">Logout</a></li>
+        </ul>
+    </nav>
+    <form method="post" enctype="multipart/form-data">
     <label for="img_profilo">Immagine del profilo:</label>
     <input type="file" name="img_profilo" id="img_profilo">
     <input type="submit" value="Carica immagine">
@@ -292,18 +288,27 @@ $stmt->close();
                     <a href="my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
                 </div>
                 
-                <?php if (!empty($blog['id_post'])): ?>
+                <?php
+                // Recupera i post associati a questo blog
+                $postsQuery = "SELECT id_post, titolo_post, descrizione_post, img_post FROM post WHERE id_blog = ?";
+                $stmt = $conn->prepare($postsQuery);
+                $stmt->bind_param("i", $blog['id_blog']);
+                $stmt->execute();
+                $postsResult = $stmt->get_result();
+                $posts = $postsResult->fetch_all(MYSQLI_ASSOC);
+                $stmt->close();
+                ?>
+                
+                <?php if (!empty($posts)): ?>
                     <h4>Post:</h4>
                     <ul>
-                        <?php foreach ($blogs as $post): ?>
-                            <?php if ($post['id_blog'] == $blog['id_blog']): ?>
-                                <li class="post-item">
-                                    <h5><?php echo $post['titolo_post']; ?></h5>
-                                    <p><?php echo $post['descrizione_post']; ?></p>
-                                    <img src="uploads/<?php echo $post['img_post']; ?>" alt="Immagine del Post" width="100">
-                                    <a href="my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
-                                </li>
-                            <?php endif; ?>
+                        <?php foreach ($posts as $post): ?>
+                            <li class="post-item">
+                                <h5><?php echo $post['titolo_post']; ?></h5>
+                                <p><?php echo $post['descrizione_post']; ?></p>
+                                <img src="photo_post/<?php echo $post['img_post']; ?>" alt="Immagine del Post" width="100">
+                                <a href="my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
+                            </li>
                         <?php endforeach; ?>
                     </ul>
                 <?php endif; ?>
@@ -320,3 +325,4 @@ $stmt->close();
 </div>
 </body>
 </html>
+
