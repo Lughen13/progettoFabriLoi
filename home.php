@@ -99,7 +99,7 @@ $stmt->close();
                 <?php foreach ($blogs as $blog): ?>
                     <div class="col-md-4 mb-4">
                         <div class="card">
-                            <img src="uploads/<?php echo $blog['img_logo']; ?>" class="card-img-top" alt="Logo del Blog">
+                            <img src="blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top" alt="Logo del Blog">
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo $blog['titolo_blog']; ?></h5>
                                 <p class="card-text"><?php echo $blog['descrizione']; ?></p>
