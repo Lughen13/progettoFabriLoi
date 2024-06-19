@@ -3,20 +3,22 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
-// Connessione al database
+
+
 require_once 'conn.php';
 
-// Verifica se l'utente è autenticato
+// id dell'utente dalla sessione
+$userId = $_SESSION['id'];
+
+// e verifico l'utente di cui ho la sessione aperta è loggato
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: login.php");
     exit();
 }
 
-// Recupera l'id dell'utente dalla sessione
-$userId = $_SESSION['id'];
 
-// essendo che l'utente può creare post in blog ci cui è sia proprietario che coautore, recupero gli id di entrambi i tipi di blog 
+// essendo che l'utente può creare post in blog di cui è sia proprietario che coautore, recupero gli id di entrambi i tipi di blog per inseriri nella select in cui l'utente può decidere a quale blog apparterrà il post
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog
                FROM blog b
                LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog

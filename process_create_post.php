@@ -14,12 +14,12 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 $userId = $_SESSION['id'];
 
 // Recupera i dati dal modulo
-$blogId = $_POST['blog_id'];
+$blogId = $_POST['id_blog'];
 $title = $_POST['title'];
 $description = $_POST['description'];
 $subcategoryId = $_POST['subcategory'];
 
-// Carica l'immagine del post, se presente
+// immagine ancora da gestire 
 $imageName = '';
 if (!empty($_FILES['image']['name'])) {
     $imageTmp = $_FILES['image']['tmp_name'];
@@ -27,7 +27,7 @@ if (!empty($_FILES['image']['name'])) {
     move_uploaded_file($imageTmp, $imageName);
 }
 
-// Inserisci il nuovo post nel database
+// inserisco il nuovo post all'interno del db
 $sql = "INSERT INTO post (titolo_post, descrizione_post, img_post, id_autore, id_sottocat, id_blog, data_post) VALUES (?, ?, ?, ?, ?, ?, NOW())";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("sssiii", $title, $description, $imageName, $userId, $subcategoryId, $blogId);

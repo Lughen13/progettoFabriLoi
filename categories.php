@@ -1,7 +1,7 @@
 <?php
 require_once 'conn.php';
 
-// arra associativo che definisce una serie di categorie e sottocategorie (che serve per dare una gerarchia di ordine)
+// array che definisce una serie di categorie e sottocategorie di default
 $categories = [
     'Tecnologia',
     'Internet',
@@ -47,8 +47,7 @@ $categories = [
 ];
 
     function createCategories($conn, $categories)
-    {
-        // Crea tutte le categorie nella tabella categoria e le sottocategorie nella tabella sottocat
+    { // la funzione serve per inserire categorie e sottocategorie nel db
         foreach ($categories as $categoryName) {
             $sql = "INSERT INTO categoria (nome_categoria) VALUES (?)";
             $stmt = $conn->prepare($sql);
@@ -56,15 +55,12 @@ $categories = [
             $stmt->execute();
             $categoryId = $stmt->insert_id;
     
-            // Inserisci la stessa categoria nella tabella 'sottocategoria'
             $sql = "INSERT INTO sottocat (nome_sottocat, id_categoria) VALUES (?, ?)";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param('si', $categoryName, $categoryId);
             $stmt->execute();
         }
     }
-
-    
 
 // Creazione delle categorie e sottocategorie
 createCategories($conn, $categories);
