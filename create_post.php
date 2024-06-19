@@ -125,7 +125,7 @@ $(document).ready(function() {
         var blogId = $(this).val();
         if (blogId) {
             $.ajax({
-                url: 'get_subcategories_by_blog.php', // Modifica qui
+                url: 'get_subcategories_by_blog.php',
                 type: 'POST',
                 data: {id_blog: blogId},
                 success: function(response) {
