@@ -7,8 +7,6 @@ ini_set('error_log', '/path/to/your/php_error.log');
 
 require_once 'conn.php';
 
-// id dell'utente dalla sessione
-$userId = $_SESSION['id'];
 
 // e verifico l'utente di cui ho la sessione aperta è loggato
 session_start();
@@ -17,6 +15,8 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
+// id dell'utente dalla sessione
+$userId = $_SESSION['id'];
 
 // essendo che l'utente può creare post in blog di cui è sia proprietario che coautore, recupero gli id di entrambi i tipi di blog per inseriri nella select in cui l'utente può decidere a quale blog apparterrà il post
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog
@@ -95,7 +95,7 @@ $conn->close();
     <h1>Crea un nuovo post</h1>
     <form method="post" action="process_create_post.php" enctype="multipart/form-data">
         <label for="blog">Seleziona il blog:</label>
-        <select name="blog_id" id="blog" required>
+        <select name="id_blog" id="blog" required>
             <option value="">Seleziona un blog</option>
             <?php while ($blog = $blogsResult->fetch_assoc()): ?>
                 <option value="<?php echo $blog['id_blog']; ?>"><?php echo htmlspecialchars($blog['titolo_blog']); ?></option>

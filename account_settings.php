@@ -246,10 +246,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php if (!empty($passwordError)): ?>
             <p class="error"><?php echo $passwordError; ?></p>
         <?php endif; ?>
-        <div>
-            <label for="old_password">Password Attuale:</label>
-            <input type="password" id="old_password" name="old_password" required>
-        </div>
+        
         <div>
             <label for="password">Nuova Password:</label>
             <input type="password" id="password" name="password">
@@ -306,6 +303,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <span class="error"><?php echo $data_scadenza_err; ?></span>
             </div>
         </div>
+
+        <div>
+            <label for="old_password">Per salvare le modifiche, inserisci la password:</label>
+            <input type="password" id="old_password" name="old_password" required>  
+            <p>  (in caso tu avessi cambiato password, inserisci la)</p>
+        </div>
+
         <button type="submit" name="save_changes" value="1">Salva Modifiche</button>
     </form>
     <button onclick="window.location.href='home.php'">Torna alla Home</button>
