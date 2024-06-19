@@ -2,14 +2,12 @@
 session_start();
 
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    // Se l'utente non è autenticato, reindirizza alla pagina di login
     header("Location: login.php");
     exit();
 }
 
 require_once 'conn.php';
 
-// recupero i dati dell'utente dal db, faccio la join perchè i dati degli utenti premium inseriscono i dati delle carte che vanno in una seconda tabella 
 $userId = $_SESSION['id'];
 $sql = "SELECT u.username, u.email, u.pw, u.nome, u.cognome, u.data_nascita, u.genere, u.numero_telefono, u.premium, p.intestatario, p.numero_carta, p.data_scadenza
         FROM utente u
@@ -22,16 +20,14 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-// Variabili di errore
 $passwordError = $emailError = $intestatario_err = $carta_err = $data_scadenza_err = "";
 
-// Gestione dell'invio del modulo
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $oldPassword = $_POST['old_password'];
     $hashedPassword = $user['pw'];
 
     if (empty($oldPassword)) {
-        $passwordError = "Inserisci la tua password per salvare le modifiche (in caso di modifica password inserisci quella attuale).";
+        $passwordError = "Inserisci la tua password per salvare le modifiche.";
     } elseif (md5($oldPassword) !== $hashedPassword) {
         $passwordError = "La password non è corretta.";
     } else {
@@ -44,7 +40,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $updateFields[] = "pw = '$password_hash'";
         }
 
-        // Aggiorna le informazioni dell'utente
         if (isset($_POST['nome']) && !empty($_POST['nome'])) {
             $nome = $_POST['nome'];
             $updateFields[] = "nome = '$nome'";
@@ -57,7 +52,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (isset($_POST['email']) && !empty($_POST['email'])) {
             $email = $_POST['email'];
-            // Verifica se l'email è già in uso da un altro utente
             $checkEmailQuery = "SELECT id_utente FROM utente WHERE email = ? AND id_utente != ?";
             $stmt = $conn->prepare($checkEmailQuery);
             $stmt->bind_param("si", $email, $userId);
@@ -135,7 +129,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->close();
         }
 
-        // Procedi con l'aggiornamento del database solo se non ci sono errori
         if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
             if (!empty($updateFields)) {
                 $updateQuery = "UPDATE utente SET " . implode(", ", $updateFields) . " WHERE id_utente = ?";
@@ -213,7 +206,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 16px;
         }
         input[type=submit]:hover, button:hover {
-        background-color: #45a049;
+            background-color: #45a049;
         }
 
         .error {
@@ -245,83 +238,82 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         button:hover {
             background-color: #0056b3;
         }
-    </style>
-    </head>
-<body>
+        </style>
+</head>
+ <body>
     <h1>Impostazioni Account</h1>
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
         <?php if (!empty($passwordError)): ?>
             <p class="error"><?php echo $passwordError; ?></p>
         <?php endif; ?>
         <div>
+            <label for="old_password">Password Attuale:</label>
+            <input type="password" id="old_password" name="old_password" required>
+        </div>
+        <div>
             <label for="password">Nuova Password:</label>
             <input type="password" id="password" name="password">
         </div>
         <div>
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" value="<?php echo $user['nome']; ?>">
-    </div>
-    
-    <div>
-        <label for="cognome">Cognome:</label>
-        <input type="text" id="cognome" name="cognome" value="<?php echo $user['cognome']; ?>">
-    </div>
-
-    <div>
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" value="<?php echo $user['email']; ?>">
-        <span class="error"><?php echo $emailError; ?></span>
-    </div>
-
-    <div>
-        <label for="data_nascita">Data di Nascita:</label>
-        <input type="date" id="data_nascita" name="data_nascita" value="<?php echo $user['data_nascita']; ?>">
-    </div>
-    
-    <div>
-        <label for="genere">Genere:</label>
-        <select id="genere" name="genere">
-            <option value="">Seleziona il tuo genere</option>
-            <option value="Maschio" <?php if($user['genere'] == "Maschio") echo "selected"; ?>>Maschio</option>
-            <option value="Femmina" <?php if($user['genere'] == "Femmina") echo "selected"; ?>>Femmina</option>
-            <option value="Altro" <?php if($user['genere'] == "Altro") echo "selected"; ?>>Altro</option>
-        </select>
-    </div>
-    
-    <div>
-        <label for="numero_telefono">Numero di Telefono:</label>
-        <input type="text" id="numero_telefono" name="numero_telefono" value="<?php echo $user['numero_telefono']; ?>"> 
-    </div>
-
-    <div>
-        <label for="premium">Premium:</label>
-        <input type="checkbox" id="premium" name="premium" value="1" <?php if ($user['premium'] == 1) echo 'checked'; ?>>
-    </div>
-    
-    <div id="premiumInfo">
-        <p>Intestatario, data di scadenza e numero di carta vanno inseriti tutti e tre anche solo per la modifica</p>
-        <div>
-            <label for="intestatario">Intestatario:</label>
-            <input type="text" id="intestatario" name="intestatario" value="<?php echo $user['intestatario']; ?>">
-            <span class="error"><?php echo $intestatario_err; ?></span>
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" value="<?php echo $user['nome']; ?>">
         </div>
         <div>
-            <label for="carta">Numero di Carta:</label>
-            <input type="text" id="carta" name="carta" value="<?php echo $user['numero_carta']; ?>">
-            <span class="error"><?php echo $carta_err; ?></span>
+            <label for="cognome">Cognome:</label>
+            <input type="text" id="cognome" name="cognome" value="<?php echo $user['cognome']; ?>">
         </div>
         <div>
-            <label for="data_scadenza">Data di Scadenza:</label>
-            <input type="date" id="data_scadenza" name="data_scadenza" value="<?php echo $user['data_scadenza']; ?>">
-            <span class="error"><?php echo $data_scadenza_err; ?></span>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="<?php echo $user['email']; ?>">
+            <span class="error"><?php echo $emailError; ?></span>
         </div>
-    </div>
-
-    <input type="hidden" name="old_password" value="">
-    <button type="submit" name="save_changes" value="1">Salva Modifiche</button>
-</form>
-
-<button onclick="window.location.href='home.php'">Torna alla Home</button>
+        <div>
+            <label for="data_nascita">Data di Nascita:</label>
+            <input type="date" id="data_nascita" name="data_nascita" value="<?php echo $user['data_nascita']; ?>">
+        </div>
+        <div>
+            <label for="genere">Genere:</label>
+            <select id="genere" name="genere">
+                <option value="">Seleziona il tuo genere</option>
+                <option value="Maschio" <?php if($user['genere'] == "Maschio") echo "selected"; ?>>Maschio</option>
+                <option value="Femmina" <?php if($user['genere'] == "Femmina") echo "selected"; ?>>Femmina</option>
+                <option value="Altro" <?php if($user['genere'] == "Altro") echo "selected"; ?>>Altro</option>
+            </select>
+        </div>
+        <div>
+            <label for="numero_telefono">Numero di Telefono:</label>
+            <input type="text" id="numero_telefono" name="numero_telefono" value="<?php echo $user['numero_telefono']; ?>"> 
+        </div>
+        <div>
+            <label for="premium">Premium:</label>
+            <input type="checkbox" id="premium" name="premium" value="1" <?php if ($user['premium'] == 1) echo 'checked'; ?>>
+        </div>
+        <div id="premiumInfo">
+            <p>Intestatario, data di scadenza e numero di carta vanno inseriti tutti e tre anche solo per la modifica</p>
+            <div>
+                <label for="intestatario">Intestatario:</label>
+                <input type="text" id="intestatario" name="intestatario" value="<?php echo $user['intestatario']; ?>">
+                <span class="error"><?php echo $intestatario_err; ?></span>
+            </div>
+            <div>
+                <label for="carta">Numero di Carta:</label>
+                <input type="text" id="carta" name="carta" value="<?php echo $user['numero_carta']; ?>">
+                <span class="error"><?php echo $carta_err; ?></span>
+            </div>
+            <div>
+                <label for="data_scadenza">Data di Scadenza:</label>
+                <input type="date" id="data_scadenza" name="data_scadenza" value="<?php echo $user['data_scadenza']; ?>">
+                <span class="error"><?php echo $data_scadenza_err; ?></span>
+            </div>
+        </div>
+        <button type="submit" name="save_changes" value="1">Salva Modifiche</button>
+    </form>
+    <button onclick="window.location.href='home.php'">Torna alla Home</button>
+    <script>
+        document.getElementById('premium').addEventListener('change', function () {
+            document.getElementById('premiumInfo').style.display = this.checked ? 'block' : 'none';
+        });
+    </script>
 </body>
 </html>
 

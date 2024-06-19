@@ -14,27 +14,45 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-
-// recuppera i dati della sessione
+// Recupera i dati della sessione
 $title = $_POST['title'] ?? '';
 $description = $_POST['description'] ?? '';
 $category_id = $_POST['category'] ?? '';
 $style_id = $_POST['style'] ?? '';
-$co_autore_id = $_POST['co_autore'] ?? null; // recupero l'id dell'utente che è stato selezionato come co-autore 
+$co_autore_id = $_POST['co_autore'] ?? null; // Recupero l'id dell'utente che è stato selezionato come co-autore 
 $current_user_id = $_SESSION['id']; 
 
+// Inizializza la variabile del nome del file del logo
+$logoName = '';
 
-// Carica l'immagine del logo
-$logo_tmp = $_FILES['logo']['tmp_name'];
-$logo_extension = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
-$logo_name = $title . $logo_extension; // Nuovo nome del file del logo
-$logo_destination = 'blog_logo/' . $logo_name;
-move_uploaded_file($logo_tmp, $logo_destination);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo'])) {
+    $logoFile = $_FILES['logo'];
+    $logoTmpName = $logoFile['tmp_name'];
+    $logoFileName = $logoFile['name'];
+    $logoSize = $logoFile['size'];
+    $logoError = $logoFile['error'];
 
-// sessione per inserire il nuovo blog nel db 
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    $logoExtension = strtolower(pathinfo($logoFileName, PATHINFO_EXTENSION));
+
+    if (in_array($logoExtension, $allowedExtensions) && $logoError === 0) {
+        $logoName = $title . '.' . $logoExtension; // Nuovo nome del file del logo
+        $logoDestination = 'blog_logo/' . $logoName;
+
+        if (move_uploaded_file($logoTmpName, $logoDestination)) {
+            echo "Logo caricato con successo.";
+        } else {
+            echo "Errore durante il caricamento del logo.";
+        }
+    } else {
+        echo "Formato del logo non valido o errore durante il caricamento.";
+    }
+}
+
+// Inserisci il nuovo blog nel database
 $insert_blog_query = "INSERT INTO blog (data_blog, titolo_blog, descrizione, img_logo, id_categoria, id_stile, id_proprietario, followers_count) VALUES (NOW(), ?, ?, ?, ?, ?, ?, 0)";
 $stmt_blog = $conn->prepare($insert_blog_query);
-$stmt_blog->bind_param("ssssii", $title, $description, $logo_destination, $category_id, $style_id, $_SESSION['id']);
+$stmt_blog->bind_param("ssssii", $title, $description, $logoName, $category_id, $style_id, $current_user_id);
 
 if ($stmt_blog->execute()) {
     $blog_id = $stmt_blog->insert_id; // Recupera l'id del blog appena inserito
