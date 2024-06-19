@@ -1,8 +1,8 @@
 <?php
 require_once 'conn.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['blog_id'])) {
-    $blogId = $_POST['blog_id'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id_blog'])) {
+    $blogId = $_POST['id_blog'];
 
     // Query per ottenere le sottocategorie in base al blog
     $sql = "SELECT sc.id_sottocat, sc.nome_sottocat

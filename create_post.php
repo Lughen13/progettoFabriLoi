@@ -16,7 +16,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 // Recupera l'id dell'utente dalla sessione
 $userId = $_SESSION['id'];
 
-// Query per recuperare i blog di cui l'utente è proprietario o co-autore
+// essendo che l'utente può creare post in blog ci cui è sia proprietario che coautore, recupero gli id di entrambi i tipi di blog 
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog
                FROM blog b
                LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog
@@ -27,7 +27,6 @@ $stmt->execute();
 $blogsResult = $stmt->get_result();
 $stmt->close();
 
-// Chiudi la connessione al database
 $conn->close();
 ?>
 
