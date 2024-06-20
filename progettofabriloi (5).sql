@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Giu 19, 2024 alle 19:21
+-- Creato il: Giu 20, 2024 alle 12:13
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -49,7 +49,6 @@ CREATE TABLE `categoria` (
   `id_categoria` int(20) NOT NULL,
   `nome_categoria` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 
 -- --------------------------------------------------------
 
@@ -182,17 +181,6 @@ CREATE TABLE `stile` (
   `background` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dump dei dati per la tabella `stile`
---
-
-INSERT INTO `stile` (`id_stile`, `nome`, `font`, `colore_testo`, `background`) VALUES
-(1, 'Moderno', 'Arial', '#333333', '#FFFFFF'),
-(2, 'Classico', 'Times New Roman', '#000000', '#F5F5F5'),
-(3, 'Minimalista', 'Helvetica', '#555555', '#FFFFFF'),
-(4, 'Vivace', 'Verdana', '#FF6600', '#FFFFCC'),
-(5, 'Elegante', 'Georgia', '#663300', '#F8F8F8');
-
 -- --------------------------------------------------------
 
 --
@@ -213,7 +201,6 @@ CREATE TABLE `utente` (
   `numero_telefono` varchar(10) DEFAULT NULL,
   `premium` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 
 --
 -- Indici per le tabelle scaricate
@@ -263,6 +250,7 @@ ALTER TABLE `follow`
 -- Indici per le tabelle `likes`
 --
 ALTER TABLE `likes`
+  ADD PRIMARY KEY (`id_like`),
   ADD KEY `like_ibfk_1` (`id_post`),
   ADD KEY `like_ibfk_2` (`id_utente`);
 
@@ -323,6 +311,12 @@ ALTER TABLE `categoria`
 --
 ALTER TABLE `commento`
   MODIFY `id_comm` int(10) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `likes`
+--
+ALTER TABLE `likes`
+  MODIFY `id_like` int(10) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `post`
@@ -393,8 +387,7 @@ ALTER TABLE `likes`
 --
 ALTER TABLE `post`
   ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `post_ibfk_3` FOREIGN KEY (`id_sottocat`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limiti per la tabella `premium`
@@ -406,8 +399,7 @@ ALTER TABLE `premium`
 -- Limiti per la tabella `sottocat`
 --
 ALTER TABLE `sottocat`
-  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `sottocat_ibfk_2` FOREIGN KEY (`id_sottocat`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
