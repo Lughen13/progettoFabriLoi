@@ -39,6 +39,7 @@ $categories = [
     'Arredamento',
     'Interni',
     'Giardino',  
+    'Parcheggio',
 ];
 
 

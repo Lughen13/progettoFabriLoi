@@ -104,7 +104,7 @@ $stmt->close();
                                 <h5 class="card-title"><?php echo $blog['titolo_blog']; ?></h5>
                                 <p class="card-text"><?php echo $blog['descrizione']; ?></p>
                                 <p class="card-text">Proprietario: <?php echo $blog['username']; ?></p>
-                                <a href="view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Visualizza Post</a>
+                                <a href="view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
                             </div>
                         </div>
                     </div>
