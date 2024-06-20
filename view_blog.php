@@ -1,5 +1,8 @@
 <?php
-
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
 include 'conn.php';
 session_start();
 
@@ -27,7 +30,19 @@ $result = $stmt->get_result();
 $blog = $result->fetch_assoc();
 $stmt->close();
 
-// Gestione del commento
+// Verifica se l'utente sta seguendo questo blog
+$isFollowing = false;
+$queryCheckFollow = "SELECT * FROM follow WHERE id_utente = ? AND id_blog = ?";
+$stmt_check_follow = $conn->prepare($queryCheckFollow);
+$stmt_check_follow->bind_param("ii", $userId, $id_blog);
+$stmt_check_follow->execute();
+$result_check_follow = $stmt_check_follow->get_result();
+if ($result_check_follow->num_rows > 0) {
+    $isFollowing = true;
+}
+$stmt_check_follow->close();
+
+// Gestione del commento e like
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'comment') {
         if (isset($_POST['comment']) && !empty($_POST['comment']) && isset($_POST['post_id'])) {
@@ -51,35 +66,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $postId = $_POST['post_id'];
 
         if ($_POST['action'] === 'like') {
-            // Inserisci il Mi Piace nel database
-            $insertLikeQuery = "INSERT INTO likes (id_utente, id_post) VALUES (?, ?)";
-            $stmt = $conn->prepare($insertLikeQuery);
-            $stmt->bind_param("ii", $userId, $postId);
-            if ($stmt->execute()) {
-                // Mi Piace inserito con successo
-                header("Location: view_blog.php?id_blog={$id_blog}");
-                exit;
-            } else {
-                echo "Errore durante l'inserimento del Mi Piace: " . $stmt->error;
-            }
-            $stmt->close();
-        } elseif ($_POST['action'] === 'unlike') {
-            // Rimuovi il Mi Piace dal database
-            $deleteLikeQuery = "DELETE FROM likes WHERE id_utente = ? AND id_post = ?";
-            $stmt = $conn->prepare($deleteLikeQuery);
-            $stmt->bind_param("ii", $userId, $postId);
-            if ($stmt->execute()) {
-                // Mi Piace rimosso con successo
-                header("Location: view_blog.php?id_blog={$id_blog}");
-                exit;
-            } else {
-                echo "Errore durante la rimozione del Mi Piace: " . $stmt->error;
-            }
-            $stmt->close();
-        }
-    }
+           // Controlla se l'utente ha già messo Mi Piace
+           $checkLikeQuery = "SELECT * FROM likes WHERE id_utente = ? AND id_post = ?";
+           $stmt = $conn->prepare($checkLikeQuery);
+           $stmt->bind_param("ii", $userId, $postId);
+           $stmt->execute();
+           $result = $stmt->get_result();
+           
+           if ($result->num_rows === 0) {
+               // Inserisci il Mi Piace nel database
+               $insertLikeQuery = "INSERT INTO likes (id_utente, id_post) VALUES (?, ?)";
+               $stmt = $conn->prepare($insertLikeQuery);
+               $stmt->bind_param("ii", $userId, $postId);
+               if ($stmt->execute()) {
+                   // Incrementa il conteggio dei Mi Piace nel post
+                   $updateLikesCountQuery = "UPDATE post SET likes_count = likes_count + 1 WHERE id_post = ?";
+                   $stmt = $conn->prepare($updateLikesCountQuery);
+                   $stmt->bind_param("i", $postId);
+                   $stmt->execute();
+                   $stmt->close();
+               } else {
+                   echo "Errore durante l'inserimento del Mi Piace: " . $stmt->error;
+               }
+           } else {
+               echo "Hai già messo Mi Piace a questo post.";
+           }
+           
+           
+          
+           header("Location: view_blog.php?id_blog={$id_blog}");
+           exit;
+       } elseif ($_POST['action'] === 'unlike') {
+           // Rimuovi il Mi Piace dal database
+           $deleteLikeQuery = "DELETE FROM likes WHERE id_utente = ? AND id_post = ?";
+           $stmt = $conn->prepare($deleteLikeQuery);
+           $stmt->bind_param("ii", $userId, $postId);
+           if ($stmt->execute()) {
+               // Decrementa il conteggio dei Mi Piace nel post
+               $updateLikesCountQuery = "UPDATE post SET likes_count = CASE WHEN likes_count > 0 THEN likes_count - 1 ELSE 0 END WHERE id_post = ?";
+               $stmt = $conn->prepare($updateLikesCountQuery);
+               $stmt->bind_param("i", $postId);
+               $stmt->execute();
+               $stmt->close();
+           } else {
+               echo "Errore durante la rimozione del Mi Piace: " . $stmt->error;
+           }
+           
+           // Redirect back to the same page after handling unlike action
+           header("Location: view_blog.php?id_blog={$id_blog}");
+           exit;
+       }
+   }
+   
 }
-
 // Recupera i post con i relativi commenti e il conteggio dei Mi Piace
 $queryPosts = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, 
                      COUNT(l.id_like) AS total_likes
@@ -117,8 +156,19 @@ while ($row = $resultLikes->fetch_assoc()) {
     $likeCounts[$row['id_post']] = $row['like_count'];
 }
 
+// Recupera il conteggio dei follower per questo blog
+$queryFollowCount = "SELECT COUNT(*) AS followers_count FROM follow WHERE id_blog = ?";
+$stmt_follow_count = $conn->prepare($queryFollowCount);
+$stmt_follow_count->bind_param("i", $id_blog);
+$stmt_follow_count->execute();
+$result_follow_count = $stmt_follow_count->get_result();
+$follow_count = $result_follow_count->fetch_assoc()['followers_count'];
+$stmt_follow_count->close();
+
+
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="it">
@@ -161,6 +211,23 @@ $conn->close();
     <div class="container mt-5">
         <h1>Benvenuto nella home di <?php echo htmlspecialchars($blog['titolo_blog']); ?></h1>
         <p><?php echo htmlspecialchars($blog['descrizione']); ?></p>
+        <!-- Mostra il conteggio dei follower -->
+        <p><strong>Follower:</strong> <?php echo $follow_count; ?></p>
+        
+        <!-- Pulsanti per follow/unfollow -->
+        <?php if (isset($isFollowing) && $isFollowing): ?>
+            <form method="post" class="d-inline">
+                <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+                <input type="hidden" name="action" value="unfollow">
+                <button type="submit" class="btn btn-danger">Non Seguire più</button>
+            </form>
+        <?php else: ?>
+            <form method="post" class="d-inline">
+                <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+                <input type="hidden" name="action" value="follow">
+                <button type="submit" class="btn btn-primary">Segui questo Blog</button>
+            </form>
+        <?php endif; ?>
         <img src="blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
 
         <?php if ($resultPosts->num_rows > 0): ?>
@@ -197,27 +264,30 @@ $conn->close();
 
                     <!-- Gestione Mi Piace -->
                     <div class="mt-3">
-                        <?php
-                        $totalLikes = isset($likeCounts[$post['id_post']]) ? $likeCounts[$post['id_post']] : 0;
-                        $likeAction = 'like';
-                        if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true) {
-                            $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
-                            $stmt = $conn->prepare($likeQuery);
-                            $stmt->bind_param("ii", $post['id_post'], $userId);
-                            $stmt->execute();
-                            $likeResult = $stmt->get_result();
-                            if ($likeResult->num_rows > 0) {
-                                $likeAction = 'unlike';
-                            }
-                            $stmt->close();
-                        }
-                        ?>
-                        <form method="post">
-                            <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-                            <button type="submit" name="action" value="<?php echo $likeAction; ?>" class="btn btn-success">
-                                Mi Piace <?php echo "($totalLikes)"; ?>
-                            </button>
-                        </form>
+                    <?php
+$totalLikes = isset($likeCounts[$post['id_post']]) ? $likeCounts[$post['id_post']] : 0;
+$likeAction = 'like';
+if ($_SESSION['loggedin'] === true) {
+    // Riapri la connessione se è stata chiusa
+    include 'conn.php';
+
+    $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
+    $stmt = $conn->prepare($likeQuery);
+    $stmt->bind_param("ii", $post['id_post'], $userId);
+    $stmt->execute();
+    $likeResult = $stmt->get_result();
+    if ($likeResult->num_rows > 0) {
+        $likeAction = 'unlike';
+    }
+    $stmt->close();
+}
+?>
+<form method="post">
+    <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
+    <button type="submit" name="action" value="<?php echo $likeAction; ?>" class="btn btn-success">
+        Mi Piace <?php echo "($totalLikes)"; ?>
+    </button>
+</form>
                     </div>
                 </div>
             </div>
