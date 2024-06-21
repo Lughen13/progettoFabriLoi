@@ -42,83 +42,6 @@ if ($result_check_follow->num_rows > 0) {
 }
 $stmt_check_follow->close();
 
-// Gestione del commento e like
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if ($_POST['action'] === 'comment') {
-        if (isset($_POST['comment']) && !empty($_POST['comment']) && isset($_POST['post_id'])) {
-            $comment = $_POST['comment'];
-            $postId = $_POST['post_id'];
-
-            // Inserisci il commento nel database
-            $insertCommentQuery = "INSERT INTO commento (data_comm, contenuto, id_utente, id_post) VALUES (NOW(), ?, ?, ?)";
-            $stmt = $conn->prepare($insertCommentQuery);
-            $stmt->bind_param("sii", $comment, $userId, $postId);
-            if ($stmt->execute()) {
-                // Commento inserito con successo
-                header("Location: view_blog.php?id_blog={$id_blog}");
-                exit;
-            } else {
-                echo "Errore durante l'inserimento del commento: " . $stmt->error;
-            }
-            $stmt->close();
-        }
-    } elseif ($_POST['action'] === 'like' || $_POST['action'] === 'unlike') {
-        $postId = $_POST['post_id'];
-
-        if ($_POST['action'] === 'like') {
-           // Controlla se l'utente ha già messo Mi Piace
-           $checkLikeQuery = "SELECT * FROM likes WHERE id_utente = ? AND id_post = ?";
-           $stmt = $conn->prepare($checkLikeQuery);
-           $stmt->bind_param("ii", $userId, $postId);
-           $stmt->execute();
-           $result = $stmt->get_result();
-           
-           if ($result->num_rows === 0) {
-               // Inserisci il Mi Piace nel database
-               $insertLikeQuery = "INSERT INTO likes (id_utente, id_post) VALUES (?, ?)";
-               $stmt = $conn->prepare($insertLikeQuery);
-               $stmt->bind_param("ii", $userId, $postId);
-               if ($stmt->execute()) {
-                   // Incrementa il conteggio dei Mi Piace nel post
-                   $updateLikesCountQuery = "UPDATE post SET likes_count = likes_count + 1 WHERE id_post = ?";
-                   $stmt = $conn->prepare($updateLikesCountQuery);
-                   $stmt->bind_param("i", $postId);
-                   $stmt->execute();
-                   $stmt->close();
-               } else {
-                   echo "Errore durante l'inserimento del Mi Piace: " . $stmt->error;
-               }
-           } else {
-               echo "Hai già messo Mi Piace a questo post.";
-           }
-           
-           
-          
-           header("Location: view_blog.php?id_blog={$id_blog}");
-           exit;
-       } elseif ($_POST['action'] === 'unlike') {
-           // Rimuovi il Mi Piace dal database
-           $deleteLikeQuery = "DELETE FROM likes WHERE id_utente = ? AND id_post = ?";
-           $stmt = $conn->prepare($deleteLikeQuery);
-           $stmt->bind_param("ii", $userId, $postId);
-           if ($stmt->execute()) {
-               // Decrementa il conteggio dei Mi Piace nel post
-               $updateLikesCountQuery = "UPDATE post SET likes_count = CASE WHEN likes_count > 0 THEN likes_count - 1 ELSE 0 END WHERE id_post = ?";
-               $stmt = $conn->prepare($updateLikesCountQuery);
-               $stmt->bind_param("i", $postId);
-               $stmt->execute();
-               $stmt->close();
-           } else {
-               echo "Errore durante la rimozione del Mi Piace: " . $stmt->error;
-           }
-           
-           // Redirect back to the same page after handling unlike action
-           header("Location: view_blog.php?id_blog={$id_blog}");
-           exit;
-       }
-   }
-   
-}
 // Recupera i post con i relativi commenti e il conteggio dei Mi Piace
 $queryPosts = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, 
                      COUNT(l.id_like) AS total_likes
@@ -165,10 +88,8 @@ $result_follow_count = $stmt_follow_count->get_result();
 $follow_count = $result_follow_count->fetch_assoc()['followers_count'];
 $stmt_follow_count->close();
 
-
 $conn->close();
 ?>
-
 
 <!DOCTYPE html>
 <html lang="it">
@@ -207,87 +128,85 @@ $conn->close();
             </form>
         </div>
     </nav>
-
     <div class="container mt-5">
-        <h1>Benvenuto nella home di <?php echo htmlspecialchars($blog['titolo_blog']); ?></h1>
-        <p><?php echo htmlspecialchars($blog['descrizione']); ?></p>
-        <!-- Mostra il conteggio dei follower -->
-        <p><strong>Follower:</strong> <?php echo $follow_count; ?></p>
-        
-        <!-- Pulsanti per follow/unfollow -->
-        <?php if (isset($isFollowing) && $isFollowing): ?>
-            <form method="post" class="d-inline">
-                <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
-                <input type="hidden" name="action" value="unfollow">
-                <button type="submit" class="btn btn-danger">Non Seguire più</button>
-            </form>
-        <?php else: ?>
-            <form method="post" class="d-inline">
-                <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
-                <input type="hidden" name="action" value="follow">
-                <button type="submit" class="btn btn-primary">Segui questo Blog</button>
-            </form>
-        <?php endif; ?>
-        <img src="blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
+    <h1>Benvenuto nella home di <?php echo htmlspecialchars($blog['titolo_blog']); ?></h1>
+    <p><?php echo htmlspecialchars($blog['descrizione']); ?></p>
+    <p>Follower: <?php echo $follow_count; ?></p>
+    <?php if ($isFollowing): ?>
+        <form method="post" action="follow.php" class="d-inline">
+            <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+            <input type="hidden" name="action" value="unfollow">
+            <button type="submit" class="btn btn-danger">Non Seguire più</button>
+        </form>
+    <?php else: ?>
+        <form method="post" action="follow.php" class="d-inline">
+            <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+            <input type="hidden" name="action" value="follow">
+            <button type="submit" class="btn btn-primary">Segui questo Blog</button>
+        </form>
+    <?php endif; ?>
 
-        <?php if ($resultPosts->num_rows > 0): ?>
-            <h2 class="mt-5">Post:</h2>
-            <?php while ($post = $resultPosts->fetch_assoc()): ?>
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
-                        <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
-                        <?php if (!empty($post['img_post'])): ?>
-                            <img src="uploads/<?php echo htmlspecialchars($post['img_post']); ?>" class="card-img-top" alt="Immagine del Post" width="100">
-                        <?php endif; ?>
+    <img src="blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
 
-                        <!-- Visualizzazione dei commenti -->
-                        <?php if (isset($comments[$post['id_post']])): ?>
-                            <h4>Commenti:</h4>
-                            <?php foreach ($comments[$post['id_post']] as $comment): ?>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <p class="card-text"><strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>): <?php echo htmlspecialchars($comment['contenuto']); ?></p>
-                                        </div>
+    <?php if ($resultPosts->num_rows > 0): ?>
+        <h2 class="mt-5">Post:</h2>
+        <?php while ($post = $resultPosts->fetch_assoc()): ?>
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
+                    <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
+                    <?php if (!empty($post['img_post'])): ?>
+                        <img src="photo_post/<?php echo htmlspecialchars($post['img_post']); ?>" class="card-img-top" alt="Immagine del Post" width="100">
+                    <?php endif; ?>
+
+                    <!-- Visualizzazione dei commenti -->
+                    <?php if (isset($comments[$post['id_post']])): ?>
+                        <h4>Commenti:</h4>
+                        <?php foreach ($comments[$post['id_post']] as $comment): ?>
+                            <div class="card">
+                                <div class="card-body">
+                                    <p class="card-text"><strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>): <?php echo htmlspecialchars($comment['contenuto']); ?></p>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
 
                     <!-- Form per inserire un commento -->
-                    <form method="post" class="mt-3">
+                    <form method="post" action="comment.php" class="mt-3">
                         <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
+                        <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
                         <div class="form-group">
                             <textarea class="form-control" name="comment" placeholder="Inserisci il tuo commento"></textarea>
                         </div>
-                        <button type="submit" name="action" value="comment" class="btn btn-primary">Commenta</button>
+                        <button type="submit" class="btn btn-primary">Commenta</button>
                     </form>
 
                     <!-- Gestione Mi Piace -->
                     <div class="mt-3">
-                    <?php
-$totalLikes = isset($likeCounts[$post['id_post']]) ? $likeCounts[$post['id_post']] : 0;
-$likeAction = 'like';
-if ($_SESSION['loggedin'] === true) {
-    // Riapri la connessione se è stata chiusa
-    include 'conn.php';
+                        <?php
+                        $totalLikes = isset($likeCounts[$post['id_post']]) ? $likeCounts[$post['id_post']] : 0;
+                        $likeAction = 'like';
+                        if ($_SESSION['loggedin'] === true) {
+                            include 'conn.php';
 
-    $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
-    $stmt = $conn->prepare($likeQuery);
-    $stmt->bind_param("ii", $post['id_post'], $userId);
-    $stmt->execute();
-    $likeResult = $stmt->get_result();
-    if ($likeResult->num_rows > 0) {
-        $likeAction = 'unlike';
-    }
-    $stmt->close();
-}
-?>
-<form method="post">
-    <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-    <button type="submit" name="action" value="<?php echo $likeAction; ?>" class="btn btn-success">
-        Mi Piace <?php echo "($totalLikes)"; ?>
-    </button>
-</form>
+                            $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
+                            $stmt = $conn->prepare($likeQuery);
+                            $stmt->bind_param("ii", $post['id_post'], $userId);
+                            $stmt->execute();
+                            $likeResult = $stmt->get_result();
+                            if ($likeResult->num_rows > 0) {
+                                $likeAction = 'unlike';
+                            }
+                            $stmt->close();
+                        }
+                        ?>
+                        <form method="post" action="like.php">
+                            <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
+                            <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+                            <button type="submit" name="action" value="<?php echo $likeAction; ?>" class="btn btn-success">
+                                Mi Piace <?php echo "($totalLikes)"; ?>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -302,4 +221,3 @@ if ($_SESSION['loggedin'] === true) {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
-
