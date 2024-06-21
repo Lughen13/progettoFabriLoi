@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Giu 20, 2024 alle 12:13
+-- Creato il: Giu 21, 2024 alle 14:31
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -85,7 +85,7 @@ CREATE TABLE `follow` (
   `id_follow` int(10) NOT NULL,
   `id_utente` int(10) NOT NULL,
   `id_blog` int(10) NOT NULL,
-  `data_follow` datetime NOT NULL
+  `data_follow` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -155,6 +155,13 @@ CREATE TABLE `premium` (
   `data_scadenza` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dump dei dati per la tabella `premium`
+--
+
+INSERT INTO `premium` (`id_utente`, `intestatario`, `numero_carta`, `data_scadenza`) VALUES
+(1, 'federicafabri', '1234567890123456', '2525-12-12');
+
 -- --------------------------------------------------------
 
 --
@@ -180,6 +187,7 @@ CREATE TABLE `stile` (
   `colore_testo` varchar(10) NOT NULL,
   `background` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 -- --------------------------------------------------------
 
@@ -313,6 +321,12 @@ ALTER TABLE `commento`
   MODIFY `id_comm` int(10) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT per la tabella `follow`
+--
+ALTER TABLE `follow`
+  MODIFY `id_follow` int(10) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT per la tabella `likes`
 --
 ALTER TABLE `likes`
@@ -323,7 +337,6 @@ ALTER TABLE `likes`
 --
 ALTER TABLE `post`
   MODIFY `id_post` int(10) NOT NULL AUTO_INCREMENT;
-
 --
 -- AUTO_INCREMENT per la tabella `sottocat`
 --
@@ -387,7 +400,8 @@ ALTER TABLE `likes`
 --
 ALTER TABLE `post`
   ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `post_ibfk_3` FOREIGN KEY (`id_sottocat`) REFERENCES `sottocat` (`id_sottocat`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limiti per la tabella `premium`
