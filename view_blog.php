@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                $stmt->bind_param("ii", $userId, $postId);
                if ($stmt->execute()) {
                    // Incrementa il conteggio dei Mi Piace nel post
-                   $updateLikesCountQuery = "UPDATE post SET likes_count = likes_count + 1 WHERE id_post = ?";
+                   $updateLikesCountQuery = "UPDATE post SET likes_count = likes_count + 0 WHERE id_post = ?";
                    $stmt = $conn->prepare($updateLikesCountQuery);
                    $stmt->bind_param("i", $postId);
                    $stmt->execute();
