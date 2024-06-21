@@ -37,9 +37,10 @@ function Saluta($genere) {
 $saluto = Saluta($genere);
 
 // Recupera tutti i blog tranne quelli dell'utente autenticato
-$query = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, u.username
+$query = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, u.username, c.nome_categoria
           FROM blog b
           INNER JOIN utente u ON b.id_proprietario = u.id_utente
+          INNER JOIN categoria c ON b.id_categoria = c.id_categoria
           WHERE b.id_proprietario != ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $userId);
@@ -104,6 +105,7 @@ $stmt->close();
                                 <h5 class="card-title"><?php echo $blog['titolo_blog']; ?></h5>
                                 <p class="card-text"><?php echo $blog['descrizione']; ?></p>
                                 <p class="card-text">Proprietario: <?php echo $blog['username']; ?></p>
+                                <p class="card-text">Categoria: <?php echo $blog['nome_categoria']; ?></p>
                                 <a href="view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
                             </div>
                         </div>

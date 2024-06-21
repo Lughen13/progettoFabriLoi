@@ -7,39 +7,47 @@ $categories = [
     'Internet',
     'Hardware',
     'Software',
+
     'Moda',
     'Abbigliamento',
     'Accessori',
-    'Lifestyle',
-    'Benessere',
+
     'Tempo libero',
-    'Viaggi',
-    'Cultura',
+    'Benessere',
+    'Vacanze',
     'Sport',
-    'Cine',
+    'Cinema',
     'Musica',
-    'Film',
     'Televisione',
     'Libri',
+
+    'Viaggi',
     'Destinazioni',
     'Trasporti',
+    'Cultura',
+    'Alloggi',
+
     'Cucina',
     'Ricette',
     'Tecniche di cucina',
+    'Attrezzi da cucina',
+
     'Scienze',
     'Biologia',
     'Medicina',
     'Fisica',
     'Chimica',
+
     'Recensioni',
     'Auto',
     'Alberghi',
     'Ristoranti',
     'Veicoli',
+
     'Arredamento',
     'Interni',
     'Giardino',  
-    'Parcheggio',
+    
 ];
 
 
