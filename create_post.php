@@ -19,7 +19,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 $userId = $_SESSION['id'];
 
 // essendo che l'utente può creare post in blog di cui è sia proprietario che coautore, recupero gli id di entrambi i tipi di blog per inseriri nella select in cui l'utente può decidere a quale blog apparterrà il post
-$blogsQuery = "SELECT b.id_blog, b.titolo_blog
+$blogsQuery = "SELECT b.id_blog, b.titolo_blog, b.id_categoria
                FROM blog b
                LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog
                WHERE b.id_proprietario = ? OR ca.id_utente = ?";
@@ -29,7 +29,7 @@ $stmt->execute();
 $blogsResult = $stmt->get_result();
 $stmt->close();
 
-$conn->close();
+
 ?>
 
 <!DOCTYPE html>
@@ -120,26 +120,26 @@ $conn->close();
     </form>
 
     <script>
-$(document).ready(function() {
-    $('#blog').on('change', function() {
-        var blogId = $(this).val();
-        if (blogId) {
-            $.ajax({
-                url: 'get_subcategories_by_blog.php',
-                type: 'POST',
-                data: {id_blog: blogId},
-                success: function(response) {
-                    $('#subcategory').html(response);
-                },
-                error: function(xhr, status, error) {
-                    console.log('Errore AJAX: ' + status + ' - ' + error);
-                }
-            });
-        } else {
-            $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
-        }
+    $(document).ready(function() {
+        $('#blog').on('change', function() {
+            var blogId = $(this).val();
+            if (blogId) {
+                $.ajax({
+                    url: 'get_subcategories_by_blog.php',
+                    type: 'POST',
+                    data: {id_blog: blogId},
+                    success: function(response) {
+                        $('#subcategory').html(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Errore AJAX: ' + status + ' - ' + error);
+                    }
+                });
+            } else {
+                $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
+            }
+        });
     });
-});
     </script>
 </body>
 </html>
