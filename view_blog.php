@@ -42,6 +42,7 @@ if ($result_check_follow->num_rows > 0) {
 }
 $stmt_check_follow->close();
 
+
 // Gestione del commento e like
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'comment') {
@@ -165,7 +166,6 @@ $result_follow_count = $stmt_follow_count->get_result();
 $follow_count = $result_follow_count->fetch_assoc()['followers_count'];
 $stmt_follow_count->close();
 
-
 $conn->close();
 ?>
 
@@ -211,23 +211,21 @@ $conn->close();
     <div class="container mt-5">
         <h1>Benvenuto nella home di <?php echo htmlspecialchars($blog['titolo_blog']); ?></h1>
         <p><?php echo htmlspecialchars($blog['descrizione']); ?></p>
-        <!-- Mostra il conteggio dei follower -->
-        <p><strong>Follower:</strong> <?php echo $follow_count; ?></p>
+        <p>Follower: <?php echo $follow_count; ?></p>
+            <?php if ($isFollowing): ?>
+                <form method="post" action="follow.php" class="d-inline">
+                    <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+                    <input type="hidden" name="action" value="unfollow">
+                    <button type="submit" class="btn btn-danger">Non Seguire più</button>
+                </form>
+            <?php else: ?>
+                <form method="post" action="follow.php" class="d-inline">
+                    <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+                    <input type="hidden" name="action" value="follow">
+                    <button type="submit" class="btn btn-primary">Segui questo Blog</button>
+                </form>
+            <?php endif; ?>
         
-        <!-- Pulsanti per follow/unfollow -->
-        <?php if (isset($isFollowing) && $isFollowing): ?>
-            <form method="post" class="d-inline">
-                <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
-                <input type="hidden" name="action" value="unfollow">
-                <button type="submit" class="btn btn-danger">Non Seguire più</button>
-            </form>
-        <?php else: ?>
-            <form method="post" class="d-inline">
-                <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
-                <input type="hidden" name="action" value="follow">
-                <button type="submit" class="btn btn-primary">Segui questo Blog</button>
-            </form>
-        <?php endif; ?>
         <img src="blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
 
         <?php if ($resultPosts->num_rows > 0): ?>
@@ -238,7 +236,7 @@ $conn->close();
                         <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
                         <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
                         <?php if (!empty($post['img_post'])): ?>
-                            <img src="uploads/<?php echo htmlspecialchars($post['img_post']); ?>" class="card-img-top" alt="Immagine del Post" width="100">
+                            <img src="photo_post/<?php echo htmlspecialchars($post['img_post']); ?>" class="card-img-top" alt="Immagine del Post" width="100">
                         <?php endif; ?>
 
                         <!-- Visualizzazione dei commenti -->
