@@ -155,12 +155,7 @@ CREATE TABLE `premium` (
   `data_scadenza` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dump dei dati per la tabella `premium`
---
 
-INSERT INTO `premium` (`id_utente`, `intestatario`, `numero_carta`, `data_scadenza`) VALUES
-(1, 'federicafabri', '1234567890123456', '2525-12-12');
 
 -- --------------------------------------------------------
 
