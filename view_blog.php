@@ -200,7 +200,7 @@ $conn->close();
                             $stmt->close();
                         }
                         ?>
-                        <form method="post" action="like.php">
+                        <form method="post" action="likes.php">
                             <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
                             <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
                             <button type="submit" name="action" value="<?php echo $likeAction; ?>" class="btn btn-success">
