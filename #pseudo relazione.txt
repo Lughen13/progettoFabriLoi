@@ -1,0 +1,236 @@
+descrizione delle pagine
+# NB 
+ci saranno in ogni pagina i bottoni per creare post e blog 
+HOME 
+- alla home si accede tramite login perchè l'utente non registrato non può visualizzare nulla 
+- all'interno della home ci sarà la barra di ricerca (che funziona in base alle categorie, nome utente e # inseriti nei post) 
+- ci sarà la visaulizzazione dei blog appartenenti agli altri utenti ------> vogliamo ordinarli in base a quelli con il follow e quelli senza? 
+- dalla home si accede a my_profile, impostazioni profilo e logout 
+
+MY_PROFILE
+- è il profilo dell'utente loggato 
+- visualizza il frontend del profilo con biografia, foto, blog e rispettivi post 
+
+SETTNG_ACCOUNT
+- serve per modificare i dati dell'utente e per modificare la checkbox per diventare premium 
+
+
+info tecniche 
+- i post hanno i like (che possono essere eliminati )
+- i post hanno i commenti (che possono essere modificati ed eliminati)
+- i blog hanno i follow (che può essere tolto)
+- standard può creare un solo blog e max 1 post per ogni blog di cui è autore o coautore 
+- standard può mettere massimo una foto per ogni post 
+- standard può mettere massimo 20 like in tutto 
+- satandard non può fare il pdf della pagina 
+- standard ha uno stile di defoult per il blog 
+- premium non ha nessun tipo di limitazioni 
+
+
+
+
+<H1> DESCRIZIONE DIAGRAMMA ER</H1>
+    <H2>entità UTENTE </H2>
+        collegato con la relazione PROPRIETARIO a blog
+            un utente può essere proprietario di min 0 max N blog ma un brlog può avere un solo proprietario 
+        collegato con la relazione COAUTORE a blog 
+            un utente può essere coautore di min 0 max N blog, un blog può avere min 0 max N coautori 
+        collegato con la relazione INSERISCE a FOLLOW 
+            perchè può inserire min  0 max N follow ad un blog (tramite la relazione Feed_3) 
+        collegata a LIKE tramite la relazone preferenza
+            perchè l'utente qpuò inserire min 0 max N preferenze (ovvero like ed eventualmente toglierlo) al POST 
+            la cardinlità da like a preferenza è min 1 max 1 perchè per un determinato post un determinato utente può mettere una sola preferenza (like). al contrario il post può ricevere min 0 max N like 
+        collegata all'entità COMMENTO tramite la relazione SCRIVE 
+            perchè l'utente può scrivere min 0 max N commenti per un post. Le cardinalità sono spiegate allo stesso modo di like, perchè il processo è lo stesso. 
+
+ H1>GENERALIZZAZIONE PARZIALE DI UTENTE STANDARD E PREMIUM </H1>
+ è parziale perchè le due sottoclassi non possiedono gli stessi attributi, o meglio, possideono ne possiedono di condivisi e di specifici (nel caso dei dati della carta di credito)
+
+    <H2>entità BLOG</H2> 
+        collegata con POST tramite la relazione CONTIENE 
+            un blog può contenere da 0 a N post ma nello stesso momento un post appartiene da un solo blog (da questo la cardinalità 1,1 da blog a post)
+        collegata con CATEGORIA tramite la relazione TEMA
+            un blog può avere da 1 a 1 categorie, ovvero un unica categoria ma una categoria può appartenere a più blog
+            noi determineremo un tot di categorie tra cui l'utente puù scelgiere con l'opzione altro
+        collegata con STILE tramite la relazione ASPETTO 
+            un blog ha un solo stile me nello stesso momento gli stili possono essere associati a più blog. 
+            l'utente standard ha uno stile di default mentre il premium può scegliere los tile del blog in base a dei pacchetti preimpostati 
+                
+    <H2>entità POST </H2>
+        collegata a LIKE e COMMENTO allo stesso modo, il post può avere min 0 e max N like e commenti (inseriti dagli utenti) , 
+        le caridnalità (1,1) stanno a significare che un determinato post può avere un solo like o un solo commento da quel detrminato utente 
+        collegata a blog con la cardinalià 1,1 perchè un singolo post può appartenere a minimo 1 blog me massimo 1 blog (unico blog) ma allo stesso momento un blog può contere più post (min 0 max N )
+    
+    <H2>entità STILE </H2>
+        l'entità stile ha una cardinalità di 0,N verso blog perchè: impostando dei pacchetti di stile essi esistono senza essere associati a nessun blog, un singolo stile può appartenre a 0 oppure N blog perchè più blog possono avere lo stesso pacchetto di stile 
+    
+    <H2>entità  CATEGORIA</H2>
+        verso sottocategoria conc ardinalità 0,n perchè una categria può avere minimo 0 dino ad un massimo di N sottocategorie
+    <H2>entità  SOTT-CATEGORIA</H2>  
+        verso categoria ha una cardinalità di 0,1 perchè una sott. ammesso che esista appartiene ad una sola categoria 
+
+    <h2> discorso delle cateogrie: </h2>
+    verranno inserite una serie di categorie generali da poter associare ai blog, in caso l'utente no nvoglia scegliere nessuna di queste avrà modo di scegliere la categoria "altro", ad ogni categoria verranno proposte delle sottocategorie di scelta; anche qui la possiblità di altro 
+
+    
+<H1>DIFFERENZE TRA UTENTE PREMIUM E !PREMIUM </H1>
+
+<table>
+    <tr>
+      <th>COSA </th>
+      <th>PREMIUM </th>
+      <th>!PREMIUM </th>
+    </tr>
+    <tr>
+      <td>BLOG</td>
+      <td>illimitati</td>
+      <td>solo 1</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td>illimitati</td>
+      <td>solo 1 per ogni blog</td>
+    </tr>
+    <tr>
+        <td>foto </td>
+        <td>max 3 per ogni post</td>
+        <td>max 1 per ogni post</td>
+      </tr> 
+      <tr>
+        <td> COMMENTI </td>
+        <td> illimitati</td>
+        <td> max 20 </td>
+      </tr> 
+      <tr>
+        <td>PDF/STAMP dei blog</td>
+        <td>SI</td>
+        <td>NO</td>
+      </tr> 
+      <tr>
+        <td>STILE</td>
+        <td>lo sceglie</td>
+        <td>default</td>
+      </tr>
+      <tr>
+        <td>ricerca</td>
+        <td>uguale </td>
+        <td>uguale</td>
+      </tr>
+  </table>
+					
+  
+  <H1>DESCRIZIONE TRIGGER</H1>
+
+<H2> due trigger sotto commento </H2>
+
+-- Trigger  CHE CONTA IL NUMERO DI COMMENTI INSERITI DALL'UTENTE PER CONTARE APPUNTO I COMMENTI INSERITI DATO CHE L'UTENTE !PREMIUM NE PUò NSERIRE MAX 20
+DELIMITER $$
+CREATE TRIGGER `aggiorna_conteggio_commenti` AFTER INSERT ON `commento` FOR EACH ROW BEGIN
+    DECLARE user_id INT;
+    DECLARE comment_count INT;
+    SELECT id_utente INTO user_id FROM commento WHERE id_comm = NEW.id_comm;
+    SELECT COUNT(*) INTO comment_count FROM commento WHERE id_utente = user_id;
+    UPDATE utente SET numero_commenti = comment_count WHERE id_utente = user_id;
+END
+$$
+DELIMITER ;
+
+--- Trigger CHE CONTA I COMMENTI DI UN POST: ogni volta che un utente commenta un post, il numero di commenti nel post dovrebbe essere aggiornato.
+DELIMITER $$
+CREATE TRIGGER `update_comment_count` AFTER INSERT ON `commento` FOR EACH ROW UPDATE post
+SET comments = comments + 1
+WHERE post.id = post_id
+$$
+DELIMITER ;
+
+<H2> UN TRIGER SOTTO FOLLOW </H2>
+--- CONTA QUANTI FOLLOW HA UN BLOG 
+DELIMITER $$
+CREATE TRIGGER `after_follow_insert` AFTER INSERT ON `follow` FOR EACH ROW BEGIN
+   UPDATE `blog`
+   SET `followers_count` = `followers_count` + 1
+   WHERE `id_blog` = NEW.`id_blog`;
+END
+$$
+DELIMITER ;
+  
+<H2> UN TRIGER SOTTO LIKE </H2>
+-- CONTA QUANTI LIKE HA UN POST 
+DELIMITER $$
+CREATE TRIGGER `after_like_insert` AFTER INSERT ON `like` FOR EACH ROW BEGIN
+   UPDATE `post`
+   SET `likes_count` = `likes_count` + 1
+   WHERE `id_post` = NEW.`id_post`;
+END
+$$
+DELIMITER ;
+
+
+<H1>DESCRIZIONE SCHEMA LOGICO, relazioni e chiavi  </H1>
+
+<H2>DESCRIZIONE CHAIVI TABELLA BLOG  </H2>
+- PRIMARY KEY (`id_blog`) --> chiave primaria, univoca ed autoincrement
+- UNIQUE KEY `id_blog` (`id_blog`,`titolo_blog`) --> la combinazione id blog è univoca perchè permette di non avere ripetizionidi righe con la stessa combinazione (id e titoloù9 )
+- UNIQUE KEY `titolo_blog` (`titolo_blog`,`id_proprietario`) --> allo stetto modo la combinazione di e blog sono univoche per ogni tabella 
+- le sequenti sono indici creati per le query tra tabelle (indici semplici che permettono di mettere in relazione le entità)
+    KEY `id_categoria` (`id_categoria`,`id_stile`,`id_proprietario`)
+    KEY `id_proprietario` (`id_proprietario`),
+    KEY `blog_ibfk_2` (`id_stile`);
+<H2>DESCRIZIONE VINCOLI TABELLA DALLA TABELLA BLOG</H2>
+  ADD CONSTRAINT `blog_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) --> peremtti che il valore id categoria della tabella blog facia riferimento ad un valore consono nella colonna id catergoria della tabella categoria 
+  ADD CONSTRAINT `blog_ibfk_2` FOREIGN KEY (`id_stile`) REFERENCES `stile` (`id_stile`) --> fa in modo che il'id_stile sia un riderimento ad un datoconsono nella colonna id_stile della tabella stile 
+  ADD CONSTRAINT `blog_ibfk_3` FOREIGN KEY (`id_proprietario`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE --> fa in modo che il valore della colonna id_proprietario sia un riferimento alla colonna id_utente della tabella utente, inoltre viene specificato che, se l'utente specifico viene eliminato o aggiornato eventuali azioni vengono risportate alla tabella blog tramite il CASCADE
+  ADD CONSTRAINT `blog_ibfk_4` FOREIGN KEY (`id_blog`) REFERENCES `co_autore` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE --> fa in modo che la colonna id_blog faccia riferimento ad un valore valido della colonna id_blog della tabella co_Autore, inolte eventuali eliminazioni o aggiornamenti vengono proparagti nella tabella blog attraverso il cascade 
+
+
+<H2>DESCRIZIONE CHAIVI TABELLA CATEGORIA  </H2>
+- PRIMARY KEY (`id_categoria`) --> definsice semplicemente la chiame primaria che èl'id, autoincrment ed univoca
+  
+<H2>DESCRIZIONE CHAIVI TABELLA COMMENTO  </H2>
+- PRIMARY KEY (`id_comm`) --> chiave primaria, univoca autoincrement
+- KEY `id_utente` (`id_utente`,`id_post`) --> indice semplice per permettere la quer, NB non è unique perchè senò impedirebbead uno stesso utente di fare più commenti sullo stesso post
+- KEY `id_post` (`id_post`) --> indice semplice 
+<H2>DESCRIZIONE VINCOLI TABELLA DALLA TABELLA COMMENTO</H2>
+ADD CONSTRAINT `commento_ibfk_1` FOREIGN KEY (`id_post`) REFERENCES `post` (`id_post`) ON DELETE CASCADE ON UPDATE CASCADE --> questo vincolo imposta una chiave esterna sulla colonna idPost della tabella commento che fa riferimento alla colonna id_post edlla tabella poste in modo cascade ovvero: quualsiasi eliminazione o aggiornamento effetuato sulla tabella post riflettono nella tabella commento 
+ADD CONSTRAINT `commento_ibfk_2` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE --> questo vincolo imposta un chiave esterna sulla colonna id_utente della tabella commento che fa riferimento alla colonna id_utente della tabella utente in modo cascade ovvero: quualsiasi eliminazione o aggiornamento effetuato sulla tabella utente riflettono nella tabella commento 
+ADD CONSTRAINT `commento_ibfk_3` FOREIGN KEY (`id_comm`) REFERENCES `notifica` (`id_notifica`) ON DELETE CASCADE ON UPDATE CASCADE --> questo vincolo imposta una chiave esterna sulla colonna id_comm della tabella commento che fa riferimento alla colonna id_notfica della tabella notifica, in modo cascade overo che le modifiche nella tabella notifica inflienzeranno la tabella commento   
+  
+  
+<H2>DESCRIZIONE CHAIVI TABELLA COAUTORE  </H2>
+ADD PRIMARY KEY (`id_utente`,`id_blog`) --> la combinazione di queste due colonne è univoca 
+ADD KEY `id_utente` (`id_utente`,`id_blog`) --> indice semplice sulle colonne che facilitano le ricerche che le coinvolgono (che saranno poi utente e blog)
+ADD KEY `id_blog` (`id_blog`) --> indice semolice per ricerche mirate su questa colonna (lo usiamo per la colonna id_blog della tabella blog)
+<H2>DESCRIZIONE VINCOLI TABELLA DALLA TABELLA COAUTORE</H2>
+ADD CONSTRAINT `co_autore_ibfk_1` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`);
+  
+<H2>DESCRIZIONE CHAIVI TABELLA FOLLOW</H2>
+ADD PRIMARY KEY (`id_follow`) --> chiave primaria, unioca ed autoincrement 
+ADD UNIQUE KEY `id_utente` (`id_utente`,`id_blog`) --> rende la comibinazione delle colonne id_utente e id_blog univoca 
+ADD KEY `id_follow` (`id_follow`,`id_utente`,`id_blog`) -->  sono indici utili per le ricerche (inq uesto caso relazioni) con le altre tabelle 
+ADD KEY `follow_ibfk_1` (`id_blog`);
+
+<H2>DESCRIZIONE VINCOLI TABELLA DALLA TABELLA FOLLOW</H2>
+ADD CONSTRAINT `follow_ibfk_1` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE --> definisce una chiave esterna sulla colonna id_blog che fa riferimento alla colonna id_blog, qualsiasi agiornamento o eliminazione della tabella blog torna alla tabella follow
+ADD CONSTRAINT `follow_ibfk_2` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE --> definsice una chiave estrena sulla colonna id_utente che fa riferimento all id_tente della tabella utente, cascade perchè così se l'utente viene eliminato o modificato aggiorna o elimina anche la tabella follow 
+  
+<H2>DESCRIZIONE CHAIVI TABELLA LIKE  </H2>
+PRIMARY KEY (`id_like`) --> chaive primaria e univoca della tabella con autoincrement
+UNIQUE KEY `id_utente_2` (`id_utente`,`id_post`) --> la combinazione delle colonne unica
+KEY `id_utente` (`id_utente`,`id_post`) --> indici seplici 
+KEY `id_post` (`id_post`) --> indici semolici
+  
+<H2>DESCRIZIONE VINCOLI TABELLA DALLA TABELLA LIKE</H2>
+ALTER TABLE `like`
+ADD CONSTRAINT `like_ibfk_1` FOREIGN KEY (`id_post`) REFERENCES `post` (`id_post`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `like_ibfk_2` FOREIGN KEY (`id_utente`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `like_ibfk_3` FOREIGN KEY (`id_like`) REFERENCES `notifica` (`id_notifica`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+  <H2>DESCRIZIONE VINCOLI TABELLA DALLA TABELLA POST</H2>
+ALTER TABLE `post`
+  ADD CONSTRAINT `post_ibfk_1` FOREIGN KEY (`id_blog`) REFERENCES `blog` (`id_blog`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `post_ibfk_2` FOREIGN KEY (`id_autore`) REFERENCES `utente` (`id_utente`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `post_ibfk_3` FOREIGN KEY (`id_sotcat`) REFERENCES `sottocat` (`id_sottocat`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+  <H2>DESCRIZIONE VINCOLI TABELLA DALLA TABELLA SOTTOCAT</H2>
+ALTER TABLE `sottocat`
+  ADD CONSTRAINT `sottocat_ibfk_1` FOREIGN KEY (`id_categoria`) REFERENCES `categoria` (`id_categoria`) ON DELETE CASCADE ON UPDATE CASCADE;
