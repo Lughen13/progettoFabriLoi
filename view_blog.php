@@ -98,7 +98,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizza Blog</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-</head>
+    </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#">Visualizza Blog</a>
@@ -165,7 +165,34 @@ $conn->close();
                         <?php foreach ($comments[$post['id_post']] as $comment): ?>
                             <div class="card">
                                 <div class="card-body">
-                                    <p class="card-text"><strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>): <?php echo htmlspecialchars($comment['contenuto']); ?></p>
+                                    <p class="card-text">
+                                        <strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>): 
+                                        <span class="comment-text"><?php echo htmlspecialchars($comment['contenuto']); ?></span>
+                                        <?php if ($comment['username'] == $_SESSION['username']): ?>
+                                            <!-- Pulsante Modifica -->
+                                            <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
+                                            <!-- Pulsante Elimina -->
+                                            <form method="post" action="comment.php" class="d-inline">
+                                                <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                <input type="hidden" name="action" value="delete">
+                                                <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+                                            </form>
+                                            <!-- Modifica commento -->
+                                            <div class="edit-comment-form d-none">
+                                                <form method="post" action="comment.php">
+                                                    <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                    <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                    <input type="hidden" name="action" value="update">
+                                                    <div class="form-group">
+                                                        <textarea class="form-control" name="comment"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary btn-sm">Salva</button>
+                                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
+                                                </form>
+                                            </div>
+                                        <?php endif; ?>
+                                    </p>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -174,7 +201,8 @@ $conn->close();
                     <!-- Form per inserire un commento -->
                     <form method="post" action="comment.php" class="mt-3">
                         <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-                        <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+                        <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                        <input type="hidden" name="action" value="insert">
                         <div class="form-group">
                             <textarea class="form-control" name="comment" placeholder="Inserisci il tuo commento"></textarea>
                         </div>
@@ -202,7 +230,7 @@ $conn->close();
                         ?>
                         <form method="post" action="likes.php">
                             <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-                            <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+                            <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
                             <button type="submit" name="action" value="<?php echo $likeAction; ?>" class="btn btn-success">
                                 Mi Piace <?php echo "($totalLikes)"; ?>
                             </button>
@@ -215,6 +243,21 @@ $conn->close();
         <p>Non ci sono post da mostrare.</p>
     <?php endif; ?>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $('.edit-comment-btn').click(function() {
+            var commentId = $(this).data('comment-id');
+            $(this).closest('.card-body').find('.comment-text').hide();
+            $(this).closest('.card-body').find('.edit-comment-form').removeClass('d-none');
+        });
+
+        $('.cancel-edit-btn').click(function() {
+            $(this).closest('.edit-comment-form').addClass('d-none');
+            $(this).closest('.card-body').find('.comment-text').show();
+        });
+    });
+</script>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
