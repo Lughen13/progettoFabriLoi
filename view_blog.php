@@ -1,4 +1,104 @@
-</head>
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
+include 'conn.php';
+session_start();
+
+// Verifica se l'utente è autenticato
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header('Location: login.php');
+    exit;
+}
+
+// Recupera l'id dell'utente dalla sessione
+$userId = $_SESSION['id'];
+
+// Recupera l'id del blog dalla query string
+$id_blog = isset($_GET['id_blog']) ? $_GET['id_blog'] : null;
+
+// Recupera i dettagli del blog
+$query = "SELECT b.titolo_blog, b.descrizione, b.img_logo, p.id_post, p.titolo_post, p.descrizione_post, p.img_post
+          FROM blog b
+          LEFT JOIN post p ON b.id_blog = p.id_blog
+          WHERE b.id_blog = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $id_blog);
+$stmt->execute();
+$result = $stmt->get_result();
+$blog = $result->fetch_assoc();
+$stmt->close();
+
+// Verifica se l'utente sta seguendo questo blog
+$isFollowing = false;
+$queryCheckFollow = "SELECT * FROM follow WHERE id_utente = ? AND id_blog = ?";
+$stmt_check_follow = $conn->prepare($queryCheckFollow);
+$stmt_check_follow->bind_param("ii", $userId, $id_blog);
+$stmt_check_follow->execute();
+$result_check_follow = $stmt_check_follow->get_result();
+if ($result_check_follow->num_rows > 0) {
+    $isFollowing = true;
+}
+$stmt_check_follow->close();
+
+// Recupera i post con i relativi commenti e il conteggio dei Mi Piace
+$queryPosts = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, 
+                     COUNT(l.id_like) AS total_likes
+              FROM post p
+              LEFT JOIN likes l ON p.id_post = l.id_post
+              WHERE p.id_blog = ?
+              GROUP BY p.id_post";
+$stmt = $conn->prepare($queryPosts);
+$stmt->bind_param("i", $id_blog);
+$stmt->execute();
+$resultPosts = $stmt->get_result();
+$stmt->close();
+
+// Preparazione per la visualizzazione dei commenti
+$queryComments = "SELECT c.id_comm, c.data_comm, c.contenuto, u.username, p.id_post
+                  FROM commento c
+                  INNER JOIN utente u ON c.id_utente = u.id_utente
+                  INNER JOIN post p ON c.id_post = p.id_post
+                  WHERE p.id_blog = ?";
+$stmt = $conn->prepare($queryComments);
+$stmt->bind_param("i", $id_blog);
+$stmt->execute();
+$resultComments = $stmt->get_result();
+$comments = [];
+while ($row = $resultComments->fetch_assoc()) {
+    $comments[$row['id_post']][] = $row;
+}
+$stmt->close();
+
+// Preparazione per la visualizzazione dei Mi Piace
+$likeCounts = [];
+$queryLikes = "SELECT id_post, COUNT(*) AS like_count FROM likes GROUP BY id_post";
+$resultLikes = $conn->query($queryLikes);
+while ($row = $resultLikes->fetch_assoc()) {
+    $likeCounts[$row['id_post']] = $row['like_count'];
+}
+
+// Recupera il conteggio dei follower per questo blog
+$queryFollowCount = "SELECT COUNT(*) AS followers_count FROM follow WHERE id_blog = ?";
+$stmt_follow_count = $conn->prepare($queryFollowCount);
+$stmt_follow_count->bind_param("i", $id_blog);
+$stmt_follow_count->execute();
+$result_follow_count = $stmt_follow_count->get_result();
+$follow_count = $result_follow_count->fetch_assoc()['followers_count'];
+$stmt_follow_count->close();
+
+$conn->close();
+?>
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizza Blog</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#">Visualizza Blog</a>
@@ -36,7 +136,7 @@
         <form method="post" action="follow.php" class="d-inline">
             <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
             <input type="hidden" name="action" value="unfollow">
-            <button type="submit" class="btn btn-danger">Non Seguire piÃ¹</button>
+            <button type="submit" class="btn btn-danger">Non Seguire più</button>
         </form>
     <?php else: ?>
         <form method="post" action="follow.php" class="d-inline">
@@ -144,6 +244,10 @@
     <?php endif; ?>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
 <script>
     $(document).ready(function() {
         $('.edit-comment-btn').click(function() {
@@ -158,3 +262,6 @@
         });
     });
 </script>
+
+</body>
+</html>
