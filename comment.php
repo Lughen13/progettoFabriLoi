@@ -5,7 +5,7 @@ ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
 include 'conn.php';
 session_start();
-include 'conn.php';
+
 
 // Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
