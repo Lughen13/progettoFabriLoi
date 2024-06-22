@@ -1,4 +1,9 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
+
 session_start();
 
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
@@ -23,123 +28,174 @@ $stmt->close();
 $passwordError = $emailError = $intestatario_err = $carta_err = $data_scadenza_err = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $oldPassword = $_POST['old_password'];
-    $hashedPassword = $user['pw'];
-
-    if (empty($oldPassword)) {
-        $passwordError = "Inserisci la tua password per salvare le modifiche.";
-    } elseif (md5($oldPassword) !== $hashedPassword) {
-        $passwordError = "La password non è corretta.";
+    if (isset($_POST['delete_user']) && $_POST['delete_user'] == '1') {
+          // Verifica la password
+          $oldPassword = $_POST['old_password'];
+          $hashedPassword = $user['pw'];
+  
+          if (empty($oldPassword)) {
+              $passwordError = "Inserisci la tua password per eliminare l'account.";
+          } elseif (md5($oldPassword) !== $hashedPassword) {
+              $passwordError = "La password non è corretta.";
+          } else {
+              // Inizia una transazione
+              $conn->begin_transaction();
+  
+              try {
+                  // Elimina record correlati in altre tabelle
+                  $deleteCoAutoreQuery = "DELETE FROM co_autore WHERE id_utente = ?";
+                  $stmt = $conn->prepare($deleteCoAutoreQuery);
+                  $stmt->bind_param("i", $userId);
+                  $stmt->execute();
+                  $stmt->close();
+  
+                  // Elimina record dalla tabella premium
+                  $deletePremiumQuery = "DELETE FROM premium WHERE id_utente = ?";
+                  $stmt = $conn->prepare($deletePremiumQuery);
+                  $stmt->bind_param("i", $userId);
+                  $stmt->execute();
+                  $stmt->close();
+  
+                  // Elimina l'utente dalla tabella utente
+                  $deleteUserQuery = "DELETE FROM utente WHERE id_utente = ?";
+                  $stmt = $conn->prepare($deleteUserQuery);
+                  $stmt->bind_param("i", $userId);
+                  $stmt->execute();
+                  $stmt->close();
+  
+                  // Commit della transazione
+                  $conn->commit();
+  
+                  // Distruggi la sessione e reindirizza alla pagina di login
+                  session_destroy();
+                  header("Location: login.php");
+                  exit();
+              } catch (Exception $e) {
+                  // Rollback della transazione in caso di errore
+                  $conn->rollback();
+                  $passwordError = "Errore durante l'eliminazione dell'account. Per favore riprova.";
+              }
+          }
     } else {
-        $passwordError = "";
-        $updateFields = array();
+        // Codice per salvare le modifiche all'account
+        $oldPassword = $_POST['old_password'];
+        $hashedPassword = $user['pw'];
 
-        if (!empty($_POST["password"])) {
-            $password = $_POST["password"];
-            $password_hash = md5($password);
-            $updateFields[] = "pw = '$password_hash'";
-        }
+        if (empty($oldPassword)) {
+            $passwordError = "Inserisci la tua password per salvare le modifiche.";
+        } elseif (md5($oldPassword) !== $hashedPassword) {
+            $passwordError = "La password non è corretta.";
+        } else {
+            $passwordError = "";
+            $updateFields = array();
 
-        if (isset($_POST['nome']) && !empty($_POST['nome'])) {
-            $nome = $_POST['nome'];
-            $updateFields[] = "nome = '$nome'";
-        }
-
-        if (isset($_POST['cognome']) && !empty($_POST['cognome'])) {
-            $cognome = $_POST['cognome'];
-            $updateFields[] = "cognome = '$cognome'";
-        }
-
-        if (isset($_POST['email']) && !empty($_POST['email'])) {
-            $email = $_POST['email'];
-            $checkEmailQuery = "SELECT id_utente FROM utente WHERE email = ? AND id_utente != ?";
-            $stmt = $conn->prepare($checkEmailQuery);
-            $stmt->bind_param("si", $email, $userId);
-            $stmt->execute();
-            $stmt->store_result();
-
-            if ($stmt->num_rows > 0) {
-                $emailError = "L'email inserita è già utilizzata da un altro utente.";
-            } else {
-                $updateFields[] = "email = '$email'";
+            if (!empty($_POST["password"])) {
+                $password = $_POST["password"];
+                $password_hash = md5($password);
+                $updateFields[] = "pw = '$password_hash'";
             }
 
-            $stmt->close();
-        }
-
-        if (isset($_POST['data_nascita']) && !empty($_POST['data_nascita'])) {
-            $data_nascita = $_POST['data_nascita'];
-            $updateFields[] = "data_nascita = '$data_nascita'";
-        }
-
-        if (isset($_POST['genere']) && !empty($_POST['genere'])) {
-            $genere = $_POST['genere'];
-            $updateFields[] = "genere = '$genere'";
-        }
-
-        if (isset($_POST['numero_telefono']) && !empty($_POST['numero_telefono'])) {
-            $numero_telefono = $_POST['numero_telefono'];
-            $updateFields[] = "numero_telefono = '$numero_telefono'";
-        }
-
-        $premium = isset($_POST['premium']) ? 1 : 0;
-        $updateFields[] = "premium = '$premium'";
-
-        if ($premium == 1) {
-            if (empty(trim($_POST["intestatario"]))) {
-                $intestatario_err = "Inserisci l'intestatario della carta.";
-            } else {
-                $intestatario = trim($_POST["intestatario"]);
+            if (isset($_POST['nome']) && !empty($_POST['nome'])) {
+                $nome = $_POST['nome'];
+                $updateFields[] = "nome = '$nome'";
             }
 
-            if (empty(trim($_POST["carta"]))) {
-                $carta_err = "Inserisci il numero della carta.";
-            } elseif (!preg_match("/^[0-9]{16}$/", trim($_POST["carta"]))) {
-                $carta_err = "Il numero della carta deve essere di 16 cifre.";
-            } else {
-                $carta = trim($_POST["carta"]);
+            if (isset($_POST['cognome']) && !empty($_POST['cognome'])) {
+                $cognome = $_POST['cognome'];
+                $updateFields[] = "cognome = '$cognome'";
             }
 
-            if (empty(trim($_POST["data_scadenza"]))) {
-                $data_scadenza_err = "Inserisci la data di scadenza della carta.";
-            } else {
-                $data_scadenza = trim($_POST["data_scadenza"]);
-            }
+            if (isset($_POST['email']) && !empty($_POST['email'])) {
+                $email = $_POST['email'];
+                $checkEmailQuery = "SELECT id_utente FROM utente WHERE email = ? AND id_utente != ?";
+                $stmt = $conn->prepare($checkEmailQuery);
+                $stmt->bind_param("si", $email, $userId);
+                $stmt->execute();
+                $stmt->store_result();
 
-            if (empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
-                if (!isset($user['premium']) || ($user['premium'] == 0 && $premium == 1)) {
-                    $insertCardQuery = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
-                    $stmt = $conn->prepare($insertCardQuery);
-                    $stmt->bind_param("isss", $userId, $intestatario, $carta, $data_scadenza);
-                    $stmt->execute();
-                    $stmt->close();
+                if ($stmt->num_rows > 0) {
+                    $emailError = "L'email inserita è già utilizzata da un altro utente.";
                 } else {
-                    $updateCardQuery = "UPDATE premium SET intestatario = ?, numero_carta = ?, data_scadenza = ? WHERE id_utente = ?";
-                    $stmt = $conn->prepare($updateCardQuery);
-                    $stmt->bind_param("sssi", $intestatario, $carta, $data_scadenza, $userId);
-                    $stmt->execute();
-                    $stmt->close();
+                    $updateFields[] = "email = '$email'";
                 }
-            }
-        } elseif (isset($user['premium']) && $user['premium'] == 1) {
-            $deleteCardQuery = "DELETE FROM premium WHERE id_utente = ?";
-            $stmt = $conn->prepare($deleteCardQuery);
-            $stmt->bind_param("i", $userId);
-            $stmt->execute();
-            $stmt->close();
-        }
 
-        if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
-            if (!empty($updateFields)) {
-                $updateQuery = "UPDATE utente SET " . implode(", ", $updateFields) . " WHERE id_utente = ?";
-                $stmt = $conn->prepare($updateQuery);
+                $stmt->close();
+            }
+
+            if (isset($_POST['data_nascita']) && !empty($_POST['data_nascita'])) {
+                $data_nascita = $_POST['data_nascita'];
+                $updateFields[] = "data_nascita = '$data_nascita'";
+            }
+
+            if (isset($_POST['genere']) && !empty($_POST['genere'])) {
+                $genere = $_POST['genere'];
+                $updateFields[] = "genere = '$genere'";
+            }
+
+            if (isset($_POST['numero_telefono']) && !empty($_POST['numero_telefono'])) {
+                $numero_telefono = $_POST['numero_telefono'];
+                $updateFields[] = "numero_telefono = '$numero_telefono'";
+            }
+
+            $premium = isset($_POST['premium']) ? 1 : 0;
+            $updateFields[] = "premium = '$premium'";
+
+            if ($premium == 1) {
+                if (empty(trim($_POST["intestatario"]))) {
+                    $intestatario_err = "Inserisci l'intestatario della carta.";
+                } else {
+                    $intestatario = trim($_POST["intestatario"]);
+                }
+
+                if (empty(trim($_POST["carta"]))) {
+                    $carta_err = "Inserisci il numero della carta.";
+                } elseif (!preg_match("/^[0-9]{16}$/", trim($_POST["carta"]))) {
+                    $carta_err = "Il numero della carta deve essere di 16 cifre.";
+                } else {
+                    $carta = trim($_POST["carta"]);
+                }
+
+                if (empty(trim($_POST["data_scadenza"]))) {
+                    $data_scadenza_err = "Inserisci la data di scadenza della carta.";
+                } else {
+                    $data_scadenza = trim($_POST["data_scadenza"]);
+                }
+
+                if (empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
+                    if (!isset($user['premium']) || ($user['premium'] == 0 && $premium == 1)) {
+                        $insertCardQuery = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
+                        $stmt = $conn->prepare($insertCardQuery);
+                        $stmt->bind_param("isss", $userId, $intestatario, $carta, $data_scadenza);
+                        $stmt->execute();
+                        $stmt->close();
+                    } else {
+                        $updateCardQuery = "UPDATE premium SET intestatario = ?, numero_carta = ?, data_scadenza = ? WHERE id_utente = ?";
+                        $stmt = $conn->prepare($updateCardQuery);
+                        $stmt->bind_param("sssi", $intestatario, $carta, $data_scadenza, $userId);
+                        $stmt->execute();
+                        $stmt->close();
+                    }
+                }
+            } elseif (isset($user['premium']) && $user['premium'] == 1) {
+                $deleteCardQuery = "DELETE FROM premium WHERE id_utente = ?";
+                $stmt = $conn->prepare($deleteCardQuery);
                 $stmt->bind_param("i", $userId);
                 $stmt->execute();
                 $stmt->close();
             }
-            $successMessage = "Modifiche salvate con successo!";
-            header("Location: home.php");
-            exit();
+
+            if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
+                if (!empty($updateFields)) {
+                    $updateQuery = "UPDATE utente SET " . implode(", ", $updateFields) . " WHERE id_utente = ?";
+                    $stmt = $conn->prepare($updateQuery);
+                    $stmt->bind_param("i", $userId);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+                $successMessage = "Modifiche salvate con successo!";
+                header("Location: home.php");
+                exit();
+            }
         }
     }
 }
@@ -188,7 +244,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
+            /*box-sizing: border-box;*/
         }
 
         input[type=checkbox] {
@@ -307,10 +363,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div>
             <label for="old_password">Per salvare le modifiche, inserisci la password:</label>
             <input type="password" id="old_password" name="old_password" required>  
-            <p>  (in caso tu avessi cambiato password, inserisci la)</p>
+            <p>  in caso tu avessi cambiato password, inserisci la nuova password</p>
         </div>
 
         <button type="submit" name="save_changes" value="1">Salva Modifiche</button>
+        <button type="submit" name="delete_user" value="1" style="background-color: red;">Elimina Utente</button>
+</form>
     </form>
     <button onclick="window.location.href='home.php'">Torna alla Home</button>
     <script>
