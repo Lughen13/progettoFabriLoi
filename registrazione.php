@@ -20,10 +20,9 @@ function validateInput($data) {
     }
     return $data;
 }
-
 // Inizializzazione delle variabili
 $nome = $cognome = $username = $password = $confirm_password = $email = $data_nascita = $genere = $numero_telefono = $intestatario = $carta = $data_scadenza = "";
-$nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $intestatario_err = $carta_err = $data_scadenza_err = "";
+$nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $intestatario_err = $carta_err = $data_scadenza_err = $confirm_password_err =  "";
 $premium = 0; // premium è di default 0 fino a quando non si fa check
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -66,18 +65,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = validateInput($_POST["password"]);
     if (empty($password)) {
         $password_err = "Inserisci una password.";
-    } elseif (strlen($password) < 6) {
-        $password_err = "La password deve essere lunga almeno 6 caratteri.";
+    } elseif (strlen($password) < 8) {
+        $password_err = "La password deve essere di minimo 8 caratteri.";
     } elseif (strlen($password) > 60) {
-        $password_err = "La password non può essere più lunga di 60 caratteri.";
+        $password_err = "La password non deve superare i 60 caratteri.";
+    } elseif (!preg_match('/[A-Z]/', $password)) {
+        $password_err = "La password deve contenere almeno una lettera maiuscola.";
+    } elseif (!preg_match('/[\W]/', $password)) { // \W = /[!@#$%^&*(),.?":{}|<>]/
+        $password_err = "La password deve contenere almeno un carattere speciale.";
     }
 
     // Conferma password
     $confirm_password = validateInput($_POST["confirm_password"]);
     if (empty($confirm_password)) {
-        $confirm_password_err = "Conferma la password.";
+        $confirm_password  = "Conferma la password.";
     } elseif ($confirm_password != $password) {
-        $password_err = "Le password non corrispondono.";
+        $confirm_password_err = "Le password non corrispondono.";
     }
 
     // Validazione email
@@ -87,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $email_err = "Formato email non valido.";
     } else {
-        // Controllo se l'email esiste già nel database
+        // controllo per verificare che la mail non sia già stata utilizzata da altri utenti 
         $sql = "SELECT id_utente FROM utente WHERE email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
@@ -307,7 +310,7 @@ $conn->close();
                 <span class="error"><?php echo $username_err;?></span>
             </div>
             <div class="form-group">
-                <label>Password:</label>
+                <label>Password (deve contenere almeno una lettera maiuscola, un carattere non alfanumerico e deve essere lunga almeno 8 caratteri):</label>
                 <input type="password" name="password" value="<?php echo $password;?>">
                 <span class="error"><?php echo $password_err;?></span>
             </div>

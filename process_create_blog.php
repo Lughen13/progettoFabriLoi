@@ -22,7 +22,6 @@ $style_id = $_POST['style'] ?? '';
 $co_autore_id = $_POST['co_autore'] ?? null; // Recupero l'id dell'utente che è stato selezionato come co-autore 
 $current_user_id = $_SESSION['id']; 
 
-// Inizializza la variabile del nome del file del logo
 $logoName = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo'])) {
