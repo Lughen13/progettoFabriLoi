@@ -91,10 +91,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if (!empty($_POST["password"])) {
                 $password = $_POST["password"];
-                $password_hash = md5($password);
-                $updateFields[] = "pw = '$password_hash'";
+                if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/[\W]/', $password)) {
+                    $passwordError = "La password deve essere di minimo 8 caratteri, contenere almeno una lettera maiuscola e un carattere speciale.";
+                } else {
+                    $password_hash = md5($password);
+                    $updateFields[] = "pw = '$password_hash'";
+                }
             }
-
             if (isset($_POST['nome']) && !empty($_POST['nome'])) {
                 $nome = $_POST['nome'];
                 $updateFields[] = "nome = '$nome'";

@@ -304,11 +304,36 @@ $stmt->close();
                     <ul>
                         <?php foreach ($posts as $post): ?>
                             <li class="post-item">
-                                <h5><?php echo $post['titolo_post']; ?></h5>
-                                <p><?php echo $post['descrizione_post']; ?></p>
-                                <img src="photo_post/<?php echo $post['img_post']; ?>" alt="Immagine del Post" width="100">
-                                <a href="my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
-                            </li>
+                            <h5><?php echo $post['titolo_post']; ?></h5>
+        <p><?php echo $post['descrizione_post']; ?></p>
+        <img src="photo_post/<?php echo $post['img_post']; ?>" alt="Immagine del Post" width="100">
+        <a href="my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
+
+        <!-- Recupero dei commenti per questo post -->
+        <?php
+        $commentsQuery = "SELECT id_comm, contenuto FROM commento WHERE id_post = ?";
+        $stmt_comments = $conn->prepare($commentsQuery);
+        $stmt_comments->bind_param("i", $post['id_post']);
+        $stmt_comments->execute();
+        $commentsResult = $stmt_comments->get_result();
+        $comments = $commentsResult->fetch_all(MYSQLI_ASSOC);
+        $stmt_comments->close();
+        ?>
+
+        
+                        <!-- devo dare all'utente proprietario la possibilità di modificare o eliminare i commenti fatti ai post dei propri blog--> 
+        <?php if (!empty($comments)): ?>
+            <h4>Commenti:</h4>
+            <ul>
+                <?php foreach ($comments as $comment): ?>
+                    <li>
+                        <p><?php echo $comment['contenuto']; ?></p>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php else: ?>
+            <p>Nessun commento disponibile.</p>
+        <?php endif; ?> </li>
                         <?php endforeach; ?>
                     </ul>
                 <?php endif; ?>
@@ -325,4 +350,3 @@ $stmt->close();
 </div>
 </body>
 </html>
-
