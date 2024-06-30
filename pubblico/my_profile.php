@@ -83,6 +83,40 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+// Gestione dell'aggiornamento dei post
+foreach ($blogs as &$blog) {
+    $postsQuery = "SELECT id_post, titolo_post, descrizione_post, img_post FROM post WHERE id_blog = ?";
+    $stmt = $conn->prepare($postsQuery);
+    $stmt->bind_param("i", $blog['id_blog']);
+    $stmt->execute();
+    $postsResult = $stmt->get_result();
+    $blog['posts'] = $postsResult->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+}
+
+// Gestione dell'aggiornamento dei post
+foreach ($blogs as &$blog) {
+    foreach ($blog['posts'] as &$post) {
+        if (isset($_POST['update_post_' . $post['id_post']])) {
+            $newPostTitle = $_POST['edit_post_title_' . $post['id_post']];
+            $newPostDescription = $_POST['edit_post_description_' . $post['id_post']];
+
+            $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ? WHERE id_post = ?";
+            $stmt = $conn->prepare($updatePostQuery);
+            $stmt->bind_param('ssi', $newPostTitle, $newPostDescription, $post['id_post']);
+
+            if ($stmt->execute()) {
+                // Aggiornamento del post eseguito con successo
+                $post['titolo_post'] = $newPostTitle;
+                $post['descrizione_post'] = $newPostDescription;
+            } else {
+                echo "Errore durante l'aggiornamento del post: " . $stmt->error;
+            }
+            $stmt->close();
+        }
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -205,21 +239,11 @@ $stmt->close();
                                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editBlogModal_<?php echo $blog['id_blog']; ?>">Modifica Blog</button>
                                 </div>
                                 <ul class="list-group list-group-flush">
-                                    <?php
-                                    // Recupera i post associati a questo blog
-                                    $postsQuery = "SELECT id_post, titolo_post, descrizione_post, img_post FROM post WHERE id_blog = ?";
-                                    $stmt = $conn->prepare($postsQuery);
-                                    $stmt->bind_param("i", $blog['id_blog']);
-                                    $stmt->execute();
-                                    $postsResult = $stmt->get_result();
-                                    $posts = $postsResult->fetch_all(MYSQLI_ASSOC);
-                                    $stmt->close();
-                                    ?>
-                                    <?php if (!empty($posts)): ?>
+                                    <?php if (!empty($blog['posts'])): ?>
                                         <li class="list-group-item">
                                             <h5>Post:</h5>
                                             <ul class="list-unstyled">
-                                                <?php foreach ($posts as $post): ?>
+                                                <?php foreach ($blog['posts'] as $post): ?>
                                                     <li class="media">
                                                         <img src="../photo_post/<?php echo $post['img_post']; ?>" class="mr-3" alt="Immagine del Post" style="width: 100px;">
                                                         <div class="media-body">
@@ -270,7 +294,7 @@ $stmt->close();
                         </div>
 
                         <!-- Modifica Post Modal -->
-                        <?php foreach ($posts as $post): ?>
+                        <?php foreach ($blog['posts'] as $post): ?>
                             <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModal_<?php echo $post['id_post']; ?>Label" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
@@ -330,9 +354,23 @@ $stmt->close();
                 }
             }
             $("#img_profilo").change(function() {
-                readURL(this);
-            });
-        </script>
+    readURL(this);
+});
 
-    </body>
-    </html>
+// Mostra l'immagine del post caricata
+function readPostImage(input, postId) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            $('#post_image_preview_' + postId).attr('src', e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+$("[id^=post_image]").change(function() {
+    var postId = $(this).data('post-id');
+    readPostImage(this, postId);
+});
+</script>
+</body>
+</html>
