@@ -17,10 +17,10 @@ $blogId = $_POST['id_blog'];
 $title = $_POST['title'];
 $description = $_POST['description'];
 $subcategoryId = $_POST['subcategory'];
+$photopost = '';
 
-$logoName = '';
 
-// Controllo sul caricamento dell'immagine
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagine'])) {
     $immagineFile = $_FILES['immagine'];
     $immagineTmpName = $immagineFile['tmp_name'];
@@ -31,17 +31,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagine'])) {
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
     $immagineExtension = strtolower(pathinfo($immagineFileName, PATHINFO_EXTENSION));
 
-    // Validazione dell'immagine
+    // validazione dell'immagine in base alle estensioni indicate in precedenza 
     if (in_array($immagineExtension, $allowedExtensions) && $immagineError === 0 && $immagineSize > 0) {
-        $logoName = uniqid() . '_' . $title . '.' . $immagineExtension;
-        $immagineDestination = '../photo_post/' . $logoName;
+        $photopost = uniqid() . '_' . $title . '.' . $immagineExtension;
+        $immagineDestination = '../photo_post/' . $photopost;
 
-        // Crea la cartella se non esiste
+        // crea la cartella per le foto dei post, se non esiste 
         if (!is_dir('../photo_post')) {
             mkdir('../photo_post', 0775, true);
         }
 
-        // Move uploaded file
         if (move_uploaded_file($immagineTmpName, $immagineDestination)) {
             echo "Immagine caricata con successo.";
         } else {
@@ -52,9 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagine'])) {
     }
 }
 
+
+// inserisci il post nel database 
 $sql = "INSERT INTO post (titolo_post, descrizione_post, img_post, id_autore, id_sottocat, id_blog, data_post) VALUES (?, ?, ?, ?, ?, ?, NOW())";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("sssiii", $title, $description, $logoName, $userId, $subcategoryId, $blogId);
+$stmt->bind_param("sssiii", $title, $description, $photopost, $userId, $subcategoryId, $blogId);
 
 if ($stmt->execute()) {
     echo "<p>Post creato con successo!</p>";

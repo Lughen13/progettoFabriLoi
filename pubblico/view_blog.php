@@ -129,7 +129,7 @@ $conn->close();
         </div>
     </nav>
     <div class="container mt-5">
-    <h1>Benvenuto nella home di <?php echo htmlspecialchars(isset($blog['titolo_blog']) ? $blog['titolo_blog'] : ''); ?></h1>
+    <h1> Questo è il blog:  <?php echo htmlspecialchars(isset($blog['titolo_blog']) ? $blog['titolo_blog'] : ''); ?></h1>
     <p><?php echo htmlspecialchars(isset($blog['descrizione']) ? $blog['descrizione'] : ''); ?></p>
     <p>Follower: <?php echo $follow_count; ?></p>
     <?php if ($isFollowing): ?>
