@@ -13,6 +13,65 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 }
 
 $userId = $_SESSION['id'];  // ID dell'utente autenticato
+$action = isset($_GET['action']) ? $_GET['action'] : '';
+
+// Gestione dell'eliminazione del blog
+if ($action == 'delete_blog') {
+    $id_blog = $_GET['id_blog'];
+
+    // Prima eliminare i post associati al blog
+    $deletePostsQuery = "DELETE FROM post WHERE id_blog = ?";
+    $stmt = $conn->prepare($deletePostsQuery);
+    $stmt->bind_param("i", $id_blog);
+    $stmt->execute();
+    $stmt->close();
+
+    // Ora eliminare il blog
+    $deleteBlogQuery = "DELETE FROM blog WHERE id_blog = ? AND id_proprietario = ?";
+    $stmt = $conn->prepare($deleteBlogQuery);
+    $stmt->bind_param("ii", $id_blog, $userId);
+    if ($stmt->execute()) {
+        // Eliminazione del blog eseguita con successo
+        header("Location: ../pubblico/my_profile.php");  // Reindirizza alla pagina del profilo
+        exit();
+    } else {
+        echo "Errore durante l'eliminazione del blog: " . $stmt->error;
+    }
+    $stmt->close();
+}
+
+// Gestione dell'eliminazione del post
+if ($action == 'delete_post') {
+    $id_post = $_GET['id_post'];
+
+    $deletePostQuery = "DELETE FROM post WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
+    $stmt = $conn->prepare($deletePostQuery);
+    $stmt->bind_param("ii", $id_post, $userId);
+    if ($stmt->execute()) {
+        // Eliminazione del post eseguita con successo
+        header("Location: ../pubblico/my_profile.php");  // Reindirizza alla pagina del profilo
+        exit();
+    } else {
+        echo "Errore durante l'eliminazione del post: " . $stmt->error;
+    }
+    $stmt->close();
+}
+
+// Gestione dell'aggiornamento della bio
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_bio'])) {
+    $newBio = $_POST['bio'];
+
+    $updateBioQuery = "UPDATE utente SET bio = ? WHERE id_utente = ?";
+    $stmt = $conn->prepare($updateBioQuery);
+    $stmt->bind_param('si', $newBio, $userId);
+    if ($stmt->execute()) {
+        // Aggiornamento della bio eseguito con successo
+        $bioUpdateSuccess = true;
+    } else {
+        echo "Errore durante l'aggiornamento della bio: " . $stmt->error;
+    }
+    $stmt->close();
+}
 
 // Recupero informazioni utente
 $userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, numero_telefono FROM utente WHERE id_utente = ?";
@@ -58,22 +117,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['img_profilo'])) {
     }
 }
 
-// Gestione dell'aggiornamento della bio
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_bio'])) {
-    $newBio = $_POST['bio'];
-
-    $updateBioQuery = "UPDATE utente SET bio = ? WHERE id_utente = ?";
-    $stmt = $conn->prepare($updateBioQuery);
-    $stmt->bind_param('si', $newBio, $userId);
-    if ($stmt->execute()) {
-        // Aggiornamento della bio eseguito con successo
-        $bioUpdateSuccess = true;
-    } else {
-        echo "Errore durante l'aggiornamento della bio: " . $stmt->error;
-    }
-    $stmt->close();
-}
-
 // Recupero dei blog dell'utente
 $blogsQuery = "SELECT id_blog, titolo_blog, descrizione, img_logo FROM blog WHERE id_proprietario = ?";
 $stmt = $conn->prepare($blogsQuery);
@@ -83,40 +126,6 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Gestione dell'aggiornamento dei post
-foreach ($blogs as &$blog) {
-    $postsQuery = "SELECT id_post, titolo_post, descrizione_post, img_post FROM post WHERE id_blog = ?";
-    $stmt = $conn->prepare($postsQuery);
-    $stmt->bind_param("i", $blog['id_blog']);
-    $stmt->execute();
-    $postsResult = $stmt->get_result();
-    $blog['posts'] = $postsResult->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
-}
-
-// Gestione dell'aggiornamento dei post
-foreach ($blogs as &$blog) {
-    foreach ($blog['posts'] as &$post) {
-        if (isset($_POST['update_post_' . $post['id_post']])) {
-            $newPostTitle = $_POST['edit_post_title_' . $post['id_post']];
-            $newPostDescription = $_POST['edit_post_description_' . $post['id_post']];
-
-            $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ? WHERE id_post = ?";
-            $stmt = $conn->prepare($updatePostQuery);
-            $stmt->bind_param('ssi', $newPostTitle, $newPostDescription, $post['id_post']);
-
-            if ($stmt->execute()) {
-                // Aggiornamento del post eseguito con successo
-                $post['titolo_post'] = $newPostTitle;
-                $post['descrizione_post'] = $newPostDescription;
-            } else {
-                echo "Errore durante l'aggiornamento del post: " . $stmt->error;
-            }
-            $stmt->close();
-        }
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -125,14 +134,24 @@ foreach ($blogs as &$blog) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Il Mio Profilo</title>
-    <!-- Stili Bootstrap -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Stili personalizzati -->
     <style>
         body {
+            text-align: center;
             font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-            padding-top: 20px;
+        }
+        nav {
+            margin-bottom: 20px;
+        }
+        nav form {
+            margin-bottom: 10px;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 10px;
         }
         .profile-picture {
             max-width: 200px;
@@ -145,232 +164,202 @@ foreach ($blogs as &$blog) {
             max-height: 75px;
         }
         .blog-section {
-            background-color: #fff;
-            margin-bottom: 20px;
-            padding: 20px;
+            margin-bottom: 30px;
+            background-color: #f9f9f9;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            text-align: left;
         }
-        .post-item {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        .form-group {
+        .blog-section h3 {
             margin-bottom: 10px;
         }
-        .form-group label {
-            font-weight: bold;
+        .blog-section p {
+            margin-bottom: 5px;
         }
-        .form-group input[type="file"] {
+        .blog-section .blog-actions {
             margin-top: 10px;
+        }
+        .blog-section .blog-actions a {
+            margin-right: 10px;
+            color: #ff0000;
+            text-decoration: none;
+        }
+        .blog-section .blog-actions a:hover {
+            text-decoration: underline;
+        }
+        .blog-section ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        .post-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #eaeaea;
+            border-radius: 8px;
+        }
+        .post-item h5 {
+            margin-bottom: 5px;
+        }
+        .post-item p {
+            margin-bottom: 5px;
+        }
+        .post-item img {
+            max-width: 100px;
+            margin-top: 5px;
+            border-radius: 4px;
+        }
+        form textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        form button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        form button[type="submit"]:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center mb-4">Il Mio Profilo</h1>
+    <h1>Il Mio Profilo </h1>
+    <nav>        
+        <form action="../pubblico/search.php" method="GET">
+            <input type="text" name="query" placeholder="Cerca blog o post">
+            <button type="submit">Cerca</button>
+        </form>
+        <ul>
+            <li><a href="../pubblico/home.php">Home</a></li>
+            <li><a href="../pubblico/my_profile.php">Il mio profilo</a></li>
+            <li><a href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+            <li><a href="../pubblico/logout.php">Logout</a></li>
+        </ul>
+    </nav>
 
-        <!-- Sezione Immagine Profilo -->
-        <div class="text-center">
-            <form method="post" enctype="multipart/form-data">
-                <label for="img_profilo">Immagine del profilo:</label>
-                <input type="file" name="img_profilo" id="img_profilo" class="form-control-file">
-                <button type="submit" class="btn btn-primary mt-2">Carica immagine</button>
-            </form>
-            <img src="../uploads/<?php echo $user['img_profilo']; ?>" class="profile-picture mt-3" alt="Immagine del profilo">
-        </div>
+    <form method="post" enctype="multipart/form-data">
+        <label for="img_profilo">Immagine del profilo:</label>
+        <input type="file" name="img_profilo" id="img_profilo">
+        <input type="submit" value="Carica immagine">
+    </form>
 
-        <!-- Sezione Informazioni Personali e Bio -->
-        <div class="mt-4">
-            <h2>Informazioni Personali</h2>
-            <div class="row">
-                <div class="col-md-6 offset-md-3">
-                    <form method="post">
-                        <div class="form-group">
-                            <label for="username">Username:</label>
-                            <input type="text" id="username" class="form-control" value="<?php echo $user['username']; ?>" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="nome">Nome:</label>
-                            <input type="text" id="nome" class="form-control" value="<?php echo $user['nome']; ?>" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="cognome">Cognome:</label>
-                            <input type="text" id="cognome" class="form-control" value="<?php echo $user['cognome']; ?>" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="genere">Genere:</label>
-                            <input type="text" id="genere" class="form-control" value="<?php echo $user['genere']; ?>" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="numero_telefono">Numero di telefono:</label>
-                            <input type="text" id="numero_telefono" class="form-control" value="<?php echo $user['numero_telefono']; ?>" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="bio">Bio:</label>
-                            <textarea name="bio" id="bio" class="form-control" rows="3"><?php echo $user['bio']; ?></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary" name="update_bio">Aggiorna Bio</button>
-                        <?php if (isset($bioUpdateSuccess) && $bioUpdateSuccess): ?>
-                            <small class="text-success ml-2">Bio aggiornata con successo.</small>
-                        <?php endif; ?>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <img src="../uploads/<?php echo $user['img_profilo']; ?>" class="profile-picture" alt="Immagine del profilo">
 
-        <!-- Sezione I Miei Blog -->
-        <div class="mt-4">
-            <h2>I Miei Blog</h2>
-            <div class="row">
-                <?php if (!empty($blogs)): ?>
-                    <?php foreach ($blogs as $blog): ?>
-                        <div class="col-md-6">
-                            <div class="card mb-4">
-                                <?php if (!empty($blog['img_logo'])): ?>
-                                    <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="card-img-top" alt="Logo del blog">
-                                <?php endif; ?>
-                                <div class="card-body">
-                                    <h5 class="card-title"><?php echo $blog['titolo_blog']; ?></h5>
-                                    <p class="card-text"><?php echo $blog['descrizione']; ?></p>
-                                    <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
-                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editBlogModal_<?php echo $blog['id_blog']; ?>">Modifica Blog</button>
-                                </div>
-                                <ul class="list-group list-group-flush">
-                                    <?php if (!empty($blog['posts'])): ?>
-                                        <li class="list-group-item">
-                                            <h5>Post:</h5>
-                                            <ul class="list-unstyled">
-                                                <?php foreach ($blog['posts'] as $post): ?>
-                                                    <li class="media">
-                                                        <img src="../photo_post/<?php echo $post['img_post']; ?>" class="mr-3" alt="Immagine del Post" style="width: 100px;">
-                                                        <div class="media-body">
-                                                            <h6 class="mt-0 mb-1"><?php echo $post['titolo_post']; ?></h6>
-                                                            <p><?php echo $post['descrizione_post']; ?></p>
-                                                            <a href="../pubblico/my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
-                                                            <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#editPostModal_<?php echo $post['id_post']; ?>">Modifica Post</button>
-                                                        </div>
-                                                    </li>
-                                                <?php endforeach; ?>
-                                            </ul>
-                                        </li>
-                                    <?php else: ?>
-                                        <li class="list-group-item">Nessun post disponibile.</li>
-                                    <?php endif; ?>
-                                </ul>
-                            </div>
-                        </div>
+    <div>
+        <h2>Informazioni Personali</h2>
+        <p>Username: <?php echo $user['username']; ?></p>
+        <p>Nome: <?php echo $user['nome']; ?></p>
+        <p>Cognome: <?php echo $user['cognome']; ?></p>
+        <p>Genere: <?php echo $user['genere']; ?></p>
+        <p>Numero di telefono: <?php echo $user['numero_telefono']; ?></p>
+        <p>Bio:</p>
+        <form method="post">
+            <textarea name="bio"><?php echo $user['bio']; ?></textarea>
+            <button type="submit" name="update_bio">Aggiorna Bio</button>
+        </form>
+        <?php if (isset($bioUpdateSuccess) && $bioUpdateSuccess): ?>
+            <p>Bio aggiornata con successo.</p>
+        <?php endif; ?>
+    </div>
 
-                        <!-- Modifica Blog Modal -->
-                        <div class="modal fade" id="editBlogModal_<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="editBlogModal_<?php echo $blog['id_blog']; ?>Label" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editBlogModal_<?php echo $blog['id_blog']; ?>Label">Modifica Blog</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <form method="post">
-                                        <div class="modal-body">
-                                            <div class="form-group">
-                                                <label for="edit_blog_title_<?php echo $blog['id_blog']; ?>">Titolo:</label>
-                                                <input type="text" class="form-control" id="edit_blog_title_<?php echo $blog['id_blog']; ?>" name="edit_blog_title_<?php echo $blog['id_blog']; ?>" value="<?php echo $blog['titolo_blog']; ?>">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="edit_blog_description_<?php echo $blog['id_blog']; ?>">Descrizione:</label>
-                                                <textarea class="form-control" id="edit_blog_description_<?php echo $blog['id_blog']; ?>" name="edit_blog_description_<?php echo $blog['id_blog']; ?>" rows="3"><?php echo $blog['descrizione']; ?></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
-                                            <button type="submit" class="btn btn-primary" name="update_blog_<?php echo $blog['id_blog']; ?>">Salva modifiche</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Modifica Post Modal -->
-                        <?php foreach ($blog['posts'] as $post): ?>
-                            <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModal_<?php echo $post['id_post']; ?>Label" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="editPostModal_<?php echo $post['id_post']; ?>Label">Modifica Post</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <form method="post">
-                                            <div class="modal-body">
-                                                <div class="form-group">
-                                                    <label for="edit_post_title_<?php echo $post['id_post']; ?>">Titolo:</label>
-                                                    <input type="text" class="form-control" id="edit_post_title_<?php echo $post['id_post']; ?>" name="edit_post_title_<?php echo $post['id_post']; ?>" value="<?php echo $post['titolo_post']; ?>">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="edit_post_description_<?php echo $post['id_post']; ?>">Descrizione:</label>
-                                                    <textarea class="form-control" id="edit_post_description_<?php echo $post['id_post']; ?>" name="edit_post_description_<?php echo $post['id_post']; ?>" rows="3"><?php echo $post['descrizione_post']; ?></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
-                                                <button type="submit" class="btn btn-primary" name="update_post_<?php echo $post['id_post']; ?>">Salva modifiche</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="col">
-                        <p>Non hai ancora creato alcun blog.</p>
+    <div>
+        <h2>I Miei Blog</h2>
+        <?php if (!empty($blogs)): ?>
+            <?php foreach ($blogs as $blog): ?>
+                <div class="blog-section">
+                    <h3><?php echo $blog['titolo_blog']; ?></h3>
+                    <p><?php echo $blog['descrizione']; ?></p>
+                    <?php if (!empty($blog['img_logo'])): ?>
+                        <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="blog-logo" alt="Logo del blog">
+                    <?php endif; ?>
+                    
+                    <div class="blog-actions">
+                        <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
+                        <a href="../pubblico/edit_blog.php?id_blog=<?php echo $blog['id_blog']; ?>">Modifica Blog</a>
                     </div>
-                <?php endif; ?>
-            </div>
-        </div>
+                    
+                    <?php
+                    // Recupera i post associati a questo blog
+                    $postsQuery = "SELECT id_post, titolo_post, descrizione_post, img_post FROM post WHERE id_blog = ?";
+                    $stmt = $conn->prepare($postsQuery);
+                    $stmt->bind_param("i", $blog['id_blog']);
+                    $stmt->execute();
+                    $postsResult = $stmt->get_result();
+                    $posts = $postsResult->fetch_all(MYSQLI_ASSOC);
+                    $stmt->close();
+                    ?>
+                    
+                    <?php if (!empty($posts)): ?>
+                        <h4>Post:</h4>
+                        <ul>
+                            <?php foreach ($posts as $post): ?>
+                                <li class="post-item">
+                                    <h5><?php echo $post['titolo_post']; ?></h5>
+                                    <p><?php echo $post['descrizione_post']; ?></p>
+                                    <img src="../photo_post/<?php echo $post['img_post']; ?>" alt="Immagine del Post" width="100">
+                                    <div class="post-actions">
+                                        <a href="../pubblico/my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
+                                        <a href="../pubblico/edit_post.php?id_post=<?php echo $post['id_post']; ?>">Modifica Post</a>
+                                    </div>
 
-        <!-- Link per creare un nuovo blog o post -->
-        <div class="mt-4">
-            <a href="../pubblico/create_blog.php" class="btn btn-primary">Crea Blog</a>
-            <a href="../pubblico/create_post.php" class="btn btn-success">Crea Post</a>
-        </div>
 
-        <!-- JavaScript e librerie Bootstrap -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-        <script>
-            // Mostra l'immagine del profilo caricata
-            function readURL(input) {
-                if (input.files && input.files[0]) {
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('.profile-picture').attr('src', e.target.result);
-                    }
-                    reader.readAsDataURL(input.files[0]);
-                }
-            }
-            $("#img_profilo").change(function() {
-    readURL(this);
-});
+                                    <!-- Recupero dei commenti per questo post -->
+                                    <?php
+                                        $commentsQuery = "
+                                        SELECT c.id_comm, c.contenuto, c.data_comm, u.username
+                                        FROM commento c
+                                        INNER JOIN utente u ON c.id_utente = u.id_utente
+                                        WHERE c.id_post = ?
+                                        ";
+                                                    
+                                        $stmt_comments = $conn->prepare($commentsQuery);
+                                        $stmt_comments->bind_param("i", $post['id_post']);
+                                        $stmt_comments->execute();
+                                        $commentsResult = $stmt_comments->get_result();
+                                        $comments = $commentsResult->fetch_all(MYSQLI_ASSOC);
+                                        $stmt_comments->close();
+                                    ?>
 
-// Mostra l'immagine del post caricata
-function readPostImage(input, postId) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            $('#post_image_preview_' + postId).attr('src', e.target.result);
-        }
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-$("[id^=post_image]").change(function() {
-    var postId = $(this).data('post-id');
-    readPostImage(this, postId);
-});
-</script>
+                                    <?php if (!empty($comments)): ?>
+                                        <h5>Commenti:</h5>
+                                        <ul class="list-unstyled">
+                                            <?php foreach ($comments as $comment): ?>
+                                                <li>
+                                                    <strong><?php echo $comment['username']; ?>  <small class="text-muted"><?php echo $comment['data_comm']; ?></small>:</strong>
+                                                    <?php echo $comment['contenuto']; ?>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php else: ?>
+                                        <p>Nessun commento disponibile.</p>
+                                    <?php endif; ?>
+
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>Non hai ancora creato alcun blog.</p>
+        <?php endif; ?>
+    </div>
+
+    <div>
+        <a href="../pubblico/create_blog.php">Crea Blog</a>
+        <a href="../pubblico/create_post.php">Crea Post</a>
+    </div>
 </body>
 </html>
