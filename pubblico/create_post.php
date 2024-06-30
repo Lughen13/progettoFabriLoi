@@ -113,7 +113,7 @@ $stmt->close();
         </select>
 
         <label for="image">Immagine del post (opzionale):</label>
-        <input type="file" name="image" id="image">
+        <input type="file" name="immagine" id="image">
 
         <input type="submit" value="Crea post">
     </form>
