@@ -310,7 +310,7 @@ $conn->close();
                 <span class="error"><?php echo $username_err;?></span>
             </div>
             <div class="form-group">
-                <label>Password (deve contenere almeno una lettera maiuscola, un carattere non alfanumerico e deve essere lunga almeno 8 caratteri):</label>
+                <label>Password (deve contenere almeno una lettera maiuscola, un carattere speciale e deve essere minimo di 8 caratteri):</label>
                 <input type="password" name="password" value="<?php echo $password;?>">
                 <span class="error"><?php echo $password_err;?></span>
             </div>
