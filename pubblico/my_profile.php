@@ -235,27 +235,18 @@ $stmt->close();
     </style>
 </head>
 <body>
-    <h1>Il Mio Profilo </h1>
-    <nav>        
-        <form action="../pubblico/search.php" method="GET">
-            <input type="text" name="query" placeholder="Cerca blog o post">
-            <button type="submit">Cerca</button>
-        </form>
-        <ul>
-            <li><a href="../pubblico/home.php">Home</a></li>
-            <li><a href="../pubblico/my_profile.php">Il mio profilo</a></li>
-            <li><a href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-            <li><a href="../pubblico/logout.php">Logout</a></li>
-        </ul>
-    </nav>
+    <div class="container">
+        <h1 class="text-center mb-4">Il Mio Profilo</h1>
 
-    <form method="post" enctype="multipart/form-data">
-        <label for="img_profilo">Immagine del profilo:</label>
-        <input type="file" name="img_profilo" id="img_profilo">
-        <input type="submit" value="Carica immagine">
-    </form>
-
-    <img src="../uploads/<?php echo $user['img_profilo']; ?>" class="profile-picture" alt="Immagine del profilo">
+        <!-- Sezione Immagine Profilo -->
+        <div class="text-center">
+            <form method="post" enctype="multipart/form-data">
+                <label for="img_profilo">Immagine del profilo:</label>
+                <input type="file" name="img_profilo" id="img_profilo" class="form-control-file">
+                <button type="submit" class="btn btn-primary mt-2">Carica immagine</button>
+            </form>
+            <img src="../uploads/<?php echo $user['img_profilo']; ?>" class="profile-picture mt-3" alt="Immagine del profilo">
+        </div>
 
     <div>
         <h2>Informazioni Personali</h2>
