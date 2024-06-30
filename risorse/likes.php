@@ -3,13 +3,13 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
-include 'conn.php';
+require_once '../configurazione/conn.php';
 session_start();
 
 
 // Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header('Location: login.php');
+    header('Location: ../pubblico/login.php');
     exit;
 }
 
@@ -62,7 +62,7 @@ if ($postId && ($action === 'like' || $action === 'unlike')) {
     }
     
     // Redirect back to the blog view
-    header("Location: view_blog.php?id_blog={$_POST['blog_id']}");
+    header("Location: ../pubblico/view_blog.php?id_blog={$_POST['blog_id']}");
     exit;
 } else {
     echo "Parametri non validi.";

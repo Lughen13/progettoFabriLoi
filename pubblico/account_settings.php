@@ -7,11 +7,11 @@ ini_set('error_log', '/path/to/your/php_error.log');
 session_start();
 
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
+    header("Location: ../pubblico/login.php");
     exit();
 }
 
-require_once 'conn.php';
+require_once '../configurazione/conn.php';
 
 $userId = $_SESSION['id'];
 $sql = "SELECT u.username, u.email, u.pw, u.nome, u.cognome, u.data_nascita, u.genere, u.numero_telefono, u.premium, p.intestatario, p.numero_carta, p.data_scadenza
@@ -68,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   
                   // Distruggi la sessione e reindirizza alla pagina di login
                   session_destroy();
-                  header("Location: login.php");
+                  header("Location: ../pubblico/login.php");
                   exit();
               } catch (Exception $e) {
                   // Rollback della transazione in caso di errore
@@ -196,7 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->close();
                 }
                 $successMessage = "Modifiche salvate con successo!";
-                header("Location: home.php");
+                header("Location: ../pubblico/home.php");
                 exit();
             }
         }
@@ -373,7 +373,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <button type="submit" name="delete_user" value="1" style="background-color: red;">Elimina Utente</button>
 </form>
     </form>
-    <button onclick="window.location.href='home.php'">Torna alla Home</button>
+    <button onclick="window.location.href='../pubblico/home.php'">Torna alla Home</button>
     <script>
         document.getElementById('premium').addEventListener('change', function () {
             document.getElementById('premiumInfo').style.display = this.checked ? 'block' : 'none';

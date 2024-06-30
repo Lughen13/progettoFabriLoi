@@ -3,12 +3,12 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
-include 'conn.php';
+require_once '../configurazione/conn.php';
 session_start();
 
 // Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header('Location: login.php');
+    header('Location: ../pubblico/login.php');
     exit;
 }
 
@@ -110,19 +110,19 @@ $conn->close();
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="home.php">Home</a>
+                    <a class="nav-link" href="../pubblico/home.php">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="my_profile.php">Il mio profilo</a>
+                    <a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="account_settings.php">Impostazioni profilo</a>
+                    <a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="logout.php">Logout</a>
+                    <a class="nav-link" href="../pubblico/logout.php">Logout</a>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+            <form class="form-inline my-2 my-lg-0" action="../pubblico/search.php" method="GET">
                 <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
             </form>
@@ -133,20 +133,20 @@ $conn->close();
     <p><?php echo htmlspecialchars(isset($blog['descrizione']) ? $blog['descrizione'] : ''); ?></p>
     <p>Follower: <?php echo $follow_count; ?></p>
     <?php if ($isFollowing): ?>
-        <form method="post" action="follow.php" class="d-inline">
+        <form method="post" action="../risorse/follow.php" class="d-inline">
             <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
             <input type="hidden" name="action" value="unfollow">
             <button type="submit" class="btn btn-danger">Non Seguire più</button>
         </form>
     <?php else: ?>
-        <form method="post" action="follow.php" class="d-inline">
+        <form method="post" action="../risorse/follow.php" class="d-inline">
             <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
             <input type="hidden" name="action" value="follow">
             <button type="submit" class="btn btn-primary">Segui questo Blog</button>
         </form>
     <?php endif; ?>
 
-    <img src="blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
+    <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
 
     <?php if ($resultPosts->num_rows > 0): ?>
         <h2 class="mt-5">Post:</h2>
@@ -156,7 +156,7 @@ $conn->close();
                     <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
                     <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
                     <?php if (!empty($post['img_post'])): ?>
-                        <img src="photo_post/<?php echo htmlspecialchars($post['img_post']); ?>" class="card-img-top" alt="Immagine del Post" width="100">
+                        <img src="../photo_post/<?php echo htmlspecialchars($post['img_post']); ?>" class="card-img-top" alt="Immagine del Post" width="100">
                     <?php endif; ?>
 
                     <!-- Visualizzazione dei commenti -->
@@ -172,7 +172,7 @@ $conn->close();
                                             <!-- Pulsante Modifica -->
                                             <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
                                             <!-- Pulsante Elimina -->
-                                            <form method="post" action="comment.php" class="d-inline">
+                                            <form method="post" action="../risorse/comment.php" class="d-inline">
                                                 <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
                                                 <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
                                                 <input type="hidden" name="action" value="delete">
@@ -180,7 +180,7 @@ $conn->close();
                                             </form>
                                             <!-- Modifica commento -->
                                             <div class="edit-comment-form d-none">
-                                                <form method="post" action="comment.php">
+                                                <form method="post" action="../risorse/comment.php">
                                                     <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
                                                     <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
                                                     <input type="hidden" name="action" value="update">
@@ -199,7 +199,7 @@ $conn->close();
                     <?php endif; ?>
 
                     <!-- Form per inserire un commento -->
-                    <form method="post" action="comment.php" class="mt-3">
+                    <form method="post" action="../risorse/comment.php" class="mt-3">
                         <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
                         <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
                         <input type="hidden" name="action" value="insert">
@@ -215,7 +215,7 @@ $conn->close();
                         $totalLikes = isset($likeCounts[$post['id_post']]) ? $likeCounts[$post['id_post']] : 0;
                         $likeAction = 'like';
                         if ($_SESSION['loggedin'] === true) {
-                            include 'conn.php';
+                            include '../configurazione/conn.php';
 
                             $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
                             $stmt = $conn->prepare($likeQuery);
@@ -228,7 +228,7 @@ $conn->close();
                             $stmt->close();
                         }
                         ?>
-                        <form method="post" action="likes.php">
+                        <form method="post" action="../risorse/likes.php">
                             <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
                             <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
                             <button type="submit" name="action" value="<?php echo $likeAction; ?>" class="btn btn-success">

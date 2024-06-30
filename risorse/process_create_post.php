@@ -4,11 +4,11 @@ ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
 
-require_once 'conn.php';
+require_once '../configurazione/conn.php';
 session_start();
 
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
+    header("Location: ../pubblico/login.php");
     exit();
 }
 
@@ -20,6 +20,7 @@ $subcategoryId = $_POST['subcategory'];
 
 $logoName = '';
 
+// Controllo sul caricamento dell'immagine
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagine'])) {
     $immagineFile = $_FILES['immagine'];
     $immagineTmpName = $immagineFile['tmp_name'];
@@ -30,15 +31,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagine'])) {
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
     $immagineExtension = strtolower(pathinfo($immagineFileName, PATHINFO_EXTENSION));
 
-    if (in_array($immagineExtension, $allowedExtensions) && $immagineError === 0) {
-        $immagineName = uniqid() . '_' . $title . '.' . $immagineExtension;
-        $immagineDestination = 'photo_post/' . $immagineName;
+    // Validazione dell'immagine
+    if (in_array($immagineExtension, $allowedExtensions) && $immagineError === 0 && $immagineSize > 0) {
+        $logoName = uniqid() . '_' . $title . '.' . $immagineExtension;
+        $immagineDestination = '../photo_post/' . $logoName;
 
-        if (!is_dir('photo_post')) {
-            mkdir('photo_post', 0775, true);
+        // Crea la cartella se non esiste
+        if (!is_dir('../photo_post')) {
+            mkdir('../photo_post', 0775, true);
         }
 
-        if (move_uploaded_file($logoTmpName, $logoDestination)) {
+        // Move uploaded file
+        if (move_uploaded_file($immagineTmpName, $immagineDestination)) {
             echo "Immagine caricata con successo.";
         } else {
             echo "Errore durante il caricamento dell'immagine.";
@@ -56,7 +60,7 @@ if ($stmt->execute()) {
     echo "<p>Post creato con successo!</p>";
     echo "<script>
         setTimeout(function() {
-            window.location.href = 'home.php';
+            window.location.href = '../pubblico/home.php';
         }, 2000);
     </script>";
 } else {

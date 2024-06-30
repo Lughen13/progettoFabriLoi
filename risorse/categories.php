@@ -1,6 +1,5 @@
 <?php
-require_once 'conn.php';
-
+require_once '../configurazione/conn.php';
 // array che definisce una serie di categorie e sottocategorie di default
 $categories = [
     'Tecnologia' => ['Internet', 'Hardware', 'Software'],

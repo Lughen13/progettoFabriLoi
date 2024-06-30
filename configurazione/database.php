@@ -1,25 +1,25 @@
 <?php
+// Abilita la visualizzazione di tutti gli errori PHP
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', '/path/to/your/php_error.log');
-require_once 'conn.php';
 
-// Connessione al database
-$conn = new mysqli($host, $user, $password, $database);
-
-// Verifica la connessione
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
-}
+// Includi il file di connessione al database
+require_once '../configurazione/conn.php';
 
 // Funzione per eseguire una query e restituire un singolo record
 function fetchRecord($query, $params = []) {
     global $conn;
     $stmt = $conn->prepare($query);
+    
+    if ($stmt === false) {
+        trigger_error('Errore nella preparazione della query: ' . $conn->error, E_USER_ERROR);
+        return false;
+    }
+    
     if (!empty($params)) {
         $stmt->bind_param(str_repeat('s', count($params)), ...$params);
     }
+    
     $stmt->execute();
     $result = $stmt->get_result();
     $record = $result->fetch_assoc();
@@ -31,9 +31,16 @@ function fetchRecord($query, $params = []) {
 function fetchRecords($query, $params = []) {
     global $conn;
     $stmt = $conn->prepare($query);
+    
+    if ($stmt === false) {
+        trigger_error('Errore nella preparazione della query: ' . $conn->error, E_USER_ERROR);
+        return false;
+    }
+    
     if (!empty($params)) {
         $stmt->bind_param(str_repeat('s', count($params)), ...$params);
     }
+    
     $stmt->execute();
     $result = $stmt->get_result();
     $records = [];
@@ -48,11 +55,19 @@ function fetchRecords($query, $params = []) {
 function executeStatement($query, $params = []) {
     global $conn;
     $stmt = $conn->prepare($query);
+    
+    if ($stmt === false) {
+        trigger_error('Errore nella preparazione della query: ' . $conn->error, E_USER_ERROR);
+        return false;
+    }
+    
     if (!empty($params)) {
         $stmt->bind_param(str_repeat('s', count($params)), ...$params);
     }
+    
     $stmt->execute();
     $stmt->close();
     return $conn->affected_rows;
 }
+
 ?>

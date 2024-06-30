@@ -1,10 +1,10 @@
 <?php
-include 'conn.php';
+require_once '../configurazione/conn.php';
 session_start();
 
 // Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header('Location: login.php');
+    header('Location: ../pubblico/login.php');
     exit;
 }
 
@@ -32,7 +32,7 @@ if ($stmt->num_rows > 0 && !empty($newComment)) {
     $stmt->bind_param("si", $newComment, $commentId);
     if ($stmt->execute()) {
         // Commento modificato con successo
-        header("Location: view_blog.php?id_blog={$_POST['blog_id']}");
+        header("Location: ../pubblico/view_blog.php?id_blog={$_POST['blog_id']}");
         exit;
     } else {
         echo "Errore durante la modifica del commento.";

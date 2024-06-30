@@ -1,5 +1,5 @@
 <?php
-require_once 'conn.php';
+require_once '../configurazione/conn.php';
 
 // array con degli stili di defoult 
 $styles = [

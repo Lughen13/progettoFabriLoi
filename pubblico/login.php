@@ -1,6 +1,10 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
 // Connessione al database
-include 'conn.php';
+require_once '../configurazione/conn.php';
 
 // Inizializzazione delle variabili
 $username = $password = "";
@@ -39,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION["id"] = $id;
                     $_SESSION["username"] = $username;
                     // $_SESSION['genere'] = $db_genere; // Not sure where $db_genere comes from
-                    header("location: home.php");
+                    header("location: ../pubblico/home.php");
                 } else {
                     $login_err = "Username o password non validi.";
                 }
@@ -124,7 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div>
             <input type="submit" value="Accedi">
         </div>
-        <p> Se non hai un account puoi <a href="registrazione.php"> registrarti qui</a>.</p>
+        <p> Se non hai un account puoi <a href="../pubblico/registrazione.php"> registrarti qui</a>.</p>
     </form>
 </body>
 </html>

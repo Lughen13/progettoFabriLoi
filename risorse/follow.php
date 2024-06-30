@@ -1,9 +1,9 @@
 <?php
 session_start();
-include 'conn.php';
+require_once '../configurazione/conn.php';
 
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header('Location: login.php');
+    header('Location: ../pubblico/login.php');
     exit;
 }
 
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $stmt_increment->close();
 
                     $stmt_follow->close();
-                    header("Location: view_blog.php?id_blog=$blogId");
+                    header("Location: ../pubblico/view_blog.php?id_blog=$blogId");
                     exit;
                 } else {
                     echo "Errore nell'esecuzione della query: " . $stmt_follow->error;
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $stmt_decrement->close();
 
                     $stmt_unfollow->close();
-                    header("Location: view_blog.php?id_blog=$blogId");
+                    header("Location: ../pubblico/view_blog.php?id_blog=$blogId");
                     exit;
                 } else {
                     echo "Errore nell'esecuzione della query: " . $stmt_unfollow->error;

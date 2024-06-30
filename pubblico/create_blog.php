@@ -5,12 +5,12 @@ ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
 
 // Connessione al database
-require_once 'conn.php';
+require_once '../configurazione/conn.php';
 
 // Verifica se l'utente è autenticato
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
+    header("Location: ../pubblico/login.php");
     exit();
 }
 
@@ -22,7 +22,7 @@ if (!$categoriesResult) {
 }
 
 // Recupera gli stili dal file manage_styles.php
-require_once 'manage_styles.php';
+require_once '../risorse/manage_styles.php';
 $stylesResult = getStyles();
 if (!$stylesResult) {
     die("Errore nel recupero degli stili");
@@ -124,13 +124,13 @@ if (!$usersResult) {
     </header>
     <nav>        
         <ul>
-            <li><a href="home.php"> Home </a></li>
-            <li><a href="my_profile.php">Il mio profilo </a></li>
-            <li><a href="account_settings.php">Impostazioni profilo</a></li>
-            <li><a href="logout.php">Logout</a></li>
+            <li><a href="../pubblico/home.php"> Home </a></li>
+            <li><a href="../pubblico/my_profile.php">Il mio profilo </a></li>
+            <li><a href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+            <li><a href="../pubblico/logout.php">Logout</a></li>
         </ul>
     </nav>
-    <form method="post" action="process_create_blog.php" enctype="multipart/form-data">
+    <form method="post" action="../risorse/process_create_blog.php" enctype="multipart/form-data">
         <label for="title">Titolo del blog:</label>
         <input type="text" name="title" id="title" required>
 

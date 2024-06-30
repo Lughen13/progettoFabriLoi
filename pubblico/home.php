@@ -1,10 +1,10 @@
 <?php
-include 'conn.php';
+require_once '../configurazione/conn.php';
 session_start();
 
 // Controlla se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header('Location: login.php');
+    header('Location: ../pubblico/login.php');
     exit;
 }
 
@@ -72,19 +72,19 @@ $stmt->close();
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="home.php"> Home </a>
+                    <a class="nav-link" href="../pubblico/home.php"> Home </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="my_profile.php">Il mio profilo </a>
+                    <a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="account_settings.php">Impostazioni profilo</a>
+                    <a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="logout.php">Logout</a>
+                    <a class="nav-link" href="../pubblico/logout.php">Logout</a>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+            <form class="form-inline my-2 my-lg-0" action="../pubblico/search.php" method="GET">
                 <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
             </form>
@@ -100,13 +100,13 @@ $stmt->close();
                 <?php foreach ($blogs as $blog): ?>
                     <div class="col-md-4 mb-4">
                         <div class="card">
-                            <img src="blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top" alt="Logo del Blog">
+                            <img src="../blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top" alt="Logo del Blog">
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo $blog['titolo_blog']; ?></h5>
                                 <p class="card-text"><?php echo $blog['descrizione']; ?></p>
                                 <p class="card-text">Proprietario: <?php echo $blog['username']; ?></p>
                                 <p class="card-text">Categoria: <?php echo $blog['nome_categoria']; ?></p>
-                                <a href="view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
+                                <a href="../pubblico/view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
                             </div>
                         </div>
                     </div>
@@ -116,8 +116,8 @@ $stmt->close();
             <p>Non ci sono blog da mostrare.</p>
         <?php endif; ?>
 
-        <a href="create_blog.php" class="btn btn-success">Crea un nuovo blog</a>
-        <a href="create_post.php" class="btn btn-info">Crea un nuovo post</a>
+        <a href="../pubblico/create_blog.php" class="btn btn-success">Crea un nuovo blog</a>
+        <a href="../pubblico/create_post.php" class="btn btn-info">Crea un nuovo post</a>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

@@ -5,12 +5,12 @@ ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
 
 // Connessione al database
-require_once 'conn.php';
+require_once '../configurazione/conn.php';
 
 // Verifica se l'utente è loggato al sito 
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
+    header("Location: ../pubblico/login.php");
     exit();
 }
 
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo'])) {
 
     if (in_array($logoExtension, $allowedExtensions) && $logoError === 0) {
         $logoName = $title . '.' . $logoExtension; // Nuovo nome del file del logo
-        $logoDestination = 'blog_logo/' . $logoName;
+        $logoDestination = '../blog_logo/' . $logoName;
 
         if (move_uploaded_file($logoTmpName, $logoDestination)) {
             echo "Logo caricato con successo.";
@@ -65,10 +65,10 @@ if ($stmt_blog->execute()) {
         $stmt_co_author->execute();
         $stmt_co_author->close();
         echo "Blog creato con successo con co-autore!";
-        echo '<script>setTimeout(function(){ window.location.href = "home.php"; }, 2000);</script>';
+        echo '<script>setTimeout(function(){ window.location.href = "../pubblico/home.php"; }, 2000);</script>';
     } else {
         echo "Blog creato con successo!";
-        echo '<script>setTimeout(function(){ window.location.href = "home.php"; }, 2000);</script>';
+        echo '<script>setTimeout(function(){ window.location.href = "../pubblico/home.php"; }, 2000);</script>';
     }
 } else {
     echo "Errore nella creazione del blog: " . $stmt_blog->error;

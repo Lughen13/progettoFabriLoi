@@ -1,6 +1,6 @@
 <?php
 // Connessione al database
-require_once 'conn.php';
+require_once '../configurazione/conn.php';
 
 $conn = new mysqli($host, $user, $password, $database);
 
@@ -209,7 +209,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
     
             // Inserimento riuscito
-            header("location: home.php");
+            header("location: ../pubblico/login.php");
             exit();
         } else {
             echo "Errore durante l'inserimento dei dati dell'utente: " . $stmt->error;

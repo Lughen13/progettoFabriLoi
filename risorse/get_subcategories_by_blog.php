@@ -1,5 +1,5 @@
 <?php
-require_once 'conn.php';
+require_once '../configurazione/conn.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $blogId = $_POST['id_blog'];

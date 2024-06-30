@@ -4,14 +4,13 @@ ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
 
-
-require_once 'conn.php';
+require_once '../configurazione/conn.php';
 
 
 // e verifico l'utente di cui ho la sessione aperta è loggato
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.php");
+    header("Location: ../pubblico/login.php");
     exit();
 }
 
@@ -93,7 +92,7 @@ $stmt->close();
 </head>
 <body>
     <h1>Crea un nuovo post</h1>
-    <form method="post" action="process_create_post.php" enctype="multipart/form-data">
+    <form method="post" action="../risorse/process_create_post.php" enctype="multipart/form-data">
         <label for="blog">Seleziona il blog:</label>
         <select name="id_blog" id="blog" required>
             <option value="">Seleziona un blog</option>
@@ -125,7 +124,7 @@ $stmt->close();
             var blogId = $(this).val();
             if (blogId) {
                 $.ajax({
-                    url: 'get_subcategories_by_blog.php',
+                    url: '../risorse/get_subcategories_by_blog.php',
                     type: 'POST',
                     data: {id_blog: blogId},
                     success: function(response) {

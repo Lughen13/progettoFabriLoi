@@ -1,5 +1,5 @@
 <?php
-require_once 'conn.php';
+require_once '../configurazione/conn.php';
 
 // Verifica se è stato passato un parametro di ricerca
 if (isset($_GET['query'])) {
@@ -59,16 +59,16 @@ if (isset($_GET['query'])) {
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="home.php">Home</a>
+                        <a class="nav-link" href="../pubblico/home.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="my_profile.php">Il mio profilo</a>
+                        <a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="account_settings.php">Impostazioni profilo</a>
+                        <a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="logout.php">Logout</a>
+                        <a class="nav-link" href="../pubblico/logout.php">Logout</a>
                     </li>
                 </ul>
             </div>

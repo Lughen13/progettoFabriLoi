@@ -2,7 +2,7 @@
 // Connessione al database
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-require_once 'conn.php';
+require_once '../configurazione/conn.php';
 
 $conn = new mysqli($host, $user, $password, $database);
 
@@ -12,6 +12,6 @@ session_unset();
 session_destroy();
 
 // torna alla pagina di login per fare un nuovo accesso
-header("Location: login.php");
+header("Location: ../pubblico/login.php");
 exit();
 ?>

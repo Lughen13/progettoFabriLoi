@@ -3,12 +3,12 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
-include 'conn.php';
+require_once '../configurazione/conn.php';
 session_start();
 
 // Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header('Location: login.php');
+    header('Location: ../pubblico/login.php');
     exit;
 }
 
@@ -25,7 +25,7 @@ if ($action === 'insert' && $postId && !empty($comment)) {
     $stmt = $conn->prepare($insertCommentQuery);
     $stmt->bind_param("sii", $comment, $userId, $postId);
     if ($stmt->execute()) {
-        header("Location: view_blog.php?id_blog=$id_blog");
+        header("Location: ../pubblico/view_blog.php?id_blog=$id_blog");
         exit;
     } else {
         echo "Errore durante l'inserimento del commento: " . $stmt->error;
@@ -37,7 +37,7 @@ if ($action === 'insert' && $postId && !empty($comment)) {
     $stmt = $conn->prepare($updateCommentQuery);
     $stmt->bind_param("sii", $comment, $id_comm, $userId);
     if ($stmt->execute()) {
-        header("Location: view_blog.php?id_blog=$id_blog");
+        header("Location: ../pubblico/view_blog.php?id_blog=$id_blog");
         exit;
     } else {
         echo "Errore durante l'aggiornamento del commento: " . $stmt->error;
@@ -49,7 +49,7 @@ if ($action === 'insert' && $postId && !empty($comment)) {
     $stmt = $conn->prepare($deleteCommentQuery);
     $stmt->bind_param("ii", $id_comm, $userId);
     if ($stmt->execute()) {
-        header("Location: view_blog.php?id_blog=$id_blog");
+        header("Location: ../pubblico/view_blog.php?id_blog=$id_blog");
         exit;
     } else {
         echo "Errore durante l'eliminazione del commento: " . $stmt->error;
