@@ -68,8 +68,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_bio'])) {
     if ($stmt->execute()) {
         // Aggiornamento della bio eseguito con successo
         $bioUpdateSuccess = true;
+        // Aggiorna la variabile utente con la nuova bio per riflettere il cambiamento senza dover rieffettuare la query
+        $user['bio'] = $newBio;
     } else {
         echo "Errore durante l'aggiornamento della bio: " . $stmt->error;
+    }
+    $stmt->close();
+}
+
+// Gestione dell'aggiornamento del blog
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_blog'])) {
+    // Esempio di come gestire l'aggiornamento di un singolo blog
+    $blogId = $_POST['blog_id']; // Assicurati che questo valore sia disponibile nel form
+    $editBlogTitle = $_POST['edit_blog_title_' . $blogId];
+    $editBlogDescription = $_POST['edit_blog_description_' . $blogId];
+
+    $updateBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ? WHERE id_blog = ?";
+    $stmt = $conn->prepare($updateBlogQuery);
+    $stmt->bind_param('ssi', $editBlogTitle, $editBlogDescription, $blogId);
+    if ($stmt->execute()) {
+        // Aggiornamento del blog eseguito con successo
+        // Esegui eventuali azioni aggiuntive dopo l'aggiornamento
+    } else {
+        echo "Errore durante l'aggiornamento del blog: " . $stmt->error;
     }
     $stmt->close();
 }
@@ -82,7 +103,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
-
 ?>
 
 <!DOCTYPE html>
@@ -156,7 +176,7 @@ $stmt->close();
                     <form method="post">
                         <div class="form-group">
                             <label for="username">Username:</label>
-                            <input type="text" id="username" class="form-control" value="<?php echo $user['username']; ?>" disabled>
+                            <input type="text"                            id="username" class="form-control" value="<?php echo $user['username']; ?>" disabled>
                         </div>
                         <div class="form-group">
                             <label for="nome">Nome:</label>
@@ -259,10 +279,11 @@ $stmt->close();
                                                 <label for="edit_blog_description_<?php echo $blog['id_blog']; ?>">Descrizione:</label>
                                                 <textarea class="form-control" id="edit_blog_description_<?php echo $blog['id_blog']; ?>" name="edit_blog_description_<?php echo $blog['id_blog']; ?>" rows="3"><?php echo $blog['descrizione']; ?></textarea>
                                             </div>
+                                            <input type="hidden" name="blog_id" value="<?php echo $blog['id_blog']; ?>">
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
-                                            <button type="submit" class="btn btn-primary" name="update_blog_<?php echo $blog['id_blog']; ?>">Salva modifiche</button>
+                                            <button type="submit" class="btn btn-primary" name="update_blog">Salva modifiche</button>
                                         </div>
                                     </form>
                                 </div>
@@ -297,8 +318,9 @@ $stmt->close();
                                             </div>
                                         </form>
                                     </div>
-                                </div>
+                                </                                </div>
                             </div>
+                        </div>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -334,5 +356,6 @@ $stmt->close();
             });
         </script>
 
-    </body>
-    </html>
+    </div>
+</body>
+</html>
