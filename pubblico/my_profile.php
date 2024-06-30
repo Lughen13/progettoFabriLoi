@@ -134,24 +134,17 @@ $stmt->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Il Mio Profilo</title>
+     <!-- Stili Bootstrap -->
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Stili personalizzati -->
     <style>
         body {
-            text-align: center;
             font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 20px;
         }
-        nav {
-            margin-bottom: 20px;
-        }
-        nav form {
-            margin-bottom: 10px;
-        }
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        nav ul li {
-            display: inline;
-            margin-right: 10px;
+        .info_personali {
+            text-align: center;
         }
         .profile-picture {
             max-width: 200px;
@@ -164,75 +157,29 @@ $stmt->close();
             max-height: 75px;
         }
         .blog-section {
-            margin-bottom: 30px;
-            background-color: #f9f9f9;
-            padding: 15px;
+            background-color: #fff;
+            margin-bottom: 20px;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
-            text-align: left;
-        }
-        .blog-section h3 {
-            margin-bottom: 10px;
-        }
-        .blog-section p {
-            margin-bottom: 5px;
-        }
-        .blog-section .blog-actions {
-            margin-top: 10px;
-        }
-        .blog-section .blog-actions a {
-            margin-right: 10px;
-            color: #ff0000;
-            text-decoration: none;
-        }
-        .blog-section .blog-actions a:hover {
-            text-decoration: underline;
-        }
-        .blog-section ul {
-            padding-left: 20px;
-            margin-top: 10px;
         }
         .post-item {
-            margin-bottom: 10px;
+            background-color: #f8f9fa;
             padding: 10px;
-            background-color: #eaeaea;
             border-radius: 8px;
+            margin-top: 10px;
         }
-        .post-item h5 {
-            margin-bottom: 5px;
-        }
-        .post-item p {
-            margin-bottom: 5px;
-        }
-        .post-item img {
-            max-width: 100px;
-            margin-top: 5px;
-            border-radius: 4px;
-        }
-        form textarea {
-            width: 100%;
-            height: 100px;
+        .form-group {
             margin-bottom: 10px;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
         }
-        form button[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            padding: 14px 20px;
-            margin: 8px 0;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
+        .form-group label {
+            font-weight: bold;
         }
-        form button[type="submit"]:hover {
-            background-color: #45a049;
+        .form-group input[type="file"] {
+            margin-top: 10px;
         }
     </style>
+
 </head>
 <body>
     <div class="container">
@@ -248,7 +195,7 @@ $stmt->close();
             <img src="../uploads/<?php echo $user['img_profilo']; ?>" class="profile-picture mt-3" alt="Immagine del profilo">
         </div>
 
-    <div>
+    <div class=" info_personali">
         <h2>Informazioni Personali</h2>
         <p>Username: <?php echo $user['username']; ?></p>
         <p>Nome: <?php echo $user['nome']; ?></p>
