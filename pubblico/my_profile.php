@@ -160,49 +160,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_blog'])) {
     $stmt->close();
 }
 
-// Gestione della modifica del post
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_post'])) {
-    $id_post = $_POST['id_post'];
-    $titolo_post = $_POST['titolo_post'];
-    $descrizione_post = $_POST['descrizione_post'];
 
-    $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ? WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
-    $stmt = $conn->prepare($updatePostQuery);
-    $stmt->bind_param('ssii', $titolo_post, $descrizione_post, $id_post, $userId);
+// Gestione dell'aggiornamento del blog
+if ($action == 'edit_blog') {
+    $blogId = $_POST['blog_id'];
+    $newTitle = $_POST['edit_blog_title'];
+    $newDescription = $_POST['edit_blog_description'];
+
+    $updateBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ? WHERE id_blog = ? AND id_proprietario = ?";
+    $stmt = $conn->prepare($updateBlogQuery);
+    $stmt->bind_param('ssii', $newTitle, $newDescription, $blogId, $userId);
     if ($stmt->execute()) {
-        // Aggiornamento del post eseguito con successo
-        header("Location: ../pubblico/my_profile.php");
-        exit();
+        echo "Blog aggiornato con successo!";
+    } else {
+        echo "Errore durante l'aggiornamento del blog: " . $stmt->error;
+    }
+    $stmt->close();
+    exit(); // Assicurati di terminare l'esecuzione dopo l'aggiornamento
+}
+
+
+// Gestione dell'aggiornamento del post
+if ($action == 'edit_post') {
+    $postId = $_POST['post_id'];
+    $newTitle = $_POST['edit_post_title'];
+    $newDescription = $_POST['edit_post_description'];
+
+    // Gestione dell'immagine del post (opzionale)
+    $newImgFileName = ''; // Aggiungi il codice per gestire il caricamento dell'immagine, se necessario
+
+    $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ?, img_post = ? WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
+    $stmt = $conn->prepare($updatePostQuery);
+    $stmt->bind_param('ssssi', $newTitle, $newDescription, $newImgFileName, $postId, $userId);
+    if ($stmt->execute()) {
+        echo "Post aggiornato con successo!";
     } else {
         echo "Errore durante l'aggiornamento del post: " . $stmt->error;
     }
     $stmt->close();
-}
-
-// Recupero dei dettagli del blog per la modifica
-$blogEdit = null;
-if (isset($_GET['action']) && $_GET['action'] == 'edit_blog' && isset($_GET['id_blog'])) {
-    $id_blog = $_GET['id_blog'];
-    $blogQuery = "SELECT titolo_blog, descrizione FROM blog WHERE id_blog = ? AND id_proprietario = ?";
-    $stmt = $conn->prepare($blogQuery);
-    $stmt->bind_param('ii', $id_blog, $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $blogEdit = $result->fetch_assoc();
-    $stmt->close();
-}
-
-// Recupero dei dettagli del post per la modifica
-$postEdit = null;
-if (isset($_GET['action']) && $_GET['action'] == 'edit_post' && isset($_GET['id_post'])) {
-    $id_post = $_GET['id_post'];
-    $postQuery = "SELECT titolo_post, descrizione_post FROM post WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
-    $stmt = $conn->prepare($postQuery);
-    $stmt->bind_param('ii', $id_post, $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $postEdit = $result->fetch_assoc();
-    $stmt->close();
+    exit(); // Assicurati di terminare l'esecuzione dopo l'aggiornamento
 }
 
 ?>
@@ -300,7 +296,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'edit_post' && isset($_GET['id_
                             <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
 
                             <!-- Modale per la modifica del blog -->
-                            <div class="modal fade" id="editBlogModal_<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="editBlogModalLabel_<?php echo $blog['id_blog']; ?>" aria-hidden="true">
+                                <div class="modal fade" id="editBlogModal_<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="editBlogModalLabel_<?php echo $blog['id_blog']; ?>" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -328,7 +324,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'edit_post' && isset($_GET['id_
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>>
 
                             <!-- Post del blog -->
                             <?php
