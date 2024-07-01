@@ -225,7 +225,7 @@ $stmt->close();
                     
                     <div class="blog-actions">
                         <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
-                        <a href="../pubblico/edit_blog.php?id_blog=<?php echo $blog['id_blog']; ?>">Modifica Blog</a>
+                        <a href="../risorse/edit_blog_post.php?id_blog=<?php echo $blog['id_blog']; ?>">Modifica Blog</a>
                     </div>
                     
                     <?php
@@ -249,7 +249,7 @@ $stmt->close();
                                     <img src="../photo_post/<?php echo $post['img_post']; ?>" alt="Immagine del Post" width="100">
                                     <div class="post-actions">
                                         <a href="../pubblico/my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
-                                        <a href="../pubblico/edit_post.php?id_post=<?php echo $post['id_post']; ?>">Modifica Post</a>
+                                        <a href="../risorse/edit_blog_post.php?id_post=<?php echo $post['id_post']; ?>">Modifica Post</a>
                                     </div>
 
 
