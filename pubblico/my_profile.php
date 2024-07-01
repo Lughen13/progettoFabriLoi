@@ -126,6 +126,70 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+// Gestione della modifica del blog
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_blog'])) {
+    $id_blog = $_POST['id_blog'];
+    $titolo_blog = $_POST['titolo_blog'];
+    $descrizione = $_POST['descrizione'];
+
+    $updateBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ? WHERE id_blog = ? AND id_proprietario = ?";
+    $stmt = $conn->prepare($updateBlogQuery);
+    $stmt->bind_param('ssii', $titolo_blog, $descrizione, $id_blog, $userId);
+    if ($stmt->execute()) {
+        // Aggiornamento del blog eseguito con successo
+        header("Location: ../pubblico/my_profile.php");
+        exit();
+    } else {
+        echo "Errore durante l'aggiornamento del blog: " . $stmt->error;
+    }
+    $stmt->close();
+}
+
+// Gestione della modifica del post
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_post'])) {
+    $id_post = $_POST['id_post'];
+    $titolo_post = $_POST['titolo_post'];
+    $descrizione_post = $_POST['descrizione_post'];
+
+    $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ? WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
+    $stmt = $conn->prepare($updatePostQuery);
+    $stmt->bind_param('ssii', $titolo_post, $descrizione_post, $id_post, $userId);
+    if ($stmt->execute()) {
+        // Aggiornamento del post eseguito con successo
+        header("Location: ../pubblico/my_profile.php");
+        exit();
+    } else {
+        echo "Errore durante l'aggiornamento del post: " . $stmt->error;
+    }
+    $stmt->close();
+}
+
+// Recupero dei dettagli del blog per la modifica
+$blogEdit = null;
+if (isset($_GET['action']) && $_GET['action'] == 'edit_blog' && isset($_GET['id_blog'])) {
+    $id_blog = $_GET['id_blog'];
+    $blogQuery = "SELECT titolo_blog, descrizione FROM blog WHERE id_blog = ? AND id_proprietario = ?";
+    $stmt = $conn->prepare($blogQuery);
+    $stmt->bind_param('ii', $id_blog, $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $blogEdit = $result->fetch_assoc();
+    $stmt->close();
+}
+
+// Recupero dei dettagli del post per la modifica
+$postEdit = null;
+if (isset($_GET['action']) && $_GET['action'] == 'edit_post' && isset($_GET['id_post'])) {
+    $id_post = $_GET['id_post'];
+    $postQuery = "SELECT titolo_post, descrizione_post FROM post WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
+    $stmt = $conn->prepare($postQuery);
+    $stmt->bind_param('ii', $id_post, $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $postEdit = $result->fetch_assoc();
+    $stmt->close();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -185,7 +249,7 @@ $stmt->close();
     <div class="container">
         <h1 class="text-center mb-4">Il Mio Profilo</h1>
 
-        <!-- Sezione Immagine Profilo -->
+        <!-- GESTIONE IMMAGINE DI PROFILO-->
         <div class="text-center">
             <form method="post" enctype="multipart/form-data">
                 <label for="img_profilo">Immagine del profilo:</label>
@@ -195,24 +259,78 @@ $stmt->close();
             <img src="../uploads/<?php echo $user['img_profilo']; ?>" class="profile-picture mt-3" alt="Immagine del profilo">
         </div>
 
-    <div class=" info_personali">
-        <h2>Informazioni Personali</h2>
-        <p>Username: <?php echo $user['username']; ?></p>
-        <p>Nome: <?php echo $user['nome']; ?></p>
-        <p>Cognome: <?php echo $user['cognome']; ?></p>
-        <p>Genere: <?php echo $user['genere']; ?></p>
-        <p>Numero di telefono: <?php echo $user['numero_telefono']; ?></p>
-        <p>Bio:</p>
-        <form method="post">
-            <textarea name="bio"><?php echo $user['bio']; ?></textarea>
-            <button type="submit" name="update_bio">Aggiorna Bio</button>
-        </form>
-        <?php if (isset($bioUpdateSuccess) && $bioUpdateSuccess): ?>
-            <p>Bio aggiornata con successo.</p>
-        <?php endif; ?>
-    </div>
-
+        <div class="mt-4">
+            <h2>Informazioni Personali</h2>
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    <form method="post">
+                        <div class="form-group">
+                            <label for="username">Username:</label>
+                            <input type="text" id="username" class="form-control" value="<?php echo $user['username']; ?>" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="nome">Nome:</label>
+                            <input type="text" id="nome" class="form-control" value="<?php echo $user['nome']; ?>" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="cognome">Cognome:</label>
+                            <input type="text" id="cognome" class="form-control" value="<?php echo $user['cognome']; ?>" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="genere">Genere:</label>
+                            <input type="text" id="genere" class="form-control" value="<?php echo $user['genere']; ?>" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="numero_telefono">Numero di telefono:</label>
+                            <input type="text" id="numero_telefono" class="form-control" value="<?php echo $user['numero_telefono']; ?>" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="bio">Bio:</label>
+                            <textarea name="bio" id="bio" class="form-control" rows="3"><?php echo $user['bio']; ?></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" name="update_bio">Aggiorna Bio</button>
+                        <?php if (isset($bioUpdateSuccess) && $bioUpdateSuccess): ?>
+                            <small class="text-success ml-2">Bio aggiornata con successo.</small>
+                        <?php endif; ?>
+                    </form>
+                </div>
+            </div>
+        </div>
     <div>
+
+    <?php if ($blogEdit): ?>
+            <h2>Modifica Blog</h2>
+            <form method="post">
+                <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                <div class="form-group">
+                    <label for="titolo_blog">Titolo del Blog:</label>
+                    <input type="text" name="titolo_blog" id="titolo_blog" class="form-control" value="<?php echo $blogEdit['titolo_blog']; ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="descrizione">Descrizione:</label>
+                    <textarea name="descrizione" id="descrizione" class="form-control" required><?php echo $blogEdit['descrizione']; ?></textarea>
+                </div>
+                <button type="submit" name="update_blog" class="btn btn-primary">Aggiorna Blog</button>
+            </form>
+        <?php endif; ?>
+
+        <?php if ($postEdit): ?>
+            <h2>Modifica Post</h2>
+            <form method="post">
+                <input type="hidden" name="id_post" value="<?php echo $id_post; ?>">
+                <div class="form-group">
+                    <label for="titolo_post">Titolo del Post:</label>
+                    <input type="text" name="titolo_post" id="titolo_post" class="form-control" value="<?php echo $postEdit['titolo_post']; ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="descrizione_post">Descrizione:</label>
+                    <textarea name="descrizione_post" id="descrizione_post" class="form-control" required><?php echo $postEdit['descrizione_post']; ?></textarea>
+                </div>
+                <button type="submit" name="update_post" class="btn btn-primary">Aggiorna Post</button>
+            </form>
+        <?php endif; ?>
+
+
         <h2>I Miei Blog</h2>
         <?php if (!empty($blogs)): ?>
             <?php foreach ($blogs as $blog): ?>
@@ -225,7 +343,8 @@ $stmt->close();
                     
                     <div class="blog-actions">
                         <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
-                        <a href="../risorse/edit_blog_post.php?id_blog=<?php echo $blog['id_blog']; ?>">Modifica Blog</a>
+                        <a href="../pubblico/my_profile.php?action=edit_blog&id_blog=<?php echo $blog['id_blog']; ?>">Modifica Blog</a>
+
                     </div>
                     
                     <?php
