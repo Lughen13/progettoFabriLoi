@@ -65,10 +65,10 @@ if ($stmt_blog->execute()) {
         $stmt_co_author->execute();
         $stmt_co_author->close();
         echo "Blog creato con successo con co-autore!";
-        echo '<script>setTimeout(function(){ window.location.href = "../pubblico/home.php"; }, 2000);</script>';
+        echo '<script>setTimeout(function(){ window.location.href = "../pubblico/my_profile.php"; }, 2000);</script>';
     } else {
         echo "Blog creato con successo!";
-        echo '<script>setTimeout(function(){ window.location.href = "../pubblico/home.php"; }, 2000);</script>';
+        echo '<script>setTimeout(function(){ window.location.href = "../pubblico/my_profile.php"; }, 2000);</script>';
     }
 } else {
     echo "Errore nella creazione del blog: " . $stmt_blog->error;

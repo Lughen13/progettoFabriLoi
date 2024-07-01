@@ -61,7 +61,7 @@ if ($stmt->execute()) {
     echo "<p>Post creato con successo!</p>";
     echo "<script>
         setTimeout(function() {
-            window.location.href = '../pubblico/home.php';
+            window.location.href = '../pubblico/my_profile.php';
         }, 2000);
     </script>";
 } else {
