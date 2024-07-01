@@ -186,12 +186,45 @@ if ($action == 'edit_post') {
     $newTitle = $_POST['edit_post_title'];
     $newDescription = $_POST['edit_post_description'];
 
-    // Gestione dell'immagine del post (opzionale)
-    $newImgFileName = ''; // Aggiungi il codice per gestire il caricamento dell'immagine, se necessario
+    // Caricamento dell'immagine del post, se fornita
+    $newImgFileName = '';
+    if ($_FILES['edit_post_img']['size'] > 0 && $_FILES['edit_post_img']['error'] == 0) {
+        $imgFile = $_FILES['edit_post_img'];
+        $imgFileName = $imgFile['name'];
+        $imgTmpName = $imgFile['tmp_name'];
+        $imgSize = $imgFile['size'];
+        $imgError = $imgFile['error'];
 
-    $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ?, img_post = ? WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+        $imgExtension = strtolower(pathinfo($imgFileName, PATHINFO_EXTENSION));
+
+        if (in_array($imgExtension, $allowedExtensions)) {
+            $newImgFileName = 'post_' . uniqid('', true) . '.' . $imgExtension;
+            $imgDestination = '../photo_post/' . $newImgFileName;
+
+            if (move_uploaded_file($imgTmpName, $imgDestination)) {
+                // Aggiornamento dell'immagine del post nel database
+                $updatePostImgQuery = "UPDATE post SET img_post = ? WHERE id_post = ?";
+                $stmt = $conn->prepare($updatePostImgQuery);
+                $stmt->bind_param('si', $newImgFileName, $postId);
+                if ($stmt->execute()) {
+                    // Aggiornamento dell'immagine del post eseguito con successo
+                } else {
+                    echo "Errore durante l'aggiornamento dell'immagine del post: " . $stmt->error;
+                }
+                $stmt->close();
+            } else {
+                echo "Errore durante il caricamento dell'immagine del post.";
+            }
+        } else {
+            echo "Formato dell'immagine del post non valido.";
+        }
+    }
+
+    // Aggiornamento del resto delle informazioni del post
+    $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ? WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
     $stmt = $conn->prepare($updatePostQuery);
-    $stmt->bind_param('ssssi', $newTitle, $newDescription, $newImgFileName, $postId, $userId);
+    $stmt->bind_param('sssi', $newTitle, $newDescription, $postId, $userId);
     if ($stmt->execute()) {
         echo "Post aggiornato con successo!";
     } else {
@@ -324,7 +357,7 @@ if ($action == 'edit_post') {
                                         </div>
                                     </div>
                                 </div>
-                            </div>>
+                            </div>
 
                             <!-- Post del blog -->
                             <?php
