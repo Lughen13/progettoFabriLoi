@@ -243,6 +243,115 @@ if ($action == 'edit_post') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Il Mio Profilo</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+<style>
+    .comments-container {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .comment-item {
+        background-color: #f9f9f9;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+    }
+
+    .comment-item .comment-header {
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .comment-item .comment-header img {
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .comment-item .comment-content {
+        margin-top: 8px;
+    }
+</style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .navbar {
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-control {
+            border-radius: 20px;
+        }
+        .profile-picture {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 50%;
+            border: 5px solid #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .btn-outline-success {
+            border-color: #1da1f2;
+            color: #1da1f2;
+        }
+        .btn-outline-success:hover {
+            background-color: #1da1f2;
+            color: #fff;
+        }
+        .btn-primary {
+            background-color: #1da1f2;
+            border-color: #1da1f2;
+        }
+        .btn-primary:hover {
+            background-color: #0e71a1;
+            border-color: #0e71a1;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card-title {
+            color: #1da1f2;
+        }
+        .card-text {
+            color: #333;
+        }
+        .modal-content {
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .modal-title {
+            color: #1da1f2;
+        }
+        .form-group label {
+            color: #333;
+        }
+        .list-unstyled {
+            padding-left: 0;
+        }
+        .comment-item {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .comment-item strong {
+            color: #1da1f2;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-4">
@@ -253,33 +362,27 @@ if ($action == 'edit_post') {
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav mr-auto">
                     <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
                     <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
                 </ul>
+                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+                </form>
             </div>
-            <form class="form-inline" action="search.php" method="GET">
-                <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-            </form>
         </nav>
 
-    
-        <div class="info_personali" text-align="center">
+        <div class="info_personali text-center">
             <h2>Informazioni Personali</h2>
             <div class="row">
                 <div class="col-md-6 offset-md-3">
-
-                    <div class="text-center">
-                        <form method="post" enctype="multipart/form-data">
-                            <img src="../uploads/<?php echo $user['img_profilo']; ?>" class="profile-picture mt-3" alt="Immagine del profilo">
-                            <input type="file" name="img_profilo" id="img_profilo" class="form-control-file">
-
-                            <button type="submit" class="btn btn-primary mt-2">Carica immagine</button>
-                        </form>
-                    </div>
+                    <form method="post" enctype="multipart/form-data">
+                        <img src="../uploads/<?php echo $user['img_profilo']; ?>" class="profile-picture mt-3" alt="Immagine del profilo">
+                        <input type="file" name="img_profilo" id="img_profilo" class="form-control-file mt-2">
+                        <button type="submit" class="btn btn-primary mt-2">Carica immagine</button>
+                    </form>
                     <form method="post">
                         <div class="form-group">
                             <label for="username">Username:</label>
@@ -314,22 +417,24 @@ if ($action == 'edit_post') {
             </div>
         </div>
 
-        <div>
+        <div class="my-4">
             <h2>I Miei Blog</h2>
             <?php if (!empty($blogs)): ?>
                 <?php foreach ($blogs as $blog): ?>
-                    <div class="card mt-3">
+                    <div class="card">
                         <div class="card-body">
                             <h3 class="card-title"><?php echo $blog['titolo_blog']; ?></h3>
                             <p class="card-text"><?php echo $blog['descrizione']; ?></p>
                             <?php if (!empty($blog['img_logo'])): ?>
-                        <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="blog-logo" alt="Logo del blog">
-                    <?php endif; ?>
-                            <button class="btn btn-primary" onclick="showEditBlogModal(<?php echo $blog['id_blog']; ?>)">Modifica Blog</button>
-                            <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
+                                <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog">
+                            <?php endif; ?>
+                            <div>
+                                <button class="btn btn-primary mr-2" onclick="showEditBlogModal(<?php echo $blog['id_blog']; ?>)">Modifica Blog</button>
+                                <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
+                            </div>
 
                             <!-- Modale per la modifica del blog -->
-                                <div class="modal fade" id="editBlogModal_<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="editBlogModalLabel_<?php echo $blog['id_blog']; ?>" aria-hidden="true">
+                            <div class="modal fade" id="editBlogModal_<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="editBlogModalLabel_<?php echo $blog['id_blog']; ?>" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -342,7 +447,8 @@ if ($action == 'edit_post') {
                                             <form id="edit_blog_form_<?php echo $blog['id_blog']; ?>">
                                                 <input type="hidden" name="blog_id" value="<?php echo $blog['id_blog']; ?>">
                                                 <div class="form-group">
-                                                    <label for="edit_blog_title_<?php echo $blog['id_blog']; ?>">Nuovo titolo</label>
+                                                    <label for="edit_blog_title_<?php echo $blog['id_blog'];
+                                                    ?>">Nuovo titolo</label>
                                                     <input type="text" name="edit_blog_title" id="edit_blog_title_<?php echo $blog['id_blog']; ?>" class="form-control" value="<?php echo htmlspecialchars($blog['titolo_blog']); ?>">
                                                 </div>
                                                 <div class="form-group">
@@ -372,88 +478,97 @@ if ($action == 'edit_post') {
 
                             <?php if (!empty($posts)): ?>
                                 <div class="posts-container">
-                                <h4>Post:</h4>
+                                    <h4 class="mt-3">Post:</h4>
                                     <?php foreach ($posts as $post): ?>
-                                        <div class="post-item">
-                                            <h5><?php echo $post['titolo_post']; ?></h5>
-                                            <p><?php echo $post['descrizione_post']; ?></p>
-                                            <img src="../photo_post/<?php echo $post['img_post']; ?>" alt="Immagine del Post" width="100">
-                                            <a href="../pubblico/my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
-                                            <button class="btn btn-primary" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
-                                    
-                                            <!-- Recupero dei commenti per questo post -->
-                                            <?php
-                                                $commentsQuery = "
-                                                SELECT c.id_comm, c.contenuto, c.data_comm, u.username
-                                                FROM commento c
-                                                INNER JOIN utente u ON c.id_utente = u.id_utente
-                                                WHERE c.id_post = ?
-                                                ";
-                                                            
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h5 class="card-title"><?php echo $post['titolo_post']; ?></h5>
+                                                <p class="card-text"><?php echo $post['descrizione_post']; ?></p>
+                                                <img src="../photo_post/<?php echo $post['img_post']; ?>" class="img-fluid mb-2" alt="Immagine del Post">
+                                                <div>
+                                                    <button class="btn btn-primary mr-2" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
+                                                    <a href="../pubblico/my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
+                                                </div>
+
+                                                <!-- Recupero dei commenti per questo post -->
+                                                <?php
+                                                $commentsQuery = "SELECT c.id_comm, c.contenuto, c.data_comm, u.username, u.img_profilo
+                                                                FROM commento c
+                                                                INNER JOIN utente u ON c.id_utente = u.id_utente
+                                                                WHERE c.id_post = ?";
                                                 $stmt_comments = $conn->prepare($commentsQuery);
                                                 $stmt_comments->bind_param("i", $post['id_post']);
                                                 $stmt_comments->execute();
                                                 $commentsResult = $stmt_comments->get_result();
                                                 $comments = $commentsResult->fetch_all(MYSQLI_ASSOC);
                                                 $stmt_comments->close();
-                                            ?>
+                                                ?>
 
-                                            <?php if (!empty($comments)): ?>
-                                                <h5>Commenti:</h5>
-                                                <ul class="list-unstyled">
-                                                    <?php foreach ($comments as $comment): ?>
-                                                        <li>
-                                                            <strong><?php echo $comment['username']; ?>  <small class="text-muted"><?php echo $comment['data_comm']; ?></small>:</strong>
-                                                            <?php echo $comment['contenuto']; ?>
-                                                            <a href="../pubblico/my_profile.php?action=delete_comment&id_comm=<?php echo $comment['id_comm']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">Elimina commento</a>
+                                                <?php if (!empty($comments)): ?>
+                                                    <div class="comments-container mt-4">
+                                                        <?php foreach ($comments as $comment): ?>
+                                                            <div class="comment-item mb-3 p-3 rounded">
+                                                                <div class="comment-header d-flex align-items-center">
+                                                                    <?php if (!empty($comment['img_profilo'])): ?>
+                                                                        <img src="../uploads/<?php echo $comment['img_profilo']; ?>" class="rounded-circle mr-2" width="40" height="40" alt="Immagine profilo">
+                                                                    <?php endif; ?>
+                                                                    <strong><?php echo $comment['username']; ?></strong>
+                                                                    <span class="ml-auto text-muted"><?php echo $comment['data_comm']; ?></span>
+                                                                    <!-- Aggiungi un'icona per eliminare il commento -->
+                                                                    <a href="../pubblico/my_profile.php?action=delete_comment&id_comm=<?php echo $comment['id_comm']; ?>" class="ml-2 text-danger" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
+                                                                        <i class="fas fa-times"></i>
+                                                                    </a>
+                                                                </div>
+                                                                <div class="comment-content mt-2">
+                                                                    <?php echo $comment['contenuto']; ?>
+                                                                </div>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <p class="mt-3">Nessun commento disponibile.</p>
+                                                <?php endif; ?>
 
-                                                        </li>
-                                                    <?php endforeach; ?>
-                                                </ul>
-                                            <?php else: ?>
-                                                <p>Nessun commento disponibile.</p>
-                                            <?php endif; ?>
-
-                                            <!-- Modale per la modifica del post -->
-                                            <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel_<?php echo $post['id_post']; ?>" aria-hidden="true">
-                                                <div class="modal-dialog" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title" id="editPostModalLabel_<?php echo $post['id_post']; ?>">Modifica Post</h5>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <form id="edit_post_form_<?php echo $post['id_post']; ?>">
-                                                            <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-                                                                <div class="form-group">
-                                                                    <label for="edit_post_title_<?php echo $post['id_post']; ?>">Nuovo titolo</label>
-                                                                    <input type="text" name="edit_post_title" id="edit_post_title_<?php echo $post['id_post']; ?>" class="form-control" value="<?php echo htmlspecialchars($post['titolo_post']); ?>">
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label for="edit_post_description_<?php echo $post['id_post']; ?>">Nuova descrizione</label>
-                                                                    <textarea name="edit_post_description" id="edit_post_description_<?php echo $post['id_post']; ?>" class="form-control"><?php echo htmlspecialchars($post['descrizione_post']); ?></textarea>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuova immagine</label>
-                                                                    <input type="file" name="edit_post_img" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file">
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                                                            <button type="button" class="btn btn-primary" onclick="editPost(<?php echo $post['id_post']; ?>)">Salva</button>
+                                                <!-- Modale per la modifica del post -->
+                                                <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel_<?php echo $post['id_post']; ?>" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="editPostModalLabel_<?php echo $post['id_post']; ?>">Modifica Post</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <form id="edit_post_form_<?php echo $post['id_post']; ?>" enctype="multipart/form-data">
+                                                                    <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
+                                                                    <div class="form-group">
+                                                                        <label for="edit_post_title_<?php echo $post['id_post']; ?>">Nuovo titolo</label>
+                                                                        <input type="text" name="edit_post_title" id="edit_post_title_<?php echo $post['id_post']; ?>" class="form-control" value="<?php echo htmlspecialchars($post['titolo_post']); ?>">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="edit_post_description_<?php echo $post['id_post']; ?>">Nuova descrizione</label>
+                                                                        <textarea name="edit_post_description" id="edit_post_description_<?php echo $post['id_post']; ?>" class="form-control"><?php echo htmlspecialchars($post['descrizione_post']); ?></textarea>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuova immagine</label>
+                                                                        <input type="file" name="edit_post_img" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file">
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                                                                <button type="button" class="btn btn-primary" onclick="editPost(<?php echo $post['id_post']; ?>)">Salva</button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
-                                </>
                                 </div>
                             <?php else: ?>
-                                <p>Non ci sono post per questo blog.</p>
+                                <p class="mt-3">Non ci sono post per questo blog.</p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -462,11 +577,11 @@ if ($action == 'edit_post') {
                 <p>Non hai ancora creato blog.</p>
             <?php endif; ?>
         </div>
-    </div>
 
-    <div>
-        <a href="../pubblico/create_blog.php">Crea Blog</a>
-        <a href="../pubblico/create_post.php">Crea Post</a>
+        <div class="my-4">
+            <a href="../pubblico/create_blog.php" class="btn btn-primary mr-2">Crea Blog</a>
+            <a href="../pubblico/create_post.php" class="btn btn-primary">Crea Post</a>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -478,48 +593,50 @@ if ($action == 'edit_post') {
         }
 
         function editBlog(blogId) {
-    var formData = new FormData($('#edit_blog_form_' + blogId)[0]);
+            var formData = new FormData($('#edit_blog_form_' + blogId)[0]);
 
-    $.ajax({
-        url: '../pubblico/my_profile.php?action=edit_blog',
-        type: 'POST',
-        data: formData,
-        contentType: false,
-        processData: false,
-        success: function(response) {
-            alert('Blog aggiornato con successo!');
-            $('#editBlogModal_' + blogId).modal('hide');
-            location.reload();
-        },
-        error: function() {
-            alert('Errore durante l\'aggiornamento del blog.');
+            $.ajax({
+                url: '../pubblico/my_profile.php?action=edit_blog',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    alert('Blog aggiornato con successo!');
+                    $('#editBlogModal_' + blogId).modal('hide');
+                    location.reload();
+                },
+                error: function() {
+                    alert('Errore durante l\'aggiornamento del blog.');
+                }
+            });
         }
-    });
-}
 
         function showEditPostModal(postId) {
             $('#editPostModal_' + postId).modal('show');
         }
 
         function editPost(postId) {
-    var formData = new FormData($('#edit_post_form_' + postId)[0]);
+            var formData = new FormData($('#edit_post_form_' + postId)[0]);
 
-    $.ajax({
-        url: '../pubblico/my_profile.php?action=edit_post',
-        type: 'POST',
-        data: formData,
-        contentType: false,
-        processData: false,
-        success: function(response) {
-            alert('Post aggiornato con successo!');
-            $('#editPostModal_' + postId).modal('hide');
-            location.reload();
-        },
-        error: function() {
-            alert('Errore durante l\'aggiornamento del post.');
+            $.ajax({
+                url: '../pubblico/my_profile.php?action=edit_post',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    alert('Post aggiornato con successo!');
+                    $('#editPostModal_' + postId).modal('hide');
+                    location.reload();
+                },
+                error: function() {
+                    alert('Errore durante l\'aggiornamento del post.');
+                }
+            });
         }
-    });
-}
     </script>
 </body>
 </html>
+                                                   
+                                                                                                        
