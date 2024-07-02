@@ -203,7 +203,7 @@ $stmt->close();
                                 $ultimoCommentoUsername = htmlspecialchars($ultimoCommento['username']);
                                 $idBlog = $ultimoCommento['id_blog'];
                                 $titoloBlog = htmlspecialchars($ultimoCommento['titolo_blog']);
-                                echo "<li class='list-group-item'><i class='fas fa-comment text-primary'></i> Ultimo commento ricevuto da: <a href='../pubblico/view_blog.php?id=$idBlog'>$ultimoCommentoUsername su \"$titoloBlog\"</a></li>";
+                                echo "<li class='list-group-item'><i class='fas fa-comment text-primary'></i> Ultimo commento ricevuto da: <a href='../pubblico/view_blog.php?id_blog=$idBlog'>$ultimoCommentoUsername su \"$titoloBlog\"</a></li>";
                             } else {
                                 echo "<li class='list-group-item'><i class='fas fa-comment text-primary'></i> Nessun commento recente</li>";
                             }
