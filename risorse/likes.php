@@ -1,70 +1,52 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('log_errors', 1);
-ini_set('error_log', '/path/to/your/php_error.log');
+// likes.php
+
+// Connessione al database
 require_once '../configurazione/conn.php';
 session_start();
 
-
 // Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header('Location: ../pubblico/login.php');
-    exit;
+    http_response_code(401);
+    exit("Non autorizzato");
 }
 
+// Recupera l'id dell'utente dalla sessione
 $userId = $_SESSION['id'];
-$postId = isset($_POST['post_id']) ? intval($_POST['post_id']) : null;
+
+// Recupera l'id del post e l'azione dall'input POST
+$postId = isset($_POST['post_id']) ? $_POST['post_id'] : null;
 $action = isset($_POST['action']) ? $_POST['action'] : '';
 
 if ($postId && ($action === 'like' || $action === 'unlike')) {
     if ($action === 'like') {
-        // Controlla se l'utente ha già messo Mi Piace
-        $checkLikeQuery = "SELECT * FROM likes WHERE id_utente = ? AND id_post = ?";
-        $stmt = $conn->prepare($checkLikeQuery);
-        $stmt->bind_param("ii", $userId, $postId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result->num_rows === 0) {
-            // Inserisci il Mi Piace nel database
-            $insertLikeQuery = "INSERT INTO likes (id_utente, id_post) VALUES (?, ?)";
-            $stmt = $conn->prepare($insertLikeQuery);
-            $stmt->bind_param("ii", $userId, $postId);
-            if ($stmt->execute()) {
-                // Incrementa il conteggio dei Mi Piace nel post
-                $updateLikesCountQuery = "UPDATE post SET likes_count = likes_count + 0 WHERE id_post = ?";
-                $stmt = $conn->prepare($updateLikesCountQuery);
-                $stmt->bind_param("i", $postId);
-                $stmt->execute();
-                $stmt->close();
-            } else {
-                echo "Errore durante l'inserimento del Mi Piace: " . $stmt->error;
-            }
-        } else {
-            echo "Hai già messo Mi Piace a questo post.";
-        }
+        // Aggiungi Mi Piace
+        $query = "INSERT INTO likes (id_utente, id_post) VALUES (?, ?)";
     } elseif ($action === 'unlike') {
-        // Rimuovi il Mi Piace dal database
-        $deleteLikeQuery = "DELETE FROM likes WHERE id_utente = ? AND id_post = ?";
-        $stmt = $conn->prepare($deleteLikeQuery);
-        $stmt->bind_param("ii", $userId, $postId);
-        if ($stmt->execute()) {
-            // Decrementa il conteggio dei Mi Piace nel post
-            $updateLikesCountQuery = "UPDATE post SET likes_count = CASE WHEN likes_count > 0 THEN likes_count - 1 ELSE 0 END WHERE id_post = ?";
-            $stmt = $conn->prepare($updateLikesCountQuery);
-            $stmt->bind_param("i", $postId);
-            $stmt->execute();
-            $stmt->close();
-        } else {
-            echo "Errore durante la rimozione del Mi Piace: " . $stmt->error;
-        }
+        // Rimuovi Mi Piace
+        $query = "DELETE FROM likes WHERE id_utente = ? AND id_post = ?";
     }
-    
-    // Redirect back to the blog view
-    header("Location: ../pubblico/view_blog.php?id_blog={$_POST['blog_id']}");
-    exit;
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ii", $userId, $postId);
+    $stmt->execute();
+
+    // Ottieni il nuovo conteggio dei Mi Piace per questo post
+    $queryCount = "SELECT COUNT(*) AS like_count FROM likes WHERE id_post = ?";
+    $stmtCount = $conn->prepare($queryCount);
+    $stmtCount->bind_param("i", $postId);
+    $stmtCount->execute();
+    $resultCount = $stmtCount->get_result();
+    $likeCount = $resultCount->fetch_assoc()['like_count'];
+
+    echo $likeCount;
+
+    $stmtCount->close();
+    $stmt->close();
 } else {
-    echo "Parametri non validi.";
+    http_response_code(400); // Richiesta non valida
+    exit("Richiesta non valida");
 }
+
+$conn->close();
 ?>

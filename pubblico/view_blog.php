@@ -98,6 +98,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizza Blog</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    
     </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -228,11 +229,12 @@ $conn->close();
                             $stmt->close();
                         }
                         ?>
-                        <form method="post" action="../risorse/likes.php">
-                            <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-                            <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                            <button type="submit" name="action" value="<?php echo $likeAction; ?>" class="btn btn-success">
-                                Mi Piace <?php echo "($totalLikes)"; ?>
+                       <!-- Form per Mi Piace -->
+                       <form class="like-form">
+                            <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
+                            <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
+                            <button type="button" class="btn btn-success like-btn" data-action="<?php echo $likeAction; ?>">
+                                Mi Piace (<span class="like-count"><?php echo $totalLikes; ?></span>)
                             </button>
                         </form>
                     </div>
@@ -244,9 +246,12 @@ $conn->close();
     <?php endif; ?>
 </div>
 
+
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 
 <script>
     $(document).ready(function() {
@@ -262,6 +267,33 @@ $conn->close();
         });
     });
 </script>
+<script>
+    $(document).ready(function() {
+        $('.like-btn').click(function() {
+            var postId = $(this).closest('.like-form').find('.post-id').val();
+            var blogId = $(this).closest('.like-form').find('.id-blog').val();
+            var action = $(this).data('action');
+
+            $.ajax({
+                url: '../risorse/likes.php',
+                type: 'POST',
+                data: {
+                    post_id: postId,
+                    id_blog: blogId,
+                    action: action
+                },
+                success: function(response) {
+                    // Ricarica la pagina dopo aver aggiornato i Mi Piace
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
+                }
+            });
+        });
+    });
+</script>
+
 
 </body>
 </html>
