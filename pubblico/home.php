@@ -1,4 +1,8 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '/path/to/your/php_error.log');
 require_once '../configurazione/conn.php';
 session_start();
 
@@ -8,10 +12,10 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit;
 }
 
-// recupera l'id dell'utente dalla sessione
+// Recupera l'id dell'utente dalla sessione
 $userId = $_SESSION['id'];
 
-// recupero genere e username dell'utente dal db per gestire il codice del saluto 
+// Recupero genere e username dell'utente dal db per gestire il codice del saluto 
 $query = "SELECT genere, username FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $userId);
@@ -49,6 +53,19 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+// Recupera i blog preferiti dell'utente
+$queryFavoriteBlogs = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo
+                       FROM follow f
+                       INNER JOIN blog b ON f.id_blog = b.id_blog
+                       WHERE f.id_utente = ?";
+$stmt = $conn->prepare($queryFavoriteBlogs);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$resultFavoriteBlogs = $stmt->get_result();
+$favoriteBlogs = $resultFavoriteBlogs->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+
 ?>
 
 <!DOCTYPE html>
@@ -57,8 +74,26 @@ $stmt->close();
     <meta charset="UTF-8">
     <title>Home</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Font Awesome per icone -->
     <style>
         .error {color: red;}
+        .card {
+            margin-bottom: 20px;
+        }
+        .comment-container {
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+        }
+        .comment-actions {
+            margin-top: 10px;
+        }
+        .sidebar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+        }
     </style>
 </head>
 <body>
@@ -72,10 +107,10 @@ $stmt->close();
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="../pubblico/home.php"> Home </a>
+                    <a class="nav-link" href="../pubblico/home.php">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo </a>
+                    <a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a>
@@ -92,36 +127,98 @@ $stmt->close();
     </nav>
 
     <div class="container mt-5">
-        <h1><?php echo $saluto . ', ' . $username; ?> nella tua home </h1>
+        <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
         <p>Questi sono i blog degli altri utenti.</p>
 
-        <?php if (!empty($blogs)): ?>
-            <div class="row">
-                <?php foreach ($blogs as $blog): ?>
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <img src="../blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top" alt="Logo del Blog">
-                            <div class="card-body">
-                                <h5 class="card-title"><?php echo $blog['titolo_blog']; ?></h5>
-                                <p class="card-text"><?php echo $blog['descrizione']; ?></p>
-                                <p class="card-text">Proprietario: <?php echo $blog['username']; ?></p>
-                                <p class="card-text">Categoria: <?php echo $blog['nome_categoria']; ?></p>
-                                <a href="../pubblico/view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
+        <div class="row">
+            <!-- Sezione per i blog preferiti -->
+            <div class="col-md-8">
+                <h2>I tuoi blog preferiti</h2>
+                <?php if (!empty($favoriteBlogs)): ?>
+                    <div class="row">
+                        <?php foreach ($favoriteBlogs as $favoriteBlog): ?>
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <img src="../blog_logo/<?php echo htmlspecialchars($favoriteBlog['img_logo']); ?>" class="card-img-top" alt="Logo del Blog">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><?php echo htmlspecialchars($favoriteBlog['titolo_blog']); ?></h5>
+                                        <p class="card-text"><?php echo htmlspecialchars($favoriteBlog['descrizione']); ?></p>
+                                        <a href="../pubblico/view_blog.php?id_blog=<?php echo $favoriteBlog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
-                <?php endforeach; ?>
-            </div>
-        <?php else: ?>
-            <p>Non ci sono blog da mostrare.</p>
-        <?php endif; ?>
+                <?php else: ?>
+                    <p>Non stai seguendo nessun blog.</p>
+                <?php endif; ?>
 
-        <a href="../pubblico/create_blog.php" class="btn btn-success">Crea un nuovo blog</a>
-        <a href="../pubblico/create_post.php" class="btn btn-info">Crea un nuovo post</a>
+                <!-- Sezione per i blog degli altri utenti -->
+                <h2>Blog degli altri utenti</h2>
+                <?php if (!empty($blogs)): ?>
+                    <div class="row">
+                        <?php foreach ($blogs as $blog): ?>
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <img src="../blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top" alt="Logo del Blog">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><?php echo $blog['titolo_blog']; ?></h5>
+                                        <p class="card-text"><?php echo $blog['descrizione']; ?></p>
+                                        <p class="card-text">Proprietario: <?php echo $blog['username']; ?></p>
+                                        <p class="card-text">Categoria: <?php echo $blog['nome_categoria']; ?></p>
+                                        <a href="../pubblico/view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p>Non ci sono blog da mostrare.</p>
+                <?php endif; ?>
+
+                <a href="../pubblico/create_blog.php" class="btn btn-success">Crea un nuovo blog</a>
+                <a href="../pubblico/create_post.php" class="btn btn-info">Crea un nuovo post</a>
+            </div>
+
+                    <!-- Sidebar per Ultimo Commento -->
+            <div class="col-md-4">
+                <div class="card sidebar">
+                    <div class="card-body">
+                        <h5 class="card-title">Ultimo commento ricevuto</h5>
+                        <ul class="list-group">
+                            <?php
+                            // Query per ottenere l'ultimo Commento
+                            $queryUltimoCommento = "SELECT c.id_post, c.data_comm, u.username, b.id_blog, b.titolo_blog
+                                                    FROM commento c
+                                                    JOIN utente u ON c.id_utente = u.id_utente
+                                                    JOIN post p ON c.id_post = p.id_post
+                                                    JOIN blog b ON p.id_blog = b.id_blog
+                                                    ORDER BY c.data_comm DESC
+                                                    LIMIT 1";
+                            $resultUltimoCommento = mysqli_query($conn, $queryUltimoCommento);
+                            $ultimoCommento = mysqli_fetch_assoc($resultUltimoCommento);
+
+                            // Output dell'ultimo commento con link al blog
+                            if ($ultimoCommento) {
+                                $ultimoCommentoUsername = htmlspecialchars($ultimoCommento['username']);
+                                $idBlog = $ultimoCommento['id_blog'];
+                                $titoloBlog = htmlspecialchars($ultimoCommento['titolo_blog']);
+                                echo "<li class='list-group-item'><i class='fas fa-comment text-primary'></i> Ultimo commento ricevuto da: <a href='../pubblico/view_blog.php?id=$idBlog'>$ultimoCommentoUsername su \"$titoloBlog\"</a></li>";
+                            } else {
+                                echo "<li class='list-group-item'><i class='fas fa-comment text-primary'></i> Nessun commento recente</li>";
+                            }
+                            ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 </body>
 </html>
