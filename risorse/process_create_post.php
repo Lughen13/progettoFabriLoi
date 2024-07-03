@@ -17,45 +17,43 @@ $blogId = $_POST['id_blog'];
 $title = $_POST['title'];
 $description = $_POST['description'];
 $subcategoryId = $_POST['subcategory'];
-$photopost = '';
+$photos = [];
 
-
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagine'])) {
-    $immagineFile = $_FILES['immagine'];
-    $immagineTmpName = $immagineFile['tmp_name'];
-    $immagineFileName = $immagineFile['name'];
-    $immagineSize = $immagineFile['size'];
-    $immagineError = $immagineFile['error'];
-
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagini'])) {
+    $files = $_FILES['immagini'];
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-    $immagineExtension = strtolower(pathinfo($immagineFileName, PATHINFO_EXTENSION));
 
-    // validazione dell'immagine in base alle estensioni indicate in precedenza 
-    if (in_array($immagineExtension, $allowedExtensions) && $immagineError === 0 && $immagineSize > 0) {
-        $photopost = uniqid() . '_' . $title . '.' . $immagineExtension;
-        $immagineDestination = '../photo_post/' . $photopost;
+    for ($i = 0; $i < count($files['name']); $i++) {
+        $fileName = $files['name'][$i];
+        $fileTmpName = $files['tmp_name'][$i];
+        $fileSize = $files['size'][$i];
+        $fileError = $files['error'][$i];
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-        // crea la cartella per le foto dei post, se non esiste 
-        if (!is_dir('../photo_post')) {
-            mkdir('../photo_post', 0775, true);
-        }
+        if (in_array($fileExtension, $allowedExtensions) && $fileError === 0 && $fileSize > 0) {
+            $newFileName = uniqid() . '_' . $title . '_' . ($i + 1) . '.' . $fileExtension;
+            $fileDestination = '../photo_post/' . $newFileName;
 
-        if (move_uploaded_file($immagineTmpName, $immagineDestination)) {
-            echo "Immagine caricata con successo.";
+            if (!is_dir('../photo_post')) {
+                mkdir('../photo_post', 0775, true);
+            }
+
+            if (move_uploaded_file($fileTmpName, $fileDestination)) {
+                $photos[] = $newFileName;
+            } else {
+                echo "Errore durante il caricamento dell'immagine $fileName.";
+            }
         } else {
-            echo "Errore durante il caricamento dell'immagine.";
+            echo "Formato dell'immagine $fileName non valido o errore durante il caricamento.";
         }
-    } else {
-        echo "Formato dell'immagine non valido o errore durante il caricamento.";
     }
 }
 
+$photosJson = json_encode($photos);
 
-// inserisci il post nel database 
 $sql = "INSERT INTO post (titolo_post, descrizione_post, img_post, id_autore, id_sottocat, id_blog, data_post) VALUES (?, ?, ?, ?, ?, ?, NOW())";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("sssiii", $title, $description, $photopost, $userId, $subcategoryId, $blogId);
+$stmt->bind_param("sssiii", $title, $description, $photosJson, $userId, $subcategoryId, $blogId);
 
 if ($stmt->execute()) {
     echo "<p>Post creato con successo!</p>";

@@ -6,18 +6,14 @@ ini_set('error_log', '/path/to/your/php_error.log');
 
 require_once '../configurazione/conn.php';
 
-
-// e verifico l'utente di cui ho la sessione aperta è loggato
 session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: ../pubblico/login.php");
     exit();
 }
 
-// id dell'utente dalla sessione
 $userId = $_SESSION['id'];
 
-// essendo che l'utente può creare post in blog di cui è sia proprietario che coautore, recupero gli id di entrambi i tipi di blog per inseriri nella select in cui l'utente può decidere a quale blog apparterrà il post
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog, b.id_categoria
                FROM blog b
                LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog
@@ -27,8 +23,6 @@ $stmt->bind_param("ii", $userId, $userId);
 $stmt->execute();
 $blogsResult = $stmt->get_result();
 $stmt->close();
-
-
 ?>
 
 <!DOCTYPE html>
@@ -112,8 +106,10 @@ $stmt->close();
             <option value="">Seleziona una sottocategoria</option>
         </select>
 
-        <label for="image">Immagine del post (opzionale):</label>
-        <input type="file" name="immagine" id="image">
+        <label for="images">Immagini del post (opzionale, massimo 3):</label>
+        <input type="file" name="immagini[]" id="image1">
+        <input type="file" name="immagini[]" id="image2">
+        <input type="file" name="immagini[]" id="image3">
 
         <input type="submit" value="Crea post">
     </form>

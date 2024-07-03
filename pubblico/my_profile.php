@@ -131,6 +131,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['img_profilo'])) {
         echo "Formato dell'immagine non valido o errore durante il caricamento.";
     }
 }
+// Preparazione della query per recuperare i dettagli dello stile scelto dall'utente
+$query = "SELECT s.nome AS nome_stile, s.font, s.colore_testo, s.background
+          FROM blog b
+          INNER JOIN stile s ON b.id_stile = s.id_stile
+          WHERE b.id_proprietario = ?";
+
+// Preparazione dello statement
+$stmt = $conn->prepare($query);
+
+// Verifica se la preparazione della query è avvenuta con successo
+if ($stmt === false) {
+    die("Errore nella preparazione della query: " . $conn->error);
+}
+
+// Associazione del parametro (ID dell'utente autenticato)
+$userId = $_SESSION['id'];
+$stmt->bind_param("i", $userId);
+
+// Esecuzione della query
+$stmt->execute();
+
+// Ottenimento del risultato della query
+$result = $stmt->get_result();
+
+// Verifica se sono stati trovati risultati
+if ($result->num_rows > 0) {
+    // Estrai il risultato (una sola riga perché si suppone che ci sia un solo stile per utente)
+    $row = $result->fetch_assoc();
+    $nomeStile = $row['nome_stile'];
+    $fontFamily = $row['font'];
+    $textColor = $row['colore_testo'];
+    $backgroundColor = $row['background'];
+
+    // Puoi utilizzare queste variabili per personalizzare dinamicamente il CSS o qualsiasi altra operazione
+    // Ad esempio, puoi utilizzare $fontFamily, $textColor, $backgroundColor per applicare stili CSS dinamici
+} else {
+    echo "Nessun risultato trovato per lo stile scelto dall'utente.";
+    // Gestire il caso in cui non è stato trovato alcuno stile per l'utente
+}
 
 // Recupero dei blog dell'utente
 $blogsQuery = "SELECT id_blog, titolo_blog, descrizione, img_logo FROM blog WHERE id_proprietario = ?";
@@ -186,39 +225,53 @@ if ($action == 'edit_post') {
     $newTitle = $_POST['edit_post_title'];
     $newDescription = $_POST['edit_post_description'];
 
-    // Caricamento dell'immagine del post, se fornita
-    $newImgFileName = '';
-    if ($_FILES['edit_post_img']['size'] > 0 && $_FILES['edit_post_img']['error'] == 0) {
-        $imgFile = $_FILES['edit_post_img'];
-        $imgFileName = $imgFile['name'];
-        $imgTmpName = $imgFile['tmp_name'];
-        $imgSize = $imgFile['size'];
-        $imgError = $imgFile['error'];
+    // Caricamento delle immagini del post, se fornite
+    $newImgFileNames = [];
 
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-        $imgExtension = strtolower(pathinfo($imgFileName, PATHINFO_EXTENSION));
+    if (isset($_FILES['edit_post_img'])) {
+        $uploadedFiles = $_FILES['edit_post_img'];
 
-        if (in_array($imgExtension, $allowedExtensions)) {
-            $newImgFileName = 'post_' . uniqid('', true) . '.' . $imgExtension;
-            $imgDestination = '../photo_post/' . $newImgFileName;
+        foreach ($uploadedFiles['name'] as $key => $name) {
+            if ($uploadedFiles['size'][$key] > 0 && $uploadedFiles['error'][$key] == 0) {
+                $imgFileName = $uploadedFiles['name'][$key];
+                $imgTmpName = $uploadedFiles['tmp_name'][$key];
+                $imgSize = $uploadedFiles['size'][$key];
+                $imgError = $uploadedFiles['error'][$key];
 
-            if (move_uploaded_file($imgTmpName, $imgDestination)) {
-                // Aggiornamento dell'immagine del post nel database
-                $updatePostImgQuery = "UPDATE post SET img_post = ? WHERE id_post = ?";
-                $stmt = $conn->prepare($updatePostImgQuery);
-                $stmt->bind_param('si', $newImgFileName, $postId);
-                if ($stmt->execute()) {
-                    // Aggiornamento dell'immagine del post eseguito con successo
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                $imgExtension = strtolower(pathinfo($imgFileName, PATHINFO_EXTENSION));
+
+                if (in_array($imgExtension, $allowedExtensions)) {
+                    $newImgFileName = 'post_' . uniqid('', true) . '.' . $imgExtension;
+                    $imgDestination = '../photo_post/' . $newImgFileName;
+
+                    if (move_uploaded_file($imgTmpName, $imgDestination)) {
+                        // Aggiungi il nome del file all'array
+                        $newImgFileNames[] = $newImgFileName;
+                    } else {
+                        echo "Errore durante il caricamento dell'immagine del post.";
+                    }
                 } else {
-                    echo "Errore durante l'aggiornamento dell'immagine del post: " . $stmt->error;
+                    echo "Formato dell'immagine del post non valido.";
                 }
-                $stmt->close();
-            } else {
-                echo "Errore durante il caricamento dell'immagine del post.";
             }
-        } else {
-            echo "Formato dell'immagine del post non valido.";
         }
+    }
+
+    // Aggiornamento dell'immagine del post nel database, se nuove immagini sono state caricate
+    if (!empty($newImgFileNames)) {
+        // Converti l'array in JSON per salvarlo nel database, se necessario
+        $newImgFileNamesJSON = json_encode($newImgFileNames);
+
+        $updatePostImgQuery = "UPDATE post SET img_post = ? WHERE id_post = ?";
+        $stmt = $conn->prepare($updatePostImgQuery);
+        $stmt->bind_param('si', $newImgFileNamesJSON, $postId);
+        if ($stmt->execute()) {
+            // Aggiornamento dell'immagine del post nel database eseguito con successo
+        } else {
+            echo "Errore durante l'aggiornamento dell'immagine del post: " . $stmt->error;
+        }
+        $stmt->close();
     }
 
     // Aggiornamento del resto delle informazioni del post
@@ -241,11 +294,16 @@ if ($action == 'edit_post') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Il Mio Profilo</title>
+    <title>ToteBlog</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <style>
+     body {
+            font-family: "<?php echo $font; ?>", sans-serif;
+            color: <?php echo $colore_testo; ?>;
+            background-color: <?php echo $colore_sfondo; ?>;
+        }
     .comments-container {
         border: 1px solid #ddd;
         border-radius: 8px;
@@ -484,7 +542,21 @@ if ($action == 'edit_post') {
                                             <div class="card-body">
                                                 <h5 class="card-title"><?php echo $post['titolo_post']; ?></h5>
                                                 <p class="card-text"><?php echo $post['descrizione_post']; ?></p>
-                                                <img src="../photo_post/<?php echo $post['img_post']; ?>" class="img-fluid mb-2" alt="Immagine del Post">
+                                                
+                                                <?php
+                                                // Decodifica le immagini dal formato JSON
+                                                $images = json_decode($post['img_post'], true);
+                                                if (is_array($images) && count($images) > 0): 
+                                                ?>
+                                                    <div class="post-images">
+                                                        <?php foreach ($images as $image): ?>
+                                                            <img src="../photo_post/<?php echo $image; ?>" class="img-fluid mb-2" alt="Immagine del Post">
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <img src="../photo_post/<?php echo $post['img_post']; ?>" class="img-fluid mb-2" alt="Immagine del Post">
+                                                <?php endif; ?>
+
                                                 <div>
                                                     <button class="btn btn-primary mr-2" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
                                                     <a href="../pubblico/my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
@@ -551,8 +623,8 @@ if ($action == 'edit_post') {
                                                                         <textarea name="edit_post_description" id="edit_post_description_<?php echo $post['id_post']; ?>" class="form-control"><?php echo htmlspecialchars($post['descrizione_post']); ?></textarea>
                                                                     </div>
                                                                     <div class="form-group">
-                                                                        <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuova immagine</label>
-                                                                        <input type="file" name="edit_post_img" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file">
+                                                                        <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuove immagini</label>
+                                                                        <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -613,30 +685,28 @@ if ($action == 'edit_post') {
         }
 
         function showEditPostModal(postId) {
-            $('#editPostModal_' + postId).modal('show');
-        }
+        $('#editPostModal_' + postId).modal('show');
+    }
 
-        function editPost(postId) {
-            var formData = new FormData($('#edit_post_form_' + postId)[0]);
+    function editPost(postId) {
+        var formData = new FormData($('#edit_post_form_' + postId)[0]);
 
-            $.ajax({
-                url: '../pubblico/my_profile.php?action=edit_post',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                    alert('Post aggiornato con successo!');
-                    $('#editPostModal_' + postId).modal('hide');
-                    location.reload();
-                },
-                error: function() {
-                    alert('Errore durante l\'aggiornamento del post.');
-                }
-            });
-        }
-    </script>
+        $.ajax({
+            url: '../pubblico/my_profile.php?action=edit_post',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                alert('Post aggiornato con successo!');
+                $('#editPostModal_' + postId).modal('hide');
+                location.reload();
+            },
+            error: function() {
+                alert('Errore durante l\'aggiornamento del post.');
+            }
+        });
+    }
+</script>
 </body>
 </html>
-                                                   
-                                                                                                        
