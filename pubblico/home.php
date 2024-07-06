@@ -102,6 +102,14 @@ $stmt->close();
             right: 20px;
             width: 300px;
         }
+        .category-logo {
+            font-size: 50px;
+            color: #333;
+        }
+        .category-card {
+            text-align: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -137,8 +145,71 @@ $stmt->close();
     <div class="container mt-5">
         <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
 
+        <!-- Sezione per le categorie con loghi -->
         <div class="row">
-            <!-- Sezione per i blog preferiti -->
+    <div class="col-md-12 mb-4">
+        <h2>Categorie</h2>
+        <div class="row">
+            <div class="col-md-2 category-card">
+                <a href="../pubblico/search.php?categoria=Tecnologia">
+                    <div class="category-logo"><i class="fas fa-laptop-code"></i></div>
+                    <p>Tecnologia</p>
+                </a>
+            </div>
+            <div class="col-md-2 category-card">
+                <a href="../pubblico/search.php?categoria=Moda">
+                    <div class="category-logo"><i class="fas fa-tshirt"></i></div>
+                    <p>Moda</p>
+                </a>
+            </div>
+            <div class="col-md-2 category-card">
+                <a href="../pubblico/search.php?categoria=Tempo libero">
+                    <div class="category-logo"><i class="fas fa-theater-masks"></i></div>
+                    <p>Tempo libero</p>
+                </a>
+            </div>
+            <div class="col-md-2 category-card">
+                <a href="../pubblico/search.php?categoria=Viaggi">
+                    <div class="category-logo"><i class="fas fa-plane"></i></div>
+                    <p>Viaggi</p>
+                </a>
+            </div>
+            <div class="col-md-2 category-card">
+                <a href="../pubblico/search.php?categoria=Cucina">
+                    <div class="category-logo"><i class="fas fa-utensils"></i></div>
+                    <p>Cucina</p>
+                </a>
+            </div>
+            <div class="col-md-2 category-card">
+                <a href="../pubblico/search.php?categoria=Scienze">
+                    <div class="category-logo"><i class="fas fa-flask"></i></div>
+                    <p>Scienze</p>
+                </a>
+            </div>
+            <div class="col-md-2 category-card">
+                <a href="../pubblico/search.php?categoria=Recensioni">
+                    <div class="category-logo"><i class="fas fa-star"></i></div>
+                    <p>Recensioni</p>
+                </a>
+            </div>
+            <div class="col-md-2 category-card">
+                <a href="../pubblico/search.php?categoria=Arredamento">
+                    <div class="category-logo"><i class="fas fa-couch"></i></div>
+                    <p>Arredamento</p>
+                </a>
+            </div>
+            <div class="col-md-2 category-card">
+                <a href="../pubblico/search.php?categoria=Altro">
+                    <div class="category-logo"><i class="fas fa-ellipsis-h"></i></div>
+                    <p>Altro</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Sezione per i blog preferiti -->
+        <div class="row">
             <div class="col-md-8">
                 <h2>I tuoi blog preferiti</h2>
                 <?php if (!empty($favoriteBlogs)): ?>
@@ -152,7 +223,6 @@ $stmt->close();
                                         <p class="card-text"><?php echo htmlspecialchars($favoriteBlog['descrizione']); ?></p>
                                         <p class="card-text">Proprietario: <?php echo htmlspecialchars($favoriteBlog['username']); ?></p>
                                         <p class="card-text">Categoria: <?php echo htmlspecialchars($favoriteBlog['nome_categoria']); ?></p>
-                                       
                                         <a href="../pubblico/view_blog.php?id_blog=<?php echo $favoriteBlog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
                                     </div>
                                 </div>
@@ -183,15 +253,12 @@ $stmt->close();
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <p>Non ci sono blog da mostrare.</p>
+                    <p>Non ci sono blog disponibili.</p>
                 <?php endif; ?>
-
-                <a href="../pubblico/create_blog.php" class="btn btn-success">Crea un nuovo blog</a>
-                <a href="../pubblico/create_post.php" class="btn btn-info">Crea un nuovo post</a>
             </div>
 
-                    <!-- Sidebar per Ultimo Commento -->
-            <div class="col-md-4">
+             <!-- Sidebar per Ultimo Commento -->
+             <div class="col-md-4">
                 <div class="card sidebar">
                     <div class="card-body">
                         <h5 class="card-title">Ultimo commento ricevuto</h5>
@@ -225,10 +292,9 @@ $stmt->close();
         </div>
     </div>
 
+
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
 </body>
 </html>
