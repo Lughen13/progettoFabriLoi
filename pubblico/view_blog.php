@@ -150,15 +150,24 @@ $conn->close();
     <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
 
     <?php if ($resultPosts->num_rows > 0): ?>
-        <h2 class="mt-5">Post:</h2>
-        <?php while ($post = $resultPosts->fetch_assoc()): ?>
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
-                    <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
-                    <?php if (!empty($post['img_post'])): ?>
-                        <img src="../photo_post/<?php echo htmlspecialchars($post['img_post']); ?>" class="card-img-top" alt="Immagine del Post" width="100">
-                    <?php endif; ?>
+    <h2 class="mt-5">Post:</h2>
+    <?php while ($post = $resultPosts->fetch_assoc()): ?>
+        <div class="card mt-3">
+            <div class="card-body">
+                <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
+                <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
+
+                <!-- Visualizza le immagini del post -->
+                <?php 
+                $images = json_decode($post['img_post'], true);
+                if (!empty($images)): ?>
+                    <div class="post-images">
+                        <?php foreach ($images as $image): ?>
+                            <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-thumbnail mr-2 mb-2" alt="Immagine del Post" width="100">
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+
 
                     <!-- Visualizzazione dei commenti -->
                     <?php if (isset($comments[$post['id_post']])): ?>
