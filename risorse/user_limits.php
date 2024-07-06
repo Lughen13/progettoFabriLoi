@@ -1,6 +1,6 @@
 <?php
 // user_limits.php
-require_once '../configurazione/config.php';
+require_once '../configurazione/conn.php';
 
 class UserLimits {
     private $isPremium;
@@ -65,7 +65,7 @@ class UserLimits {
     private function countBlogPosts($blogId) {
         // Implementa la logica per contare i post del blog nel database
         // Esempio di implementazione: conta i post del blog dall'appropriato database
-        require_once 'config.php'; // File con le informazioni di connessione al database
+        require_once '../configurazione/conn.php'; // File con le informazioni di connessione al database
 
        
 
@@ -85,7 +85,7 @@ class UserLimits {
     private function countDailyComments($userId) {
         // Implementa la logica per contare i commenti giornalieri dell'utente nel database
         // Esempio di implementazione: conta i commenti dell'utente oggi dall'appropriato database
-        require_once 'config.php'; // File con le informazioni di connessione al database
+        require_once '../configurazione/conn.php'; // File con le informazioni di connessione al database
 
        
 

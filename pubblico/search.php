@@ -1,19 +1,19 @@
-search.php
-
 <?php
 require_once '../configurazione/conn.php';
 
-// Verifica se è stato passato un parametro di ricerca
+// Verifica se è stato passato un parametro di ricerca o una categoria
 if (isset($_GET['query'])) {
     $searchQuery = $_GET['query'];
 
     // Query per cercare nei blog
-    $blogQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, u.username
+    $blogQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, u.username, c.nome_categoria
                   FROM blog b
                   JOIN utente u ON b.id_proprietario = u.id_utente
+                  JOIN categoria c ON b.id_categoria = c.id_categoria
                   WHERE b.titolo_blog LIKE '%$searchQuery%'
                   OR b.descrizione LIKE '%$searchQuery%'
-                  OR u.username LIKE '%$searchQuery%'";
+                  OR u.username LIKE '%$searchQuery%'
+                  OR c.nome_categoria LIKE '%$searchQuery%'";
     $blogResult = $conn->query($blogQuery);
 
     // Query per cercare nei post
@@ -26,6 +26,18 @@ if (isset($_GET['query'])) {
                   OR u.username LIKE '%$searchQuery%'
                   OR b.titolo_blog LIKE '%$searchQuery%'";
     $postResult = $conn->query($postQuery);
+} elseif (isset($_GET['categoria'])) {
+    $categoria = $_GET['categoria'];
+
+    // Query per cercare i blog per categoria
+    $blogQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, u.username, c.nome_categoria
+                  FROM blog b
+                  JOIN utente u ON b.id_proprietario = u.id_utente
+                  JOIN categoria c ON b.id_categoria = c.id_categoria
+                  WHERE c.nome_categoria = '$categoria'";
+    $blogResult = $conn->query($blogQuery);
+
+    $searchQuery = $categoria; // Per visualizzare la categoria ricercata nei risultati
 }
 ?>
 
@@ -37,6 +49,7 @@ if (isset($_GET['query'])) {
     <title>Risultati Ricerca</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Font Awesome per icone -->
 </head>
 <body>
     <!-- Intestazione -->
@@ -82,13 +95,14 @@ if (isset($_GET['query'])) {
         <div class="container">
             <?php if (isset($blogResult) && $blogResult->num_rows > 0): ?>
                 <section>
-                    <h2 class="text-center mb-4">Risultati della ricerca per i blog:</h2>
+                    <h2 class="text-center mb-4">Risultati della ricerca per "<?php echo htmlspecialchars($searchQuery); ?>"</h2>
                     <div class="list-group">
                         <?php while ($row = $blogResult->fetch_assoc()): ?>
                             <a href="../pubblico/view_blog.php?id_blog=<?php echo $row['id_blog']; ?>" class="list-group-item list-group-item-action">
                                 <h4 class="mb-1"><?php echo htmlspecialchars($row['titolo_blog']); ?></h4>
                                 <p class="mb-1"><?php echo htmlspecialchars($row['descrizione']); ?></p>
-                                <small>Proprietario: <?php echo htmlspecialchars($row['username']); ?></small>
+                                <small>Proprietario: <?php echo htmlspecialchars($row['username']); ?></small><br>
+                                <small>Categoria: <?php echo htmlspecialchars($row['nome_categoria']); ?></small>
                             </a>
                         <?php endwhile; ?>
                     </div>
@@ -103,8 +117,7 @@ if (isset($_GET['query'])) {
                             <a href="../pubblico/view_blog.php?id_blog=<?php echo $row['id_blog']; ?>" class="list-group-item list-group-item-action">
                                 <h4 class="mb-1"><?php echo htmlspecialchars($row['titolo_post']); ?></h4>
                                 <p class="mb-1"><?php echo htmlspecialchars($row['descrizione_post']); ?></p>
-                                <small>Autore: <?php echo htmlspecialchars($row['username']); ?></small>
-                                <br>
+                                <small>Autore: <?php echo htmlspecialchars($row['username']); ?></small><br>
                                 <small>Blog: <?php echo htmlspecialchars($row['titolo_blog']); ?></small>
                             </a>
                         <?php endwhile; ?>
