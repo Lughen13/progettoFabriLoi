@@ -19,7 +19,7 @@ $description = $_POST['description'];
 $subcategoryId = $_POST['subcategory'];
 $photos = [];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagini'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagini']) && !empty($_FILES['immagini']['name'][0])) {
     $files = $_FILES['immagini'];
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 

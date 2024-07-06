@@ -36,8 +36,20 @@ function Saluta($genere) {
         return 'Benvenut*'; // Restituisce "Benvenut*" come valore predefinito
     }
 }
+function interesse($genere){
+    if ($genere === 'Maschio') {
+        return 'interessato';
+    } elseif ($genere === 'Femmina') {
+        return 'interessata';
+    } elseif ($genere === 'Altro') {
+        return 'interessat*';
+    } else {
+        return 'interessat*'; // Restituisce "Benvenut*" come valore predefinito
+    }
+}
 
 $saluto = Saluta($genere);
+$interesse = interesse($genere);
 
 // recupero i blog preferiti dall'utente per mostrarli con priorità
 $queryFavoriteBlogs = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, u.username, c.nome_categoria
@@ -148,7 +160,7 @@ $stmt->close();
         <!-- Sezione per le categorie con loghi -->
         <div class="row">
     <div class="col-md-12 mb-4">
-        <h2>Categorie</h2>
+        <h2> A cosa sei <?php echo $interesse ?>?  </h2>
         <div class="row">
             <div class="col-md-2 category-card">
                 <a href="../pubblico/search.php?categoria=Tecnologia">
@@ -234,7 +246,7 @@ $stmt->close();
                 <?php endif; ?>
 
                 <!-- Sezione per i blog degli altri utenti -->
-                <h2>Blog degli altri utenti</h2>
+                <h2>Blog a cui potresti dare un'occhiata</h2>
                 <?php if (!empty($blogs)): ?>
                     <div class="row">
                         <?php foreach ($blogs as $blog): ?>
