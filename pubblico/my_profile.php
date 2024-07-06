@@ -513,7 +513,18 @@ if ($action == 'edit_post') {
                                                     <label for="edit_blog_description_<?php echo $blog['id_blog']; ?>">Nuova descrizione</label>
                                                     <textarea name="edit_blog_description" id="edit_blog_description_<?php echo $blog['id_blog']; ?>" class="form-control"><?php echo htmlspecialchars($blog['descrizione']); ?></textarea>
                                                 </div>
-                                                
+                                                <div class="form-group">
+                                                <label for="edit_blog_coauthor_<?php echo $blog['id_blog']; ?>">Coautore</label>
+                                                <select name="edit_blog_coauthor" id="edit_blog_coauthor_<?php echo $blog['id_blog']; ?>" class="form-control">
+                                                    <option value="">Seleziona un nuovo coautore</option>
+                                                    <?php foreach ($users as $user): ?>
+                                                        <option value="<?php echo $user['id_utente']; ?>" <?php if ($user['id_utente'] == $blog['id_coautore']) echo 'selected'; ?>>
+                                                            <?php echo htmlspecialchars($user['username']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                    <option value="remove">Rimuovi coautore attuale</option>
+                                                </select>
+                                            </div>
                                                 
                                             </form>
                                         </div>
