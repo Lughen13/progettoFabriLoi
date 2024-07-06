@@ -15,7 +15,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 // Recupera l'id dell'utente dalla sessione
 $userId = $_SESSION['id'];
 
-// Recupero genere e username dell'utente dal db per gestire il codice del saluto 
+// recupero genere e username dell'utente per gestire il benvenuto
 $query = "SELECT genere, username FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $userId);
@@ -25,7 +25,6 @@ $row = $result->fetch_assoc();
 $genere = $row['genere'];
 $username = $row['username'];
 $stmt->close();
-
 function Saluta($genere) {
     if ($genere === 'Maschio') {
         return 'Benvenuto';
@@ -40,23 +39,12 @@ function Saluta($genere) {
 
 $saluto = Saluta($genere);
 
-// Recupera tutti i blog tranne quelli dell'utente autenticato
-$query = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, u.username, c.nome_categoria
-          FROM blog b
-          INNER JOIN utente u ON b.id_proprietario = u.id_utente
-          INNER JOIN categoria c ON b.id_categoria = c.id_categoria
-          WHERE b.id_proprietario != ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$result = $stmt->get_result();
-$blogs = $result->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
-
-// Recupera i blog preferiti dell'utente
-$queryFavoriteBlogs = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo
+// recupero i blog preferiti dall'utente per mostrarli con priorità
+$queryFavoriteBlogs = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, u.username, c.nome_categoria
                        FROM follow f
                        INNER JOIN blog b ON f.id_blog = b.id_blog
+                       INNER JOIN utente u ON b.id_proprietario = u.id_utente
+                       INNER JOIN categoria c ON b.id_categoria = c.id_categoria
                        WHERE f.id_utente = ?";
 $stmt = $conn->prepare($queryFavoriteBlogs);
 $stmt->bind_param("i", $userId);
@@ -65,8 +53,28 @@ $resultFavoriteBlogs = $stmt->get_result();
 $favoriteBlogs = $resultFavoriteBlogs->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+$favoriteBlogIds = array_column($favoriteBlogs, 'id_blog');
+$favoriteBlogIdsStr = implode(',', array_map('intval', $favoriteBlogIds));
 
+// recupero tutti gli altri blog ad ecceione di quelli dell'utente loggato e quelli seguiti (già mostrati precedentemente) 
+$query = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, u.username, c.nome_categoria
+          FROM blog b
+          INNER JOIN utente u ON b.id_proprietario = u.id_utente
+          INNER JOIN categoria c ON b.id_categoria = c.id_categoria
+          WHERE b.id_proprietario != ?";
+
+if (!empty($favoriteBlogIdsStr)) {
+    $query .= " AND b.id_blog NOT IN ($favoriteBlogIdsStr)";
+}
+
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+$blogs = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="it">
@@ -143,6 +151,9 @@ $stmt->close();
                                     <div class="card-body">
                                         <h5 class="card-title"><?php echo htmlspecialchars($favoriteBlog['titolo_blog']); ?></h5>
                                         <p class="card-text"><?php echo htmlspecialchars($favoriteBlog['descrizione']); ?></p>
+                                        <p class="card-text">Proprietario: <?php echo htmlspecialchars($favoriteBlog['username']); ?></p>
+                                        <p class="card-text">Categoria: <?php echo htmlspecialchars($favoriteBlog['nome_categoria']); ?></p>
+                                       
                                         <a href="../pubblico/view_blog.php?id_blog=<?php echo $favoriteBlog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
                                     </div>
                                 </div>

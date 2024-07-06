@@ -625,6 +625,9 @@ if ($action == 'edit_post') {
                                                                     <div class="form-group">
                                                                         <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuove immagini</label>
                                                                         <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
+                                                                        <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
+                                                                        <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
+
                                                                     </div>
                                                                 </form>
                                                             </div>

@@ -2,14 +2,14 @@
 require_once '../configurazione/conn.php';
 // array che definisce una serie di categorie e sottocategorie di default
 $categories = [
-    'Tecnologia' => ['Internet', 'Hardware', 'Software'],
-    'Moda' => ['Abbigliamento', 'Accessori'],
-    'Tempo libero' => ['Benessere', 'Vacanze', 'Sport', 'Cinema', 'Musica', 'Televisione', 'Libri'],
-    'Viaggi' => ['Destinazioni', 'Trasporti', 'Cultura', 'Alloggi'],
-    'Cucina' => ['Ricette', 'Tecniche di cucina', 'Attrezzi da cucina'],
-    'Scienze' => ['Biologia', 'Medicina', 'Fisica', 'Chimica'],
-    'Recensioni' => ['Auto', 'Alberghi', 'Ristoranti', 'Veicoli'],
-    'Arredamento' => ['Interni', 'Giardino'],
+    'Tecnologia' => ['Internet', 'Hardware', 'Software','Altro'],
+    'Moda' => ['Abbigliamento', 'Accessori','Altro'],
+    'Tempo libero' => ['Benessere', 'Vacanze', 'Sport', 'Cinema', 'Musica', 'Televisione', 'Libri','Altro'],
+    'Viaggi' => ['Destinazioni', 'Trasporti', 'Cultura', 'Alloggi','Altro'],
+    'Cucina' => ['Ricette', 'Tecniche di cucina', 'Attrezzi da cucina','Altro'],
+    'Scienze' => ['Biologia', 'Medicina', 'Fisica', 'Chimica','Altro'],
+    'Recensioni' => ['Auto', 'Alberghi', 'Ristoranti', 'Veicoli','Altro'],
+    'Arredamento' => ['Interni', 'Giardino','Altro'],
     'Altro' => ['Altro']
     
 ];
