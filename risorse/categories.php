@@ -9,7 +9,8 @@ $categories = [
     'Cucina' => ['Ricette', 'Tecniche di cucina', 'Attrezzi da cucina'],
     'Scienze' => ['Biologia', 'Medicina', 'Fisica', 'Chimica'],
     'Recensioni' => ['Auto', 'Alberghi', 'Ristoranti', 'Veicoli'],
-    'Arredamento' => ['Interni', 'Giardino']
+    'Arredamento' => ['Interni', 'Giardino'],
+    'Altro' => ['Altro']
     
 ];
 
@@ -38,7 +39,7 @@ function inserisci_cat_sottocat($conn, $categories) {
             $categoryId = $row['id_categoria'];
         }
 
-        // stessa verifica ed inserimento facci percedentemente ma per le sottocategorie 
+        // stessa verifica ed inserimento fatto precedentemente ma per le sottocategorie
         foreach ($subcategories as $subcategoryName) {
             $sql = "SELECT id_sottocat FROM sottocat WHERE nome_sottocat = ? AND id_categoria = ?";
             $stmt = $conn->prepare($sql);
@@ -47,22 +48,19 @@ function inserisci_cat_sottocat($conn, $categories) {
             $result = $stmt->get_result();
 
             if ($result->num_rows === 0) {
-                $sql = "INSERT INTO sottocat (nome_sottocat, id_categoria, id_sottocat) VALUES (?, ?, ?)";
+                $sql = "INSERT INTO sottocat (nome_sottocat, id_categoria) VALUES (?, ?)";
                 $stmt = $conn->prepare($sql);
-                $stmt->bind_param('sii', $subcategoryName, $categoryId, $subcategoryId);
+                $stmt->bind_param('si', $subcategoryName, $categoryId);
                 $stmt->execute();
-                $stmt->close();
+                $stmt->close(); // chiudere lo statement
             } else {
-                $row = $result->fetch_assoc();
-                $subcategoryId = $row['id_sottocat'];
+                $stmt->close(); // chiudere lo statement
             }
         }
     }
 }
 
-
 // chiamo la funzione per inserire le categorie e le sottocategorie
 inserisci_cat_sottocat($conn, $categories);
-
 
 ?>
