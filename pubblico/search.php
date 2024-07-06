@@ -1,3 +1,5 @@
+search.php
+
 <?php
 require_once '../configurazione/conn.php';
 
@@ -15,7 +17,7 @@ if (isset($_GET['query'])) {
     $blogResult = $conn->query($blogQuery);
 
     // Query per cercare nei post
-    $postQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, u.username, b.titolo_blog
+    $postQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, u.username, b.titolo_blog, p.id_blog
                   FROM post p
                   JOIN utente u ON p.id_autore = u.id_utente
                   JOIN blog b ON p.id_blog = b.id_blog
@@ -83,7 +85,7 @@ if (isset($_GET['query'])) {
                     <h2 class="text-center mb-4">Risultati della ricerca per i blog:</h2>
                     <div class="list-group">
                         <?php while ($row = $blogResult->fetch_assoc()): ?>
-                            <a href="#" class="list-group-item list-group-item-action">
+                            <a href="../pubblico/view_blog.php?id_blog=<?php echo $row['id_blog']; ?>" class="list-group-item list-group-item-action">
                                 <h4 class="mb-1"><?php echo htmlspecialchars($row['titolo_blog']); ?></h4>
                                 <p class="mb-1"><?php echo htmlspecialchars($row['descrizione']); ?></p>
                                 <small>Proprietario: <?php echo htmlspecialchars($row['username']); ?></small>
@@ -98,7 +100,7 @@ if (isset($_GET['query'])) {
                     <h2 class="text-center mb-4">Risultati della ricerca per i post:</h2>
                     <div class="list-group">
                         <?php while ($row = $postResult->fetch_assoc()): ?>
-                            <a href="#" class="list-group-item list-group-item-action">
+                            <a href="../pubblico/view_blog.php?id_blog=<?php echo $row['id_blog']; ?>" class="list-group-item list-group-item-action">
                                 <h4 class="mb-1"><?php echo htmlspecialchars($row['titolo_post']); ?></h4>
                                 <p class="mb-1"><?php echo htmlspecialchars($row['descrizione_post']); ?></p>
                                 <small>Autore: <?php echo htmlspecialchars($row['username']); ?></small>
