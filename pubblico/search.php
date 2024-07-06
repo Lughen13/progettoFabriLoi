@@ -1,4 +1,3 @@
-search.php
 
 <?php
 require_once '../configurazione/conn.php';
@@ -53,7 +52,7 @@ if (isset($_GET['query'])) {
     <!-- Menu di navigazione -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">The Social Network</a>
+            <a class="navbar-brand" href="#">ToteBlog</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -122,7 +121,7 @@ if (isset($_GET['query'])) {
 
     <!-- Piede di pagina -->
     <footer class="text-center mt-4 mb-4">
-        <p>&copy; <?php echo date('Y'); ?> The Social Network. Tutti I diritti riservati.</p>
+        <p>&copy; <?php echo date('Y'); ?> ToteBlog. Tutti I diritti riservati.</p>
     </footer>
 
     <!-- Bootstrap JS e script necessari -->

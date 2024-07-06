@@ -136,7 +136,6 @@ $stmt->close();
 
     <div class="container mt-5">
         <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
-        <p>Questi sono i blog degli altri utenti.</p>
 
         <div class="row">
             <!-- Sezione per i blog preferiti -->
