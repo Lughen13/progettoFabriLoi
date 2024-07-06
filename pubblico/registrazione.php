@@ -108,10 +108,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $data_nascita_err = "Inserisci la tua data di nascita.";
     } else {
         $data_nascita_obj = DateTime::createFromFormat('Y-m-d', $data_nascita);
+        $min_data = new DateTime("1909-12-31");
+        $max_data = (new DateTime()) -> sub(new DateInterval('P16Y')); // che ad oggi, data d'iscrizione, abbia almeno 16 anni
+
         if (!$data_nascita_obj || $data_nascita_obj->format('Y-m-d') != $data_nascita) {
             $data_nascita_err = "Formato data di nascita non valido.";
-        }
-    }
+        } elseif ($data_nascita_obj < $min_data || $data_nascita_obj > $max_data) {
+            $data_nascita_err = "La data di nascita deve essere compresa tra 1 gennaio 1910 oppure devi avere almeno 16 anni.";
+    } 
+}
 
     // Validazione genere
     $genere = isset($_POST["genere"]) ? validateInput($_POST["genere"]) : "";
@@ -126,6 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($numero_telefono) && !preg_match("/^[0-9]{10}$/", $numero_telefono)) {
         $numero_telefono_err = "Il numero di telefono deve essere di 10 cifre.";
     }
+
 
     // Validazione premium
     $premium = isset($_POST["premium"]) ? 1 : 0;
