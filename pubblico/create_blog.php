@@ -38,6 +38,10 @@ $usersResult = $stmt->get_result();
 if (!$usersResult) {
     die("Errore nella query degli utenti: " . $stmt->error);
 }
+
+// Recupera eventuali messaggi di errore dalla sessione
+$error_msg = $_SESSION['error_msg'] ?? '';
+unset($_SESSION['error_msg']);
 ?>
 
 <!DOCTYPE html>
@@ -116,6 +120,11 @@ if (!$usersResult) {
         input[type=submit]:hover {
             background-color: #45a049;
         }
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -131,6 +140,10 @@ if (!$usersResult) {
         </ul>
     </nav>
     <form method="post" action="../risorse/process_create_blog.php" enctype="multipart/form-data">
+        <?php if (!empty($error_msg)): ?>
+            <div class="error-message"><?php echo htmlspecialchars($error_msg); ?></div>
+        <?php endif; ?>
+
         <label for="title">Titolo del blog:</label>
         <input type="text" name="title" id="title" required>
 

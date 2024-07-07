@@ -19,6 +19,31 @@ $description = $_POST['description'];
 $subcategoryId = $_POST['subcategory'];
 $photos = [];
 
+// Recupera lo stato premium dell'utente
+$queryPremium = "SELECT premium FROM utente WHERE id_utente = ?";
+$stmt = $conn->prepare($queryPremium);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$resultPremium = $stmt->get_result();
+$isPremium = $resultPremium->fetch_assoc()['premium'];
+$stmt->close();
+
+// Controlla il numero di post esistenti dell'utente
+$queryPostCount = "SELECT COUNT(*) AS post_count FROM post WHERE id_blog = ? AND id_autore = ?";
+$stmt = $conn->prepare($queryPostCount);
+$stmt->bind_param("ii", $blogId, $userId);
+$stmt->execute();
+$resultPostCount = $stmt->get_result();
+$postCount = $resultPostCount->fetch_assoc()['post_count'];
+$stmt->close();
+
+// Se l'utente non è premium e ha già creato un post, impedisci la creazione di nuovi post
+if (!$isPremium && $postCount >= 1) {
+    $_SESSION['error_msg'] = "Gli utenti non premium possono creare solo un post. Passa a premium per crearne di più.";
+    header("Location: ../pubblico/create_post.php");
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagini'])) {
     $files = $_FILES['immagini'];
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
@@ -56,14 +81,13 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("sssiii", $title, $description, $photosJson, $userId, $subcategoryId, $blogId);
 
 if ($stmt->execute()) {
-    echo "<p>Post creato con successo!</p>";
-    echo "<script>
-        setTimeout(function() {
-            window.location.href = '../pubblico/my_profile.php';
-        }, 2000);
-    </script>";
+    $_SESSION['success_msg'] = "Post creato con successo!";
+    header("Location: ../pubblico/my_profile.php");
+    exit();
 } else {
-    echo "Errore durante la creazione del post: " . $stmt->error;
+    $_SESSION['error_msg'] = "Errore durante la creazione del post: " . $stmt->error;
+    header("Location: ../pubblico/create_post.php");
+    exit();
 }
 
 $stmt->close();

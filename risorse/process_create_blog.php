@@ -22,6 +22,31 @@ $style_id = $_POST['style'] ?? '';
 $co_autore_id = $_POST['co_autore'] ?? null; // Recupero l'id dell'utente che è stato selezionato come co-autore 
 $current_user_id = $_SESSION['id']; 
 
+// Recupera lo stato premium dell'utente
+$queryPremium = "SELECT premium FROM utente WHERE id_utente = ?";
+$stmt = $conn->prepare($queryPremium);
+$stmt->bind_param("i", $current_user_id);
+$stmt->execute();
+$resultPremium = $stmt->get_result();
+$isPremium = $resultPremium->fetch_assoc()['premium'];
+$stmt->close();
+
+// Controlla il numero di blog esistenti dell'utente
+$queryBlogCount = "SELECT COUNT(*) AS blog_count FROM blog WHERE id_proprietario = ?";
+$stmt = $conn->prepare($queryBlogCount);
+$stmt->bind_param("i", $current_user_id);
+$stmt->execute();
+$resultBlogCount = $stmt->get_result();
+$blogCount = $resultBlogCount->fetch_assoc()['blog_count'];
+$stmt->close();
+
+// Se l'utente non è premium e ha già creato un blog, impedisci la creazione di nuovi blog
+if (!$isPremium && $blogCount >= 1) {
+    $_SESSION['error_msg'] = "Gli utenti non premium possono creare solo un blog. Passa a premium per crearne di più.";
+    header("Location: ../pubblico/create_blog.php");
+    exit();
+}
+
 $logoName = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo'])) {
@@ -64,14 +89,18 @@ if ($stmt_blog->execute()) {
         $stmt_co_author->bind_param("ii", $co_autore_id, $blog_id);
         $stmt_co_author->execute();
         $stmt_co_author->close();
-        echo "Blog creato con successo con co-autore!";
-        echo '<script>setTimeout(function(){ window.location.href = "../pubblico/my_profile.php"; }, 2000);</script>';
+        $_SESSION['success_msg'] = "Blog creato con successo con co-autore!";
+        header("Location: ../pubblico/my_profile.php");
+        exit();
     } else {
-        echo "Blog creato con successo!";
-        echo '<script>setTimeout(function(){ window.location.href = "../pubblico/my_profile.php"; }, 2000);</script>';
+        $_SESSION['success_msg'] = "Blog creato con successo!";
+        header("Location: ../pubblico/my_profile.php");
+        exit();
     }
 } else {
-    echo "Errore nella creazione del blog: " . $stmt_blog->error;
+    $_SESSION['error_msg'] = "Errore nella creazione del blog: " . $stmt_blog->error;
+    header("Location: ../pubblico/create_blog.php");
+    exit();
 }
 
 $conn->close();

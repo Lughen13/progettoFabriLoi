@@ -23,6 +23,10 @@ $stmt->bind_param("ii", $userId, $userId);
 $stmt->execute();
 $blogsResult = $stmt->get_result();
 $stmt->close();
+
+// Recupera eventuali messaggi di errore da process_create_post.php
+$errorMsg = isset($_SESSION['error_msg']) ? $_SESSION['error_msg'] : '';
+unset($_SESSION['error_msg']);
 ?>
 
 <!DOCTYPE html>
@@ -86,6 +90,9 @@ $stmt->close();
 </head>
 <body>
     <h1>Crea un nuovo post</h1>
+    <?php if ($errorMsg): ?>
+        <p class="error"><?php echo $errorMsg; ?></p>
+    <?php endif; ?>
     <form method="post" action="../risorse/process_create_post.php" enctype="multipart/form-data">
         <label for="blog">Seleziona il blog:</label>
         <select name="id_blog" id="blog" required>
