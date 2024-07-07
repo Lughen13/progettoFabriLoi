@@ -155,21 +155,21 @@ $stmt->execute();
 // Ottenimento del risultato della query
 $result = $stmt->get_result();
 
-// Verifica se sono stati trovati risultati
-if ($result->num_rows > 0) {
-    // Estrai il risultato (una sola riga perché si suppone che ci sia un solo stile per utente)
-    $row = $result->fetch_assoc();
-    $nomeStile = $row['nome_stile'];
-    $fontFamily = $row['font'];
-    $textColor = $row['colore_testo'];
-    $backgroundColor = $row['background'];
+//Verifica se sono stati trovati risultati
+// if ($result->num_rows > 0) {
+//     // Estrai il risultato (una sola riga perché si suppone che ci sia un solo stile per utente)
+//     $row = $result->fetch_assoc();
+//     $nomeStile = $row['nome_stile'];
+//     $fontFamily = $row['font'];
+//     $textColor = $row['colore_testo'];
+//     $backgroundColor = $row['background'];
 
-    // Puoi utilizzare queste variabili per personalizzare dinamicamente il CSS o qualsiasi altra operazione
-    // Ad esempio, puoi utilizzare $fontFamily, $textColor, $backgroundColor per applicare stili CSS dinamici
-} else {
-    echo "Nessun risultato trovato per lo stile scelto dall'utente.";
-    // Gestire il caso in cui non è stato trovato alcuno stile per l'utente
-}
+//     // Puoi utilizzare queste variabili per personalizzare dinamicamente il CSS o qualsiasi altra operazione
+//     // Ad esempio, puoi utilizzare $fontFamily, $textColor, $backgroundColor per applicare stili CSS dinamici
+// } else {
+//     echo "Nessun risultato trovato per lo stile scelto dall'utente.";
+//     // Gestire il caso in cui non è stato trovato alcuno stile per l'utente
+// }
 
 // Recupero dei blog dell'utente
 $blogsQuery = "SELECT id_blog, titolo_blog, descrizione, img_logo FROM blog WHERE id_proprietario = ?";

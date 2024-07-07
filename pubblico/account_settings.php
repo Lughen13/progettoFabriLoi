@@ -25,7 +25,7 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
 
-$passwordError = $emailError = $intestatario_err = $carta_err = $data_scadenza_err = "";
+$passwordError = $emailError = $intestatario_err = $carta_err = $data_scadenza_err = $data_nascita_err = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['delete_user']) && $_POST['delete_user'] == '1') {
@@ -125,10 +125,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->close();
             }
 
-            if (isset($_POST['data_nascita']) && !empty($_POST['data_nascita'])) {
-                $data_nascita = $_POST['data_nascita'];
-                $updateFields[] = "data_nascita = '$data_nascita'";
+            // if (isset($_POST['data_nascita']) && !empty($_POST['data_nascita'])) {
+            //     $data_nascita = $_POST['data_nascita'];
+            //     $updateFields[] = "data_nascita = '$data_nascita'";
+            // }
+
+            $data_nascita = $_POST['data_nascita'];
+            if (empty($data_nascita)) {
+                $data_nascita_err = "Inserisci la tua data di nascita.";
+            } else {
+                $data_nascita_obj = DateTime::createFromFormat('Y-m-d', $data_nascita);
+                $min_data = (new DateTime())->sub(new DateInterval('P16Y')); // che ad oggi, data d'iscrizione, l'utente abbia almeno 16 anni
+                $min_data_fissa = new DateTime('1910-01-01'); // Data minima fissa da poter inserire è il 1 gennaio 1910
+
+                if (!$data_nascita_obj || $data_nascita_obj->format('Y-m-d') != $data_nascita) {
+                    $data_nascita_err = "Formato data di nascita non valido.";
+                } elseif ($data_nascita_obj > $min_data || $data_nascita_obj < $min_data_fissa) {
+                    $data_nascita_err = "La data di nascita deve essere dal primo gennaio 1910 in poi, oppure devi avere almeno 16 anni.";
+                } else {
+                    $updateFields[] = "data_nascita = '$data_nascita'";
+                }
             }
+
 
             if (isset($_POST['genere']) && !empty($_POST['genere'])) {
                 $genere = $_POST['genere'];
@@ -190,7 +208,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         }
                     }
 
-                    $stmt->close();
+                   // $stmt->close();
                 }
             } elseif (isset($user['premium']) && $user['premium'] == 1) {
                 $deleteCardQuery = "DELETE FROM premium WHERE id_utente = ?";
@@ -201,7 +219,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
 
-            if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
+            if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)&& empty($data_nascita_err)) {
                 if (!empty($updateFields)) {
                     $updateQuery = "UPDATE utente SET " . implode(", ", $updateFields) . " WHERE id_utente = ?";
                     $stmt = $conn->prepare($updateQuery);
@@ -368,6 +386,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div>
             <label for="data_nascita">Data di Nascita:</label>
             <input type="date" id="data_nascita" name="data_nascita" value="<?php echo $user['data_nascita']; ?>">
+            <span class="error"><?php echo $data_nascita_err;?></span>
+
         </div>
         <div>
             <label for="genere">Genere:</label>
