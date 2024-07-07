@@ -276,17 +276,27 @@ $stmt->close();
                         <h5 class="card-title">Ultimo commento ricevuto</h5>
                         <ul class="list-group">
                             <?php
+                            // devo recuperare l'id dell'utente loggato in sessione per poter 
+                            $idUtenteLoggato = $_SESSION['id'];
                             // Query per ottenere l'ultimo Commento
                             $queryUltimoCommento = "SELECT c.id_post, c.data_comm, u.username, b.id_blog, b.titolo_blog
                                                     FROM commento c
                                                     JOIN utente u ON c.id_utente = u.id_utente
                                                     JOIN post p ON c.id_post = p.id_post
                                                     JOIN blog b ON p.id_blog = b.id_blog
+                                                    WHERE p.id_autore = ?
                                                     ORDER BY c.data_comm DESC
                                                     LIMIT 1";
-                            $resultUltimoCommento = mysqli_query($conn, $queryUltimoCommento);
-                            $ultimoCommento = mysqli_fetch_assoc($resultUltimoCommento);
-
+                            if ($stmt = $conn->prepare($queryUltimoCommento)) {
+                                // Bind del parametro dell'utente loggato
+                                $stmt->bind_param("i", $idUtenteLoggato);
+                                // Esecuzione della query
+                                $stmt->execute();
+                                // Recupero del risultato
+                                $resultUltimoCommento = $stmt->get_result();
+                                $ultimoCommento = $resultUltimoCommento->fetch_assoc();
+                                $stmt->close();
+                                
                             // Output dell'ultimo commento con link al blog
                             if ($ultimoCommento) {
                                 $ultimoCommentoUsername = htmlspecialchars($ultimoCommento['username']);
@@ -295,6 +305,9 @@ $stmt->close();
                                 echo "<li class='list-group-item'><i class='fas fa-comment text-primary'></i> Ultimo commento ricevuto da: <a href='../pubblico/view_blog.php?id_blog=$idBlog'>$ultimoCommentoUsername su \"$titoloBlog\"</a></li>";
                             } else {
                                 echo "<li class='list-group-item'><i class='fas fa-comment text-primary'></i> Nessun commento recente</li>";
+                            }
+                            } else {
+                                echo "<li class='list-group-item'><i class='fas fa-comment text-primary'></i> Errore nella query</li>";
                             }
                             ?>
                         </ul>

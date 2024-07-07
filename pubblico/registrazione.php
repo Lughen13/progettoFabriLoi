@@ -90,6 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $email_err = "Formato email non valido.";
     } else {
+        
         // controllo per verificare che la mail non sia già stata utilizzata da altri utenti 
         $sql = "SELECT id_utente FROM utente WHERE email = ?";
         $stmt = $conn->prepare($sql);
@@ -108,13 +109,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $data_nascita_err = "Inserisci la tua data di nascita.";
     } else {
         $data_nascita_obj = DateTime::createFromFormat('Y-m-d', $data_nascita);
-        $min_data = new DateTime("1909-12-31");
-        $max_data = (new DateTime()) -> sub(new DateInterval('P16Y')); // che ad oggi, data d'iscrizione, abbia almeno 16 anni
+        $min_data = new DateTime("1910-01-01"); // la data minima da poter inserire è l primo gennaio 1910
+        $max_data = (new DateTime()) -> sub(new DateInterval('P16Y')); // ad oggi (data d'iscrizione) l'utente abbia almeno 16 anni 
 
         if (!$data_nascita_obj || $data_nascita_obj->format('Y-m-d') != $data_nascita) {
             $data_nascita_err = "Formato data di nascita non valido.";
         } elseif ($data_nascita_obj < $min_data || $data_nascita_obj > $max_data) {
-            $data_nascita_err = "La data di nascita deve essere compresa tra 1 gennaio 1910 oppure devi avere almeno 16 anni.";
+            $data_nascita_err = "La data di nascita deve essere dal primo gennaio 1910 in poi, oppure devi avere almeno 16 anni.";
     } 
 }
 
