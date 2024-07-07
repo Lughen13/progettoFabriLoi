@@ -30,8 +30,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($stmt_follow) {
                 $stmt_follow->bind_param("ii", $userId, $blogId);
                 if ($stmt_follow->execute()) {
+                    // Recupera l'ID del proprietario del blog
+                    $queryGetBlogOwner = "SELECT id_proprietario FROM blog WHERE id_blog = ?";
+                    $stmtBlogOwner = $conn->prepare($queryGetBlogOwner);
+                    $stmtBlogOwner->bind_param("i", $blogId);
+                    $stmtBlogOwner->execute();
+                    $resultBlogOwner = $stmtBlogOwner->get_result();
+                    if ($resultBlogOwner->num_rows > 0) {
+                        $blogOwner = $resultBlogOwner->fetch_assoc();
+                        $id_blogOwner = $blogOwner['id_proprietario'];
+
+                        // Aggiungi la notifica
+                        $queryInsertNotifica = "INSERT INTO notifiche (user_id, sender_id, tipo, contenuto_id) VALUES (?, ?, 'follow', ?)";
+                        $stmtInsertNotifica = $conn->prepare($queryInsertNotifica);
+                        $stmtInsertNotifica->bind_param("iii", $id_blogOwner, $userId, $blogId);
+                        $stmtInsertNotifica->execute();
+                        $stmtInsertNotifica->close();
+                    }
+                    $stmtBlogOwner->close();
+
                     // Incrementa il conteggio dei follower
-                    $queryIncrementFollower = "UPDATE blog SET followers_count = followers_count + 0 WHERE id_blog = ?";
+                    $queryIncrementFollower = "UPDATE blog SET followers_count = followers_count + 1 WHERE id_blog = ?";
                     $stmt_increment = $conn->prepare($queryIncrementFollower);
                     $stmt_increment->bind_param("i", $blogId);
                     $stmt_increment->execute();
@@ -78,4 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
     echo "Metodo non supportato.";
 }
+
+$conn->close();
 ?>

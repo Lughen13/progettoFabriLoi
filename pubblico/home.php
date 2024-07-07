@@ -269,40 +269,59 @@ $stmt->close();
                 <?php endif; ?>
             </div>
 
-             <!-- Sidebar per Ultimo Commento -->
-             <div class="col-md-4">
-                <div class="card sidebar">
-                    <div class="card-body">
-                        <h5 class="card-title">Ultimo commento ricevuto</h5>
-                        <ul class="list-group">
-                            <?php
-                            // Query per ottenere l'ultimo Commento
-                            $queryUltimoCommento = "SELECT c.id_post, c.data_comm, u.username, b.id_blog, b.titolo_blog
-                                                    FROM commento c
-                                                    JOIN utente u ON c.id_utente = u.id_utente
-                                                    JOIN post p ON c.id_post = p.id_post
-                                                    JOIN blog b ON p.id_blog = b.id_blog
-                                                    ORDER BY c.data_comm DESC
-                                                    LIMIT 1";
-                            $resultUltimoCommento = mysqli_query($conn, $queryUltimoCommento);
-                            $ultimoCommento = mysqli_fetch_assoc($resultUltimoCommento);
+                        <!-- Sidebar per Notifiche -->
+            <!-- Sidebar per Notifiche -->
+<div class="col-md-4">
+    <div class="card sidebar">
+        <div class="card-body">
+            <h5 class="card-title">Notifiche recenti</h5>
+            <ul class="list-group">
+                <?php
+                // Query per ottenere le notifiche recenti
+                $id_utente_corrente = $_SESSION['id']; // o come ottieni l'id dell'utente corrente
+                $queryNotifiche = "SELECT n.id, n.data, u.username, n.tipo, n.contenuto_id
+                                   FROM notifiche n
+                                   JOIN utente u ON n.sender_id = u.id_utente
+                                   WHERE n.user_id = '$id_utente_corrente'
+                                   ORDER BY n.data DESC
+                                   LIMIT 5";
+                $resultNotifiche = mysqli_query($conn, $queryNotifiche);
 
-                            // Output dell'ultimo commento con link al blog
-                            if ($ultimoCommento) {
-                                $ultimoCommentoUsername = htmlspecialchars($ultimoCommento['username']);
-                                $idBlog = $ultimoCommento['id_blog'];
-                                $titoloBlog = htmlspecialchars($ultimoCommento['titolo_blog']);
-                                echo "<li class='list-group-item'><i class='fas fa-comment text-primary'></i> Ultimo commento ricevuto da: <a href='../pubblico/view_blog.php?id_blog=$idBlog'>$ultimoCommentoUsername su \"$titoloBlog\"</a></li>";
-                            } else {
-                                echo "<li class='list-group-item'><i class='fas fa-comment text-primary'></i> Nessun commento recente</li>";
-                            }
-                            ?>
-                        </ul>
-                    </div>
-                </div>
+                // Output delle notifiche recenti
+                while ($notifica = $resultNotifiche->fetch_assoc()) {
+    $notificaUsername = htmlspecialchars($notifica['username']);
+    $tipo = htmlspecialchars($notifica['tipo']);
+    $contenutoId = htmlspecialchars($notifica['contenuto_id']);
+    $data = htmlspecialchars($notifica['data']);
+    $icon = '';
+
+    switch ($tipo) {
+        case 'comment':
+            $icon = 'fas fa-comment';
+            $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
+            break;
+        case 'like':
+            $icon = 'fas fa-thumbs-up';
+            $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
+            break;
+        case 'follow':
+            $icon = 'fas fa-user-plus';
+            $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
+            break;
+    }
+
+    echo "<li class='list-group-item'><i class='$icon text-primary'></i> $tipo da: <a href='$link'>$notificaUsername</a> il $data</li>";
+}
+
+if ($resultNotifiche->num_rows == 0) {
+    echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
+}
+?>
+                </ul>
             </div>
         </div>
     </div>
+    
 
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

@@ -45,6 +45,23 @@ if ($action === 'insert' && $postId && !empty($comment)) {
     $stmt = $conn->prepare($insertCommentQuery);
     $stmt->bind_param("sii", $comment, $userId, $postId);
     if ($stmt->execute()) {
+        // Recupera il proprietario del blog per notificare
+        $queryBlogOwner = "SELECT b.id_proprietario FROM post p JOIN blog b ON p.id_blog = b.id_blog WHERE p.id_post = ?";
+        $stmt_blog_owner = $conn->prepare($queryBlogOwner);
+        $stmt_blog_owner->bind_param("i", $postId);
+        $stmt_blog_owner->execute();
+        $result_blog_owner = $stmt_blog_owner->get_result();
+        if ($result_blog_owner->num_rows > 0) {
+            $blogOwner = $result_blog_owner->fetch_assoc();
+            $id_blogOwner = $blogOwner['id_proprietario'];
+
+            // Inserisci la notifica per il proprietario del blog
+            $queryInsertNotifica = "INSERT INTO notifiche (user_id, sender_id, tipo, contenuto_id) VALUES (?, ?, 'comment', ?)";
+            $stmt_insert_notifica = $conn->prepare($queryInsertNotifica);
+            $stmt_insert_notifica->bind_param("iii", $id_blogOwner, $userId, $postId);
+            $stmt_insert_notifica->execute();
+        }
+        $stmt_blog_owner->close();
         header("Location: ../pubblico/view_blog.php?id_blog=$id_blog");
         exit;
     } else {
