@@ -19,21 +19,27 @@ $comment = isset($_POST['comment']) ? trim($_POST['comment']) : '';
 $id_comm = isset($_POST['id_comm']) ? intval($_POST['id_comm']) : null;
 $id_blog = isset($_POST['id_blog']) ? intval($_POST['id_blog']) : null;
 
-// Verifica se l'utente ha superato il limite di commenti giornalieri
-$queryCountComments = "SELECT COUNT(*) AS num_comments FROM commento WHERE id_utente = ? AND DATE(data_comm) = CURDATE()";
-$stmt_count_comments = $conn->prepare($queryCountComments);
-$stmt_count_comments->bind_param("i", $userId);
-$stmt_count_comments->execute();
-$result_count_comments = $stmt_count_comments->get_result();
-$num_comments_today = $result_count_comments->fetch_assoc()['num_comments'];
-$stmt_count_comments->close();
+// Verifica se l'utente è premium
+$premium_status = $_SESSION['premium'] ?? false;
 
-if ($num_comments_today >= 20) {
-    header("Location: ../pubblico/view_blog.php?id_blog=$id_blog&error=limite_superato");
-    exit;
-}
-
+// Gestione delle azioni di commento
 if ($action === 'insert' && $postId && !empty($comment)) {
+    // Verifica se l'utente ha superato il limite di commenti giornalieri
+    if (!$premium_status) {
+        $queryCountComments = "SELECT COUNT(*) AS num_comments FROM commento WHERE id_utente = ? AND DATE(data_comm) = CURDATE()";
+        $stmt_count_comments = $conn->prepare($queryCountComments);
+        $stmt_count_comments->bind_param("i", $userId);
+        $stmt_count_comments->execute();
+        $result_count_comments = $stmt_count_comments->get_result();
+        $num_comments_today = $result_count_comments->fetch_assoc()['num_comments'];
+        $stmt_count_comments->close();
+
+        if ($num_comments_today >= 20) {
+            header("Location: ../pubblico/view_blog.php?id_blog=$id_blog&error=limite_superato");
+            exit;
+        }
+    }
+
     // Inserisci il nuovo commento
     $insertCommentQuery = "INSERT INTO commento (data_comm, contenuto, id_utente, id_post) VALUES (NOW(), ?, ?, ?)";
     $stmt = $conn->prepare($insertCommentQuery);

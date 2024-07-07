@@ -166,7 +166,7 @@ $conn->close();
         <!-- Mostra il messaggio di errore se presente -->
         <?php if (isset($_GET['error']) && $_GET['error'] === 'limite_superato'): ?>
             <div class="alert alert-danger" role="alert">
-                Hai superato il limite massimo di commenti giornalieri consentiti (inserire qui il numero massimo di commenti).
+                Hai superato il limite massimo di commenti giornalieri consentiti (20).
             </div>
         <?php endif; ?>
 
