@@ -165,19 +165,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
 
                 if (empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
-                    if (!isset($user['premium']) || ($user['premium'] == 0 && $premium == 1)) {
-                        $insertCardQuery = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
-                        $stmt = $conn->prepare($insertCardQuery);
-                        $stmt->bind_param("isss", $userId, $intestatario, $carta, $data_scadenza);
-                        $stmt->execute();
-                        $stmt->close();
+                    // Controllo se il numero della carta è già in uso
+                    $checkCardQuery = "SELECT id_utente FROM premium WHERE numero_carta = ? AND id_utente != ?";
+                    $stmt = $conn->prepare($checkCardQuery);
+                    $stmt->bind_param("si", $carta, $userId);
+                    $stmt->execute();
+                    $stmt->store_result();
+
+                    if ($stmt->num_rows > 0) {
+                        $carta_err = "Questo numero di carta è già stato utilizzato da un altro utente.";
                     } else {
-                        $updateCardQuery = "UPDATE premium SET intestatario = ?, numero_carta = ?, data_scadenza = ? WHERE id_utente = ?";
-                        $stmt = $conn->prepare($updateCardQuery);
-                        $stmt->bind_param("sssi", $intestatario, $carta, $data_scadenza, $userId);
-                        $stmt->execute();
-                        $stmt->close();
+                        if (!isset($user['premium']) || ($user['premium'] == 0 && $premium == 1)) {
+                            $insertCardQuery = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
+                            $stmt = $conn->prepare($insertCardQuery);
+                            $stmt->bind_param("isss", $userId, $intestatario, $carta, $data_scadenza);
+                            $stmt->execute();
+                            $stmt->close();
+                        } else {
+                            $updateCardQuery = "UPDATE premium SET intestatario = ?, numero_carta = ?, data_scadenza = ? WHERE id_utente = ?";
+                            $stmt = $conn->prepare($updateCardQuery);
+                            $stmt->bind_param("sssi", $intestatario, $carta, $data_scadenza, $userId);
+                            $stmt->execute();
+                            $stmt->close();
+                        }
                     }
+
+                    $stmt->close();
                 }
             } elseif (isset($user['premium']) && $user['premium'] == 1) {
                 $deleteCardQuery = "DELETE FROM premium WHERE id_utente = ?";
@@ -186,6 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->execute();
                 $stmt->close();
             }
+
 
             if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
                 if (!empty($updateFields)) {

@@ -158,7 +158,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute();
             $stmt->store_result();
             if ($stmt->num_rows > 0) {
-                $carta_err = "Questo numero di carta è già stato registrato da un altro utente.";
+                $carta_err = "Questo numero di carta è già stato utilizzato da un altro utente.";
+
             }
             $stmt->close();
         }
