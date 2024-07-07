@@ -513,6 +513,19 @@ if ($action == 'edit_post') {
                                                     <label for="edit_blog_description_<?php echo $blog['id_blog']; ?>">Nuova descrizione</label>
                                                     <textarea name="edit_blog_description" id="edit_blog_description_<?php echo $blog['id_blog']; ?>" class="form-control"><?php echo htmlspecialchars($blog['descrizione']); ?></textarea>
                                                 </div>
+                                                <div class="form-group">
+                                                <label for="edit_blog_coauthor_<?php echo $blog['id_blog']; ?>">Coautore</label>
+                                                <select name="edit_blog_coauthor" id="edit_blog_coauthor_<?php echo $blog['id_blog']; ?>" class="form-control">
+                                                    <option value="">Seleziona un nuovo coautore</option>
+                                                    <?php foreach ($users as $user): ?>
+                                                        <option value="<?php echo $user['id_utente']; ?>" <?php if ($user['id_utente'] == $blog['id_coautore']) echo 'selected'; ?>>
+                                                            <?php echo htmlspecialchars($user['username']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                    <option value="remove">Rimuovi coautore attuale</option>
+                                                </select>
+                                            </div>
+                                                
                                             </form>
                                         </div>
                                         <div class="modal-footer">
@@ -534,71 +547,69 @@ if ($action == 'edit_post') {
                             $stmt->close();
                             ?>
 
-                            <?php if (!empty($posts)): ?>
-                                <div class="posts-container">
-                                    <h4 class="mt-3">Post:</h4>
-                                    <?php foreach ($posts as $post): ?>
-                                        <div class="card mb-3">
-                                            <div class="card-body">
-                                                <h5 class="card-title"><?php echo $post['titolo_post']; ?></h5>
-                                                <p class="card-text"><?php echo $post['descrizione_post']; ?></p>
-                                                
-                                                <?php
-                                                // Decodifica le immagini dal formato JSON
-                                                $images = json_decode($post['img_post'], true);
-                                                if (is_array($images) && count($images) > 0): 
-                                                ?>
-                                                    <div class="post-images">
-                                                        <?php foreach ($images as $image): ?>
-                                                            <img src="../photo_post/<?php echo $image; ?>" class="img-fluid mb-2" alt="Immagine del Post">
-                                                        <?php endforeach; ?>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <img src="../photo_post/<?php echo $post['img_post']; ?>" class="img-fluid mb-2" alt="Immagine del Post">
-                                                <?php endif; ?>
-
-                                                <div>
-                                                    <button class="btn btn-primary mr-2" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
-                                                    <a href="../pubblico/my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
+                        <?php if (!empty($posts)): ?>
+                            <div class="posts-container">
+                                <h4 class="mt-3">Post:</h4>
+                                <?php foreach ($posts as $post): ?>
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h5>
+                                            <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
+                                            
+                                            <?php
+                                            // Decodifica le immagini dal formato JSON
+                                            $images = json_decode($post['img_post'], true);
+                                            if (is_array($images) && count($images) > 0): 
+                                            ?>
+                                                <div class="post-images">
+                                                    <?php foreach ($images as $image): ?>
+                                                        <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-fluid mb-2" alt="Immagine del Post">
+                                                    <?php endforeach; ?>
                                                 </div>
+                                            <?php endif; ?>
 
-                                                <!-- Recupero dei commenti per questo post -->
-                                                <?php
-                                                $commentsQuery = "SELECT c.id_comm, c.contenuto, c.data_comm, u.username, u.img_profilo
-                                                                FROM commento c
-                                                                INNER JOIN utente u ON c.id_utente = u.id_utente
-                                                                WHERE c.id_post = ?";
-                                                $stmt_comments = $conn->prepare($commentsQuery);
-                                                $stmt_comments->bind_param("i", $post['id_post']);
-                                                $stmt_comments->execute();
-                                                $commentsResult = $stmt_comments->get_result();
-                                                $comments = $commentsResult->fetch_all(MYSQLI_ASSOC);
-                                                $stmt_comments->close();
-                                                ?>
+                                            <div>
+                                                <button class="btn btn-primary mr-2" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
+                                                <a href="../pubblico/my_profile.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
+                                            </div>
 
-                                                <?php if (!empty($comments)): ?>
-                                                    <div class="comments-container mt-4">
-                                                        <?php foreach ($comments as $comment): ?>
-                                                            <div class="comment-item mb-3 p-3 rounded">
-                                                                <div class="comment-header d-flex align-items-center">
-                                                                    <?php if (!empty($comment['img_profilo'])): ?>
-                                                                        <img src="../uploads/<?php echo $comment['img_profilo']; ?>" class="rounded-circle mr-2" width="40" height="40" alt="Immagine profilo">
-                                                                    <?php endif; ?>
-                                                                    <strong><?php echo $comment['username']; ?></strong>
-                                                                    <span class="ml-auto text-muted"><?php echo $comment['data_comm']; ?></span>
-                                                                    <!-- Aggiungi un'icona per eliminare il commento -->
-                                                                    <a href="../pubblico/my_profile.php?action=delete_comment&id_comm=<?php echo $comment['id_comm']; ?>" class="ml-2 text-danger" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
-                                                                        <i class="fas fa-times"></i>
-                                                                    </a>
-                                                                </div>
-                                                                <div class="comment-content mt-2">
-                                                                    <?php echo $comment['contenuto']; ?>
-                                                                </div>
+                                            <!-- Recupero dei commenti per questo post -->
+                                            <?php
+                                            $commentsQuery = "SELECT c.id_comm, c.contenuto, c.data_comm, u.username, u.img_profilo
+                                                            FROM commento c
+                                                            INNER JOIN utente u ON c.id_utente = u.id_utente
+                                                            WHERE c.id_post = ?";
+                                            $stmt_comments = $conn->prepare($commentsQuery);
+                                            $stmt_comments->bind_param("i", $post['id_post']);
+                                            $stmt_comments->execute();
+                                            $commentsResult = $stmt_comments->get_result();
+                                            $comments = $commentsResult->fetch_all(MYSQLI_ASSOC);
+                                            $stmt_comments->close();
+                                            ?>
+
+                                            <?php if (!empty($comments)): ?>
+                                                <div class="comments-container mt-4">
+                                                    <?php foreach ($comments as $comment): ?>
+                                                        <div class="comment-item mb-3 p-3 rounded">
+                                                            <div class="comment-header d-flex align-items-center">
+                                                                <?php if (!empty($comment['img_profilo'])): ?>
+                                                                    <img src="../uploads/<?php echo htmlspecialchars($comment['img_profilo']); ?>" class="rounded-circle mr-2" width="40" height="40" alt="Immagine profilo">
+                                                                <?php endif; ?>
+                                                                <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
+                                                                <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
+                                                                <!-- Aggiungi un'icona per eliminare il commento -->
+                                                                <a href="../pubblico/my_profile.php?action=delete_comment&id_comm=<?php echo $comment['id_comm']; ?>" class="ml-2 text-danger" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
+                                                                    <i class="fas fa-times"></i>
+                                                                </a>
                                                             </div>
-                                                        <?php endforeach; ?>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <p class="mt-3">Nessun commento disponibile.</p>
+                                                            <div class="comment-content mt-2">
+                                                                <?php echo htmlspecialchars($comment['contenuto']); ?>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <p class="mt-3">Nessun commento disponibile.</p>
                                                 <?php endif; ?>
 
                                                 <!-- Modale per la modifica del post -->
