@@ -251,8 +251,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                 <p><strong>Genere:</strong> <?php echo htmlspecialchars($user['genere']); ?></p>
                 <p><strong>Numero di Telefono:</strong> <?php echo htmlspecialchars($user['numero_telefono']); ?></p>
                 <div class="form-group">
-                <label for="bio">Bio:</label>
-                <p id="currentBio"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></p>
+                    <label for="bio">Bio:</label>
+                    <p id="currentBio"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></p>
                 </div>
                 <!-- bottone per aprire il modale di modifica della bio  -->
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editBioModal">Modifica Bio</button>
@@ -270,7 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="bio">Nuova Bio:</label>
-                        <textarea class="form-control" id="bio" name="bio" rows="3"><?php echo htmlspecialchars($user['bio']); ?></textarea>
+                        <textarea class="form-control" id="bio" name="bio" rows="3"><?php echo $user['bio']; ?></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
