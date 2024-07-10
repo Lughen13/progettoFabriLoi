@@ -56,6 +56,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_bio'])) {
     }
 }
 
+
+
+// Recupero informazioni utente
+$userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, numero_telefono FROM utente WHERE id_utente = ?";
+$stmt = $conn->prepare($userQuery);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
+
+
 // Caricamento dell'immagine del profilo
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['img_profilo'])) {
     $imgFile = $_FILES['img_profilo'];
@@ -91,14 +103,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['img_profilo'])) {
     }
 }
 
-// Recupero informazioni utente
-$userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, numero_telefono FROM utente WHERE id_utente = ?";
-$stmt = $conn->prepare($userQuery);
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-$stmt->close();
+
+// Recupero informazioni utente ---> questa query è stata messa prima del blocco dell'immagine perchè avevo busogno di recupeerare username id e img. 
+// $userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, numero_telefono FROM utente WHERE id_utente = ?";
+// $stmt = $conn->prepare($userQuery);
+// $stmt->bind_param("i", $userId);
+// $stmt->execute();
+// $result = $stmt->get_result();
+// $user = $result->fetch_assoc();
+// $stmt->close();
 
 // Caricamento dei blog dell'utente con il nome della categoria
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, b.id_categoria, c.nome_categoria 
@@ -221,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
             <div class="col-md-4">
                 <h3>Informazioni Personali</h3>
                 <?php if (!empty($user['img_profilo'])): ?>
-                    <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>" alt="Immagine del profilo" class="img-thumbnail mb-3">
+                    <img src="../uploads/<?php echo $user['img_profilo']; ?>" alt="Immagine del profilo" class="img-thumbnail mb-3">
                 <?php endif; ?>
                 <form action="my_profile.php" method="post" enctype="multipart/form-data">
                     <div class="form-group">
@@ -238,13 +251,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                 <p><strong>Genere:</strong> <?php echo htmlspecialchars($user['genere']); ?></p>
                 <p><strong>Numero di Telefono:</strong> <?php echo htmlspecialchars($user['numero_telefono']); ?></p>
                 <div class="form-group">
-                <label for="bio">Bio:</label>
-                <p id="currentBio"><?php echo htmlspecialchars($user['bio']); ?></p>
+                    <label for="bio">Bio:</label>
+                    <p id="currentBio"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></p>
                 </div>
-                                <!-- Button per aprire la modal -->
+                <!-- bottone per aprire il modale di modifica della bio  -->
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editBioModal">Modifica Bio</button>
 
-                 <!-- Modal Modifica Bio -->
 <div class="modal fade" id="editBioModal" tabindex="-1" role="dialog" aria-labelledby="editBioModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -258,7 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="bio">Nuova Bio:</label>
-                        <textarea class="form-control" id="bio" name="bio" rows="3"><?php echo htmlspecialchars($user['bio']); ?></textarea>
+                        <textarea class="form-control" id="bio" name="bio" rows="3"><?php echo $user['bio']; ?></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
