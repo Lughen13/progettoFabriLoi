@@ -16,7 +16,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 $userId = $_SESSION['id'];
 
 // recupero genere e username dell'utente per gestire il benvenuto
-$query = "SELECT genere, username FROM utente WHERE id_utente = ?";
+$query = "SELECT genere, username, premium FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $userId);
 $stmt->execute();
@@ -24,6 +24,7 @@ $result = $stmt->get_result();
 $row = $result->fetch_assoc();
 $genere = $row['genere'];
 $username = $row['username'];
+$isPremium = $row['premium'];
 $stmt->close();
 function Saluta($genere) {
     if ($genere === 'Maschio') {
@@ -159,66 +160,66 @@ $stmt->close();
 
         <!-- Sezione per le categorie con loghi -->
         <div class="row">
-    <div class="col-md-12 mb-4">
-        <h2> A cosa sei <?php echo $interesse ?>?  </h2>
-        <div class="row">
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Tecnologia">
-                    <div class="category-logo"><i class="fas fa-laptop-code"></i></div>
-                    <p>Tecnologia</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Moda">
-                    <div class="category-logo"><i class="fas fa-tshirt"></i></div>
-                    <p>Moda</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Tempo libero">
-                    <div class="category-logo"><i class="fas fa-theater-masks"></i></div>
-                    <p>Tempo libero</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Viaggi">
-                    <div class="category-logo"><i class="fas fa-plane"></i></div>
-                    <p>Viaggi</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Cucina">
-                    <div class="category-logo"><i class="fas fa-utensils"></i></div>
-                    <p>Cucina</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Scienze">
-                    <div class="category-logo"><i class="fas fa-flask"></i></div>
-                    <p>Scienze</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Recensioni">
-                    <div class="category-logo"><i class="fas fa-star"></i></div>
-                    <p>Recensioni</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Arredamento">
-                    <div class="category-logo"><i class="fas fa-couch"></i></div>
-                    <p>Arredamento</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Altro">
-                    <div class="category-logo"><i class="fas fa-ellipsis-h"></i></div>
-                    <p>Altro</p>
-                </a>
-            </div>
+            <?php if ($isPremium) : ?>
+                <h2>   A cosa sei <?php echo $interesse ?>?  </h2>
+                <div class="row">
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Tecnologia">
+                            <div class="category-logo"><i class="fas fa-laptop-code"></i></div>
+                            <p>Tecnologia</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Moda">
+                            <div class="category-logo"><i class="fas fa-tshirt"></i></div>
+                            <p>Moda</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Tempo libero">
+                            <div class="category-logo"><i class="fas fa-theater-masks"></i></div>
+                            <p>Tempo libero</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Viaggi">
+                            <div class="category-logo"><i class="fas fa-plane"></i></div>
+                            <p>Viaggi</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Cucina">
+                            <div class="category-logo"><i class="fas fa-utensils"></i></div>
+                            <p>Cucina</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Scienze">
+                            <div class="category-logo"><i class="fas fa-flask"></i></div>
+                            <p>Scienze</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Recensioni">
+                            <div class="category-logo"><i class="fas fa-star"></i></div>
+                            <p>Recensioni</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Arredamento">
+                            <div class="category-logo"><i class="fas fa-couch"></i></div>
+                            <p>Arredamento</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Altro">
+                            <div class="category-logo"><i class="fas fa-ellipsis-h"></i></div>
+                            <p>Altro</p>
+                        </a>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
-    </div>
-</div>
 
         <!-- Sezione per i blog preferiti -->
         <div class="row">
