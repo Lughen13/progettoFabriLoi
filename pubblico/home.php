@@ -272,51 +272,48 @@ $stmt->close();
 
                         <!-- Sidebar per Notifiche -->
                                 <!-- Sidebar per Notifiche -->
-                    <div class="col-md-4">
-                        <div class="card sidebar">
-                            <div class="card-body">
-                                <h5 class="card-title">Notifiche recenti</h5>
-                                <ul class="list-group">
-                                    <?php
-                                    // Query per ottenere le notifiche recenti
-                                    $id_utente_corrente = $_SESSION['id']; // o come ottieni l'id dell'utente corrente
-                                    $queryNotifiche = "SELECT n.id, n.data, u.username, n.tipo, n.contenuto_id
-                                                    FROM notifiche n
-                                                    JOIN utente u ON n.sender_id = u.id_utente
-                                                    WHERE n.user_id = '$id_utente_corrente'
-                                                    ORDER BY n.data DESC
-                                                    LIMIT 5";
-                                    $resultNotifiche = mysqli_query($conn, $queryNotifiche);
-
-                                    // Output delle notifiche recenti
+            <div class="col-md-4">
+                <div class="card sidebar">                        
+                    <div class="card-body">
+                        <h5 class="card-title">Notifiche recenti</h5>
+                        <ul class="list-group">
+                            <?php
+                            // Query per ottenere le notifiche recenti
+                            $id_utente_corrente = $_SESSION['id']; // o come ottieni l'id dell'utente corrente
+                            $queryNotifiche = "SELECT n.id, n.data, u.username, n.tipo, n.contenuto_id
+                                                FROM notifiche n
+                                                JOIN utente u ON n.sender_id = u.id_utente
+                                                WHERE n.user_id = '$id_utente_corrente'
+                                                ORDER BY n.data DESC
+                                                LIMIT 5";
+                                                $resultNotifiche = mysqli_query($conn, $queryNotifiche);
+                                    
+                                                // Output delle notifiche recenti            
                                     while ($notifica = $resultNotifiche->fetch_assoc()) {
-                        $notificaUsername = htmlspecialchars($notifica['username']);
-                        $tipo = htmlspecialchars($notifica['tipo']);
-                        $contenutoId = htmlspecialchars($notifica['contenuto_id']);
-                        $data = htmlspecialchars($notifica['data']);
-                        $icon = '';
-
-                        switch ($tipo) {
-                            case 'comment':
-                                $icon = 'fas fa-comment';
-                                $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
-                                break;
-                            case 'like':
-                                $icon = 'fas fa-thumbs-up';
-                                $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
-                                break;
-                            case 'follow':
-                                $icon = 'fas fa-user-plus';
-                                $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
-                                break;
-                        }
-
-                        echo "<li class='list-group-item'><i class='$icon text-primary'></i> $tipo da: <a href='$link'>$notificaUsername</a> il $data</li>";
-                    }
-
-                    if ($resultNotifiche->num_rows == 0) {
-                        echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
-                    }
+                                        $notificaUsername = htmlspecialchars($notifica['username']);
+                                        $tipo = htmlspecialchars($notifica['tipo']);
+                                        $contenutoId = htmlspecialchars($notifica['contenuto_id']);
+                                        $data = htmlspecialchars($notifica['data']);
+                                        $icon = '';
+                                        switch ($tipo) {
+                                            case 'comment':
+                                                $icon = 'fas fa-comment';
+                                                $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
+                                                break;
+                                            case 'like':
+                                                $icon = 'fas fa-thumbs-up';
+                                                $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
+                                                break;
+                                            case 'follow':
+                                                $icon = 'fas fa-user-plus';
+                                                $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
+                                                break;
+                                        }
+                                        echo "<li class='list-group-item'><i class='$icon text-primary'></i> $tipo da: <a href='$link'>$notificaUsername</a> il $data</li>";
+                                    }
+                                    if ($resultNotifiche->num_rows == 0) {
+                                        echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
+                                    }
                     ?>
                 </ul>
             </div>
