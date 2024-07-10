@@ -25,7 +25,7 @@ info tecniche
 - satandard non può fare il pdf della pagina 
 - standard ha uno stile di defoult per il blog 
 - premium non ha nessun tipo di limitazioni 
-
+- aggiunto un sistema di notifiche per tutti gli utenti che comprendono le ultime 5, riguardano i follow, mi piace e commenti.
 
 
 
