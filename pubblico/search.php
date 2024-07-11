@@ -1,33 +1,39 @@
-
-
 <?php
 require_once '../configurazione/conn.php';
 
+// Inizializza le variabili
+$blogResult = null;
+$postResult = null;
+$searchQuery = '';
+
 // Verifica se è stato passato un parametro di ricerca o una categoria
 if (isset($_GET['query'])) {
-    $searchQuery = $_GET['query'];
+    $searchQuery = trim($_GET['query']);
 
-    // Query per cercare nei blog
-    $blogQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, u.username, c.nome_categoria
-                  FROM blog b
-                  JOIN utente u ON b.id_proprietario = u.id_utente
-                  JOIN categoria c ON b.id_categoria = c.id_categoria
-                  WHERE b.titolo_blog LIKE '%$searchQuery%'
-                  OR b.descrizione LIKE '%$searchQuery%'
-                  OR u.username LIKE '%$searchQuery%'
-                  OR c.nome_categoria LIKE '%$searchQuery%'";
-    $blogResult = $conn->query($blogQuery);
+    // Se la ricerca è vuota o contiene solo spazi, mostra un messaggio o non eseguire la query
+    if (!empty($searchQuery)) {
+        // Query per cercare nei blog
+        $blogQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, u.username, c.nome_categoria
+                      FROM blog b
+                      JOIN utente u ON b.id_proprietario = u.id_utente
+                      JOIN categoria c ON b.id_categoria = c.id_categoria
+                      WHERE b.titolo_blog LIKE '%$searchQuery%'
+                      OR b.descrizione LIKE '%$searchQuery%'
+                      OR u.username LIKE '%$searchQuery%'
+                      OR c.nome_categoria LIKE '%$searchQuery%'";
+        $blogResult = $conn->query($blogQuery);
 
-    // Query per cercare nei post
-    $postQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, u.username, b.titolo_blog, p.id_blog
-                  FROM post p
-                  JOIN utente u ON p.id_autore = u.id_utente
-                  JOIN blog b ON p.id_blog = b.id_blog
-                  WHERE p.titolo_post LIKE '%$searchQuery%'
-                  OR p.descrizione_post LIKE '%$searchQuery%'
-                  OR u.username LIKE '%$searchQuery%'
-                  OR b.titolo_blog LIKE '%$searchQuery%'";
-    $postResult = $conn->query($postQuery);
+        // Query per cercare nei post
+        $postQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, u.username, b.titolo_blog, p.id_blog
+                      FROM post p
+                      JOIN utente u ON p.id_autore = u.id_utente
+                      JOIN blog b ON p.id_blog = b.id_blog
+                      WHERE p.titolo_post LIKE '%$searchQuery%'
+                      OR p.descrizione_post LIKE '%$searchQuery%'
+                      OR u.username LIKE '%$searchQuery%'
+                      OR b.titolo_blog LIKE '%$searchQuery%'";
+        $postResult = $conn->query($postQuery);
+    }
 } elseif (isset($_GET['categoria'])) {
     $categoria = $_GET['categoria'];
 
@@ -63,26 +69,13 @@ if (isset($_GET['query'])) {
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
     </style>
 </head>
 <body>
-    <!-- Intestazione
-    <header class="bg-dark text-white py-4">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col">
-                    <h1 class="text-center">Risultati della ricerca</h1>
-                </div>
-            </div>
-        </div>
-    </header> -->
-
     <!-- Menu di navigazione -->
     <div class="container mt-4">
         <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-         <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -94,7 +87,7 @@ if (isset($_GET['query'])) {
                     <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
                 </ul>
                 <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post" value="<?php echo htmlspecialchars($searchQuery); ?>">
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
                 </form>
             </div>
@@ -103,7 +96,7 @@ if (isset($_GET['query'])) {
     <!-- Contenuto principale -->
     <main class="py-4">
         <div class="container">
-            <?php if (isset($blogResult) && $blogResult->num_rows > 0): ?>
+            <?php if (!empty($searchQuery) && isset($blogResult) && $blogResult->num_rows > 0): ?>
                 <section>
                     <h2 class="text-center mb-4">Risultati della ricerca per "<?php echo htmlspecialchars($searchQuery); ?>"</h2>
                     <div class="list-group">
@@ -119,7 +112,7 @@ if (isset($_GET['query'])) {
                 </section>
             <?php endif; ?>
 
-            <?php if (isset($postResult) && $postResult->num_rows > 0): ?>
+            <?php if (!empty($searchQuery) && isset($postResult) && $postResult->num_rows > 0): ?>
                 <section>
                     <h2 class="text-center mb-4">Risultati della ricerca per i post:</h2>
                     <div class="list-group">
@@ -135,7 +128,7 @@ if (isset($_GET['query'])) {
                 </section>
             <?php endif; ?>
 
-            <?php if ((!isset($blogResult) || $blogResult->num_rows === 0) && (!isset($postResult) || $postResult->num_rows === 0)): ?>
+            <?php if (empty($searchQuery) || ((!isset($blogResult) || $blogResult->num_rows === 0) && (!isset($postResult) || $postResult->num_rows === 0))): ?>
                 <section>
                     <p class="text-center">Nessun risultato trovato per la ricerca "<strong><?php echo htmlspecialchars($searchQuery); ?></strong>".</p>
                 </section>

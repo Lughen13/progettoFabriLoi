@@ -87,6 +87,11 @@ info tecniche
       <td>solo 1</td>
     </tr>
     <tr>
+      <td>co_Autore</td>
+      <td>Si</td>
+      <td>No</td>
+    </tr>
+    <tr>
       <td>POST</td>
       <td>illimitati</td>
       <td>solo 1 per ogni blog</td>

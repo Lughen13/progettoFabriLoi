@@ -27,6 +27,9 @@ $stmt->close();
 // Recupera eventuali messaggi di errore da process_create_post.php
 $errorMsg = isset($_SESSION['error_msg']) ? $_SESSION['error_msg'] : '';
 unset($_SESSION['error_msg']);
+
+// Determina il numero massimo di immagini consentite in base allo stato premium dell'utente
+$maxImages = $_SESSION['premium'] ? 3 : 1;
 ?>
 
 <!DOCTYPE html>
@@ -86,6 +89,9 @@ unset($_SESSION['error_msg']);
         .success {
             color: green;
         }
+        .premium-only {
+            display: none; /* Nasconde il blocco per utenti standard */
+        }
     </style>
 </head>
 <body>
@@ -113,13 +119,24 @@ unset($_SESSION['error_msg']);
             <option value="">Seleziona una sottocategoria</option>
         </select>
 
-        <label for="images">Immagini del post (opzionale, massimo 3):</label>
-        <input type="file" name="immagini[]" id="image1">
-        <input type="file" name="immagini[]" id="image2">
-        <input type="file" name="immagini[]" id="image3">
+        <!-- Mostra solo per utenti premium -->
+        <div class="premium-only">
+            <label for="images">Immagini del post (massimo 3):</label>
+            <input type="file" name="immagini[]" id="image1">
+            <input type="file" name="immagini[]" id="image2">
+            <input type="file" name="immagini[]" id="image3">
+        </div>
+
+        <!-- Mostra solo per utenti standard -->
+        <div>
+            <label for="image">Immagine del post (massimo 1):</label>
+            <input type="file" name="immagine" id="image">
+        </div>
 
         <input type="submit" value="Crea post">
     </form>
+        
+    <a href="../pubblico/home.php" class="button">Torna alla Home</a>
 
     <script>
     $(document).ready(function() {
@@ -141,6 +158,12 @@ unset($_SESSION['error_msg']);
                 $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
             }
         });
+
+        // Mostra/nascondi i campi immagine in base allo stato premium dell'utente
+        var maxImages = <?php echo $maxImages; ?>;
+        if (maxImages === 1) {
+            $('.premium-only').hide();
+        }
     });
     </script>
 </body>
