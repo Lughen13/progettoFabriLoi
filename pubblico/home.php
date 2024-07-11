@@ -16,7 +16,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 $userId = $_SESSION['id'];
 
 // recupero genere e username dell'utente per gestire il benvenuto
-$query = "SELECT genere, username FROM utente WHERE id_utente = ?";
+$query = "SELECT genere, username, premium FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $userId);
 $stmt->execute();
@@ -24,6 +24,7 @@ $result = $stmt->get_result();
 $row = $result->fetch_assoc();
 $genere = $row['genere'];
 $username = $row['username'];
+$isPremium = $row['premium'];
 $stmt->close();
 function Saluta($genere) {
     if ($genere === 'Maschio') {
@@ -122,103 +123,105 @@ $stmt->close();
             text-align: center;
             margin-bottom: 20px;
         }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .navbar {
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Ciao <?php echo htmlspecialchars($username); ?></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="../pubblico/home.php">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="../pubblico/logout.php">Logout</a>
-                </li>
-            </ul>
-            <form class="form-inline my-2 my-lg-0" action="../pubblico/search.php" method="GET">
-                <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-            </form>
-        </div>
-    </nav>
+<div class="container mt-4">
+        <h1>ToteBlog</h1>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+         <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
+                </ul>
+                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+                </form>
+            </div>
+        </nav>
 
     <div class="container mt-5">
         <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
 
         <!-- Sezione per le categorie con loghi -->
         <div class="row">
-    <div class="col-md-12 mb-4">
-        <h2> A cosa sei <?php echo $interesse ?>?  </h2>
-        <div class="row">
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Tecnologia">
-                    <div class="category-logo"><i class="fas fa-laptop-code"></i></div>
-                    <p>Tecnologia</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Moda">
-                    <div class="category-logo"><i class="fas fa-tshirt"></i></div>
-                    <p>Moda</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Tempo libero">
-                    <div class="category-logo"><i class="fas fa-theater-masks"></i></div>
-                    <p>Tempo libero</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Viaggi">
-                    <div class="category-logo"><i class="fas fa-plane"></i></div>
-                    <p>Viaggi</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Cucina">
-                    <div class="category-logo"><i class="fas fa-utensils"></i></div>
-                    <p>Cucina</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Scienze">
-                    <div class="category-logo"><i class="fas fa-flask"></i></div>
-                    <p>Scienze</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Recensioni">
-                    <div class="category-logo"><i class="fas fa-star"></i></div>
-                    <p>Recensioni</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Arredamento">
-                    <div class="category-logo"><i class="fas fa-couch"></i></div>
-                    <p>Arredamento</p>
-                </a>
-            </div>
-            <div class="col-md-2 category-card">
-                <a href="../pubblico/search.php?categoria=Altro">
-                    <div class="category-logo"><i class="fas fa-ellipsis-h"></i></div>
-                    <p>Altro</p>
-                </a>
-            </div>
+            <?php if ($isPremium) : ?>
+                <h2>   A cosa sei <?php echo $interesse ?>?  </h2>
+                <div class="row">
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Tecnologia">
+                            <div class="category-logo"><i class="fas fa-laptop-code"></i></div>
+                            <p>Tecnologia</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Moda">
+                            <div class="category-logo"><i class="fas fa-tshirt"></i></div>
+                            <p>Moda</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Tempo libero">
+                            <div class="category-logo"><i class="fas fa-theater-masks"></i></div>
+                            <p>Tempo libero</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Viaggi">
+                            <div class="category-logo"><i class="fas fa-plane"></i></div>
+                            <p>Viaggi</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Cucina">
+                            <div class="category-logo"><i class="fas fa-utensils"></i></div>
+                            <p>Cucina</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Scienze">
+                            <div class="category-logo"><i class="fas fa-flask"></i></div>
+                            <p>Scienze</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Recensioni">
+                            <div class="category-logo"><i class="fas fa-star"></i></div>
+                            <p>Recensioni</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Arredamento">
+                            <div class="category-logo"><i class="fas fa-couch"></i></div>
+                            <p>Arredamento</p>
+                        </a>
+                    </div>
+                    <div class="col-md-2 category-card">
+                        <a href="../pubblico/search.php?categoria=Altro">
+                            <div class="category-logo"><i class="fas fa-ellipsis-h"></i></div>
+                            <p>Altro</p>
+                        </a>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
-    </div>
-</div>
 
         <!-- Sezione per i blog preferiti -->
         <div class="row">
@@ -271,52 +274,54 @@ $stmt->close();
 
                         <!-- Sidebar per Notifiche -->
                                 <!-- Sidebar per Notifiche -->
-                    <div class="col-md-4">
-                        <div class="card sidebar">
-                            <div class="card-body">
-                                <h5 class="card-title">Notifiche recenti</h5>
-                                <ul class="list-group">
-                                    <?php
-                                    // Query per ottenere le notifiche recenti
-                                    $id_utente_corrente = $_SESSION['id']; // o come ottieni l'id dell'utente corrente
-                                    $queryNotifiche = "SELECT n.id, n.data, u.username, n.tipo, n.contenuto_id
-                                                    FROM notifiche n
-                                                    JOIN utente u ON n.sender_id = u.id_utente
-                                                    WHERE n.user_id = '$id_utente_corrente'
-                                                    ORDER BY n.data DESC
-                                                    LIMIT 5";
-                                    $resultNotifiche = mysqli_query($conn, $queryNotifiche);
+            <div class="col-md-4">
+                <div class="card sidebar">                        
+                    <div class="card-body">
+                        <h5 class="card-title">Notifiche recenti</h5>
+                        <ul class="list-group">
+                            <?php
+                            // Query per ottenere le notifiche recenti
+                            $id_utente_corrente = $_SESSION['id'];
 
-                                    // Output delle notifiche recenti
-                                    while ($notifica = $resultNotifiche->fetch_assoc()) {
-                        $notificaUsername = htmlspecialchars($notifica['username']);
-                        $tipo = htmlspecialchars($notifica['tipo']);
-                        $contenutoId = htmlspecialchars($notifica['contenuto_id']);
-                        $data = htmlspecialchars($notifica['data']);
-                        $icon = '';
-
-                        switch ($tipo) {
-                            case 'comment':
-                                $icon = 'fas fa-comment';
-                                $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
-                                break;
-                            case 'like':
-                                $icon = 'fas fa-thumbs-up';
-                                $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
-                                break;
-                            case 'follow':
-                                $icon = 'fas fa-user-plus';
-                                $link = "../pubblico/view_blog.php?id_blog=$contenutoId";
-                                break;
+                            // Query per ottenere le notifiche recenti
+                            $queryNotifiche = "SELECT n.id, n.data, u.username, n.tipo, n.contenuto_id
+                                            FROM notifiche n
+                                            JOIN utente u ON n.sender_id = u.id_utente
+                                            WHERE n.user_id = ?
+                                            ORDER BY n.data DESC
+                                            LIMIT 5";
+                            $stmtNotifiche = $conn->prepare($queryNotifiche);
+                            $stmtNotifiche->bind_param("i", $id_utente_corrente);
+                            $stmtNotifiche->execute();
+                            $resultNotifiche = $stmtNotifiche->get_result();
+        
+                            // Output delle notifiche recenti
+                            while ($notifica = $resultNotifiche->fetch_assoc()) {
+                                $notificaUsername = htmlspecialchars($notifica['username']);
+                                $tipo = htmlspecialchars($notifica['tipo']);
+                                $contenutoId = htmlspecialchars($notifica['contenuto_id']);
+                                $data = htmlspecialchars($notifica['data']);
+                                $icon = '';
+                                $link = '';
+        
+                                if ($tipo == 'comment' || $tipo == 'like') {
+                                    $icon = ($tipo == 'comment') ? 'fas fa-comment' : 'fas fa-thumbs-up';
+                                    $link = "my_blog.php#post-$contenutoId";
+                                } elseif ($tipo == 'follow') {
+                                    $icon = 'fas fa-user-plus';
+                                    $link = "my_blog.php#blog-$contenutoId";
+                                }
+        
+                                if (!empty($link)) {
+                                    echo "<li class='list-group-item'><i class='$icon text-primary'></i> $tipo da: <a href='$link'>$notificaUsername</a> il $data</li>";
+                                }
+                            }
+                            if ($resultNotifiche->num_rows == 0) {
+                                echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
+                        //     } else {
+                        //     echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
                         }
-
-                        echo "<li class='list-group-item'><i class='$icon text-primary'></i> $tipo da: <a href='$link'>$notificaUsername</a> il $data</li>";
-                    }
-
-                    if ($resultNotifiche->num_rows == 0) {
-                        echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
-                    }
-                    ?>
+                        ?>
                 </ul>
             </div>
         </div>

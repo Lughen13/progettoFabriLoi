@@ -186,7 +186,6 @@ if ($action == 'edit_post') {
     exit(); // Assicurati di terminare l'esecuzione dopo l'aggiornamento
 }
 
-
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -238,7 +237,8 @@ if ($action == 'edit_post') {
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-        }.container {
+        }.        
+        .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
@@ -310,9 +310,10 @@ if ($action == 'edit_post') {
     </style>
 </head>
 <body>
-    <div class="container mt-4"><h1>Il Mio Blog</h1>
+<div class="container mt-4">
+        <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-            <a class="navbar-brand" href="#">Il mio Blog</a>
+         <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -321,6 +322,7 @@ if ($action == 'edit_post') {
                     <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
                     <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
                 </ul>
                 <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
                     <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
