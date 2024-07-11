@@ -237,7 +237,8 @@ if ($action == 'edit_post') {
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-        }.container {
+        }.        
+        .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;

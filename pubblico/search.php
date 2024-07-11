@@ -51,10 +51,23 @@ if (isset($_GET['query'])) {
     <title>Risultati Ricerca</title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Font Awesome per icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
+    <style> 
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .navbar {
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+    </style>
 </head>
 <body>
-    <!-- Intestazione -->
+    <!-- Intestazione
     <header class="bg-dark text-white py-4">
         <div class="container">
             <div class="row justify-content-center">
@@ -63,34 +76,29 @@ if (isset($_GET['query'])) {
                 </div>
             </div>
         </div>
-    </header>
+    </header> -->
 
     <!-- Menu di navigazione -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">ToteBlog</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <div class="container mt-4">
+        <h1>ToteBlog</h1>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+         <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pubblico/home.php">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../pubblico/logout.php">Logout</a>
-                    </li>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
                 </ul>
+                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+                </form>
             </div>
-        </div>
-    </nav>
+        </nav>
 
     <!-- Contenuto principale -->
     <main class="py-4">
