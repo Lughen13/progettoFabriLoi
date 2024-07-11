@@ -186,7 +186,6 @@ if ($action == 'edit_post') {
     exit(); // Assicurati di terminare l'esecuzione dopo l'aggiornamento
 }
 
-
 ?>
 <!DOCTYPE html>
 <html lang="it">

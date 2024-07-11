@@ -103,16 +103,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['img_profilo'])) {
     }
 }
 
-
-// Recupero informazioni utente ---> questa query è stata messa prima del blocco dell'immagine perchè avevo busogno di recupeerare username id e img. 
-// $userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, numero_telefono FROM utente WHERE id_utente = ?";
-// $stmt = $conn->prepare($userQuery);
-// $stmt->bind_param("i", $userId);
-// $stmt->execute();
-// $result = $stmt->get_result();
-// $user = $result->fetch_assoc();
-// $stmt->close();
-
 // Caricamento dei blog dell'utente con il nome della categoria
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, b.id_categoria, c.nome_categoria 
                FROM blog b 
@@ -370,6 +360,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                 <!-- Bottone per creare un nuovo blog -->
 <div class="text-center">
     <a href="../pubblico/create_blog.php" class="btn btn-success btn-lg mt-4">Crea Nuovo Blog</a>
+    <a href=" ../pubblico/create_post.php" class="btn btn-success btn-lg mt-4">Crea Nuovo Post</a>
 </div>
             </div>
         </div>
