@@ -214,7 +214,7 @@ $conn->close();
                         <?php endif; ?>
 
                                                <!-- Visualizzazione dei commenti -->
-                                               <?php if (isset($comments[$post['id_post']])): ?>
+                        <?php if (isset($comments[$post['id_post']])): ?>
                             <h4>Commenti:</h4>
                             <?php foreach ($comments[$post['id_post']] as $comment): ?>
                                 <div class="card">
@@ -305,41 +305,46 @@ $conn->close();
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script>
-        $(document).ready(function() {
-            $('.edit-comment-btn').click(function() {
-                var commentId = $(this).data('comment-id');
-                $(this).closest('.card-body').find('.comment-text').hide();
-                $(this).closest('.card-body').find('.edit-comment-form').removeClass('d-none');
-            });
+$(document).ready(function() {
+    $('.edit-comment-btn').click(function() {
+        var commentId = $(this).data('comment-id');
+        $(this).closest('.card-body').find('.comment-text').hide();
+        $(this).closest('.card-body').find('.edit-comment-form').removeClass('d-none');
+    });
 
-            $('.cancel-edit-btn').click(function() {
-                $(this).closest('.edit-comment-form').addClass('d-none');
-                $(this).closest('.card-body').find('.comment-text').show();
-            });
+    $('.cancel-edit-btn').click(function() {
+        $(this).closest('.edit-comment-form').addClass('d-none');
+        $(this).closest('.card-body').find('.comment-text').show();
+    });
 
-            $('.like-btn').click(function() {
-                var postId = $(this).closest('.like-form').find('.post-id').val();
-                var blogId = $(this).closest('.like-form').find('.id-blog').val();
-                var action = $(this).data('action');
+    $('.like-btn').click(function() {
+        var button = $(this);
+        var postId = button.closest('.like-form').find('.post-id').val();
+        var action = button.data('action');
 
-                $.ajax({
-                    url: '../risorse/likes.php',
-                    type: 'POST',
-                    data: {
-                        post_id: postId,
-                        id_blog: blogId,
-                        action: action
-                    },
-                    success: function(response) {
-                        // Ricarica la pagina dopo aver aggiornato i Mi Piace
-                        location.reload();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
-                    }
-                });
-            });
+        $.ajax({
+            url: '../risorse/likes.php',
+            type: 'POST',
+            data: {
+                post_id: postId,
+                action: action
+            },
+            success: function(likeCount) {
+                // Aggiorna il testo del pulsante e il conteggio dei Mi Piace dinamicamente
+                if (action === 'like') {
+                    button.data('action', 'unlike');
+                    button.text('Togli Mi Piace (' + likeCount + ')');
+                } else {
+                    button.data('action', 'like');
+                    button.text('Mi Piace (' + likeCount + ')');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
+            }
         });
-    </script>
+    });
+});
+</script>
 </body>
 </html>

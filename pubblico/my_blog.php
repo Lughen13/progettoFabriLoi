@@ -185,7 +185,13 @@ if ($action == 'edit_post') {
     $stmt->close();
     exit(); // Assicurati di terminare l'esecuzione dopo l'aggiornamento
 }
-
+// Preparazione per la visualizzazione dei Mi Piace
+$likeCounts = [];
+$queryLikes = "SELECT id_post, COUNT(*) AS like_count FROM likes GROUP BY id_post";
+$resultLikes = $conn->query($queryLikes);
+while ($row = $resultLikes->fetch_assoc()) {
+    $likeCounts[$row['id_post']] = $row['like_count'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -340,6 +346,7 @@ if ($action == 'edit_post') {
                             <?php if (!empty($blog['img_logo'])): ?>
                                 <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog">
                             <?php endif; ?>
+
                             <div>
                                 <button class="btn btn-primary mr-2" onclick="showEditBlogModal(<?php echo $blog['id_blog']; ?>)">Modifica Blog</button>
                                 <a href="../pubblico/my_blog.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
@@ -421,7 +428,32 @@ if ($action == 'edit_post') {
                                                     <?php endforeach; ?>
                                                 </div>
                                             <?php endif; ?>
+                                            <div class="mt-3">
+                                                <?php
+                                                $totalLikes = isset($likeCounts[$post['id_post']]) ? $likeCounts[$post['id_post']] : 0;
+                                                $likeAction = 'like';
+                                                if ($_SESSION['loggedin'] === true) {
+                                                    include '../configurazione/conn.php';
 
+                                                    $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
+                                                    $stmt = $conn->prepare($likeQuery);
+                                                    $stmt->bind_param("ii", $post['id_post'], $userId);
+                                                    $stmt->execute();
+                                                    $likeResult = $stmt->get_result();
+                                                    if ($likeResult->num_rows > 0) {
+                                                        $likeAction = 'unlike';
+                                                    }
+                                                    $stmt->close();
+                                                }
+                                                ?>
+                                            </div>
+                                            <form class="like-form">
+                                                <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
+                                                <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
+                                                <button type="button" class="btn btn-success like-btn" data-action="<?php echo $likeAction; ?>">
+                                                    Mi Piace (<span class="like-count"><?php echo $totalLikes; ?></span>)
+                                                </button>
+                                            </form>
                                             <div>
                                                 <button class="btn btn-primary mr-2" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
                                                 <a href="../pubblico/my_blog.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
@@ -525,6 +557,7 @@ if ($action == 'edit_post') {
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script>
         function showEditBlogModal(blogId) {
@@ -574,6 +607,34 @@ if ($action == 'edit_post') {
             }
         });
     }
+
+    $('.like-btn').click(function() {
+        var button = $(this);
+        var postId = button.closest('.like-form').find('.post-id').val();
+        var action = button.data('action');
+
+        $.ajax({
+            url: '../risorse/likes.php',
+            type: 'POST',
+            data: {
+                post_id: postId,
+                action: action
+            },
+            success: function(likeCount) {
+                // Aggiorna il testo del pulsante e il conteggio dei Mi Piace dinamicamente
+                if (action === 'like') {
+                    button.data('action', 'unlike');
+                    button.text('Togli Mi Piace (' + likeCount + ')');
+                } else {
+                    button.data('action', 'like');
+                    button.text('Mi Piace (' + likeCount + ')');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
+            }
+        });
+    });
 </script>
 </body>
 </html>
