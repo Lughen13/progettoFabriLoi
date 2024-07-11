@@ -237,12 +237,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                 <?php if (!empty($user['img_profilo'])): ?>
                     <img src="../uploads/<?php echo $user['img_profilo']; ?>" alt="Immagine del profilo" class="img-thumbnail mb-3">
                 <?php endif; ?>
-                <form action="my_profile.php" method="post" enctype="multipart/form-data">
+                <form id="updateImgForm" action="my_profile.php" method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="img_profilo">Carica nuova immagine profilo</label>
-                        <input type="file" class="form-control-file" id="img_profilo" name="img_profilo">
+                        <input type="file" class="form-control-file" id="img_profilo" name="img_profilo" accept=".jpg, .jpeg, .png, .gif">
                     </div>
-                    <button type="submit" class="btn btn-primary">Aggiorna Immagine</button>
+                    <button type="submit" class="btn btn-primary" id="btnUpdateImg" disabled>Aggiorna Immagine</button>
                 </form>
                 <p><strong>Username:</strong> <?php echo htmlspecialchars($user['username']); ?></p>
                 <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
@@ -381,6 +381,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var inputImg = document.getElementById('img_profilo');
+        var btnUpdateImg = document.getElementById('btnUpdateImg');
+
+        inputImg.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                var fileName = this.files[0].name;
+                var extension = fileName.split('.').pop().toLowerCase();
+                var allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
+                if (allowedExtensions.includes(extension)) {
+                    btnUpdateImg.removeAttribute('disabled');
+                } else {
+                    btnUpdateImg.setAttribute('disabled', 'disabled');
+                    alert('Formato dell\'immagine non valido. Sono ammessi solo file JPG, JPEG, PNG o GIF.');
+                }
+            } else {
+                btnUpdateImg.setAttribute('disabled', 'disabled');
+            }
+        });
+    });
+</script>
 <script>
         $(document).ready(function() {
             $('#bioForm').on('submit', function(e) {
