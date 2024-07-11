@@ -197,13 +197,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
         .form-group label {
             font-weight: bold;
         }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .navbar {
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
-    <div class="container mt-4">
+<div class="container mt-4">
         <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-            <a class="navbar-brand" href="#">Il Mio Profilo</a>
+         <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -212,6 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                     <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
                     <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
                 </ul>
                 <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
                     <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
