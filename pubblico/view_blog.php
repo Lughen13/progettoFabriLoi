@@ -162,19 +162,19 @@ $conn->close();
         <p><?php echo htmlspecialchars(isset($blog['descrizione']) ? $blog['descrizione'] : ''); ?></p>
         <p>Follower: <?php echo $follow_count; ?></p>
 
-            <!-- Bottone per stampare il blog (visualizzato solo per utenti premium) -->
+        <!-- Bottone per stampare il blog (visualizzato solo per utenti premium) -->
+         
+        <?php if ($_SESSION['premium'] == 1): ?>
+            <button class="btn btn-primary mb-3" onclick="window.print();">Stampa Blog</button>
+        <?php endif; ?>
 
-            <?php if ($_SESSION['premium'] == 1) : ?>
-                <button class="btn btn-primary mb-3" onclick="window.print();">Stampa Blog</button>
-            <?php endif; ?>
 
-
-            <!-- Mostra il messaggio di errore se presente -->
-            <?php if (isset($_GET['error']) && $_GET['error'] === 'limite_superato') : ?>
-                <div class="alert alert-danger" role="alert">
-                    Hai superato il limite massimo di commenti giornalieri consentiti (20).
-                </div>
-            <?php endif; ?>
+        <!-- Mostra il messaggio di errore se presente -->
+        <?php if (isset($_GET['error']) && $_GET['error'] === 'limite_superato'): ?>
+            <div class="alert alert-danger" role="alert">
+                Hai superato il limite massimo di commenti giornalieri consentiti (20).
+            </div>
+        <?php endif; ?>
 
         <!-- Form per seguire o smettere di seguire il blog -->
         <?php if ($isFollowing): ?>
@@ -191,8 +191,8 @@ $conn->close();
             </form>
         <?php endif; ?>
 
-            <!-- Visualizzazione del logo del blog -->
-            <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
+        <!-- Visualizzazione del logo del blog -->
+        <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
 
         <!-- Visualizzazione dei post -->
         <?php if ($resultPosts->num_rows > 0): ?>
@@ -214,45 +214,44 @@ $conn->close();
                             </div>
                         <?php endif; ?>
 
-                            <!-- Visualizzazione dei commenti -->
-                            <?php if (isset($comments[$post['id_post']])) : ?>
-                                <h4>Commenti:</h4>
-                                <?php foreach ($comments[$post['id_post']] as $comment) : ?>
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <p class="card-text">
-                                                <strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>):
-                                                <span class="comment-text"><?php echo htmlspecialchars($comment['contenuto']); ?></span>
-                                                <?php if ($comment['username'] == $_SESSION['username']) : ?>
-                                                    <!-- Pulsante Modifica -->
-                                                    <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
-                                                    <!-- Pulsante Elimina -->
-                                            <form method="post" action="../risorse/comment.php" class="d-inline">
-                                                <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
-                                                <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                                                <input type="hidden" name="action" value="delete">
-                                                <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
-                                            </form>
-                                            <!-- Modifica commento -->
-                                            <!-- Modifica commento -->
-                                            <div class="edit-comment-form d-none">
-                                                <form method="post" action="../risorse/comment.php">
+                                               <!-- Visualizzazione dei commenti -->
+                        <?php if (isset($comments[$post['id_post']])): ?>
+                            <h4>Commenti:</h4>
+                            <?php foreach ($comments[$post['id_post']] as $comment): ?>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p class="card-text">
+                                            <strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>): 
+                                            <span class="comment-text"><?php echo htmlspecialchars($comment['contenuto']); ?></span>
+                                            <?php if ($comment['username'] == $_SESSION['username']): ?>
+                                                <!-- Pulsante Modifica -->
+                                                <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
+                                                <!-- Pulsante Elimina -->
+                                                <form method="post" action="../risorse/comment.php" class="d-inline">
                                                     <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
                                                     <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                                                    <input type="hidden" name="action" value="update">
-                                                    <div class="form-group">
-                                                        <textarea class="form-control" name="comment" id="edit-comment-textarea" rows="3"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary btn-sm" id="save-edit-btn" disabled>Salva</button>
-                                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
                                                 </form>
-                                            </div>
-                                        <?php endif; ?>
+                                                <!-- Modifica commento -->
+                                                <div class="edit-comment-form d-none">
+                                                    <form method="post" action="../risorse/comment.php">
+                                                        <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                        <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                        <input type="hidden" name="action" value="update">
+                                                        <div class="form-group">
+                                                            <textarea class="form-control" name="comment"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary btn-sm">Salva</button>
+                                                        <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
+                                                    </form>
+                                                </div>
+                                            <?php endif; ?>
                                         </p>
-                                        </div>
                                     </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
 
                         <!-- Form per inserire un commento -->
                         <form method="post" action="../risorse/comment.php" class="mt-3">
