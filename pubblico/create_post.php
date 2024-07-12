@@ -14,6 +14,16 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
 $userId = $_SESSION['id'];
 
+// Query per determinare se l'utente è premium
+$premiumQuery = "SELECT premium FROM utente WHERE id_utente = ?";
+$stmt = $conn->prepare($premiumQuery);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$stmt->bind_result($isPremium);
+$stmt->fetch();
+$stmt->close();
+
+// Query per recuperare i blog dell'utente
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog, b.id_categoria
                FROM blog b
                LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog
@@ -29,7 +39,7 @@ $errorMsg = isset($_SESSION['error_msg']) ? $_SESSION['error_msg'] : '';
 unset($_SESSION['error_msg']);
 
 // Determina il numero massimo di immagini consentite in base allo stato premium dell'utente
-$maxImages = $_SESSION['premium'] ? 3 : 1;
+$maxImages = $isPremium ? 3 : 1;
 ?>
 
 <!DOCTYPE html>
@@ -94,6 +104,9 @@ $maxImages = $_SESSION['premium'] ? 3 : 1;
             color: green;
         }
         .premium-only {
+            display: none; /* Nasconde il blocco per utenti premium */
+        }
+        .standard-only {
             display: none; /* Nasconde il blocco per utenti standard */
         }
     </style>
@@ -125,36 +138,35 @@ $maxImages = $_SESSION['premium'] ? 3 : 1;
             subcategoryField.addEventListener('change', validateForm);
 
             validateForm();
-        });
-
-        $(document).ready(function() {
-            $('#blog').on('change', function() {
-                var blogId = $(this).val();
-                if (blogId) {
-                    $.ajax({
-                        url: '../risorse/get_subcategories_by_blog.php',
-                        type: 'POST',
-                        data: {id_blog: blogId},
-                        success: function(response) {
-                            $('#subcategory').html(response);
-                            validateForm(); // Valida il form quando le sottocategorie vengono aggiornate
-                        },
-                        error: function(xhr, status, error) {
-                            console.log('Errore AJAX: ' + status + ' - ' + error);
-                        }
-                    });
-                } else {
-                    $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
-                    validateForm(); // Valida il form quando il blog selezionato è vuoto
-                }
-            });
 
             // Mostra/nascondi i campi immagine in base allo stato premium dell'utente
-            var maxImages = <?php echo $maxImages; ?>;
+            const maxImages = <?php echo $maxImages; ?>;
             if (maxImages === 1) {
-                $('.premium-only').hide();
+                $('.standard-only').show();
+            } else {
+                $('.premium-only').show();
             }
         });
+        $(document).ready(function() {
+        $('#blog').on('change', function() {
+            var blogId = $(this).val();
+            if (blogId) {
+                $.ajax({
+                    url: '../risorse/get_subcategories_by_blog.php',
+                    type: 'POST',
+                    data: {id_blog: blogId},
+                    success: function(response) {
+                        $('#subcategory').html(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.log('Errore AJAX: ' + status + ' - ' + error);
+                    }
+                });
+            } else {
+                $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
+            }
+        });
+    });
     </script>
 </head>
 <body>
@@ -182,18 +194,21 @@ $maxImages = $_SESSION['premium'] ? 3 : 1;
             <option value="">Seleziona una sottocategoria</option>
         </select>
 
+        <div class="premium-only">
         <!-- Mostra solo per utenti premium -->
         <div class="premium-only">
-            <label for="images">Immagini del post (massimo 3):</label>
-            <input type="file" name="immagini[]" id="image1">
-            <input type="file" name="immagini[]" id="image2">
-            <input type="file" name="immagini[]" id="image3">
+            <label for="image1">Immagine 1:</label>
+            <input type="file" name="immagini[]" id="image1" accept="image/*">
+            <label for="image2">Immagine 2:</label>
+            <input type="file" name="immagini[]" id="image2" accept="image/*">
+            <label for="image3">Immagine 3:</label>
+            <input type="file" name="immagini[]" id="image3" accept="image/*">
         </div>
 
         <!-- Mostra solo per utenti standard -->
-        <div>
-            <label for="image">Immagine del post (massimo 1):</label>
-            <input type="file" name="immagine" id="image">
+        <div class="standard-only">
+            <label for="image">Immagine:</label>
+            <input type="file" name="immagini[]" id="image" accept="image/*">
         </div>
 
         <input type="submit" value="Crea post" id="submit-button" disabled>
@@ -202,3 +217,4 @@ $maxImages = $_SESSION['premium'] ? 3 : 1;
     <a href="../pubblico/home.php" class="button">Torna alla Home</a>
 </body>
 </html>
+
