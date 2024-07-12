@@ -164,14 +164,12 @@ $conn->close();
             <p><?php echo htmlspecialchars(isset($blog['descrizione']) ? $blog['descrizione'] : ''); ?></p>
             <p>Follower: <?php echo $follow_count; ?></p>
 
-            <!-- Bottone per stampare il blog (visualizzato solo per utenti premium) -->
+            <!-- botone per stampare il blog, ammesso che l'utente loggato sia premium (FUNZIONE ESCLUSIVA PER IL PREMIUM)) -->
 
             <?php if ($_SESSION['premium'] == 1) : ?>
                 <button class="btn btn-primary mb-3" onclick="window.print();">Stampa Blog</button>
             <?php endif; ?>
 
-
-            <!-- Mostra il messaggio di errore se presente -->
             <?php if (isset($_GET['error']) && $_GET['error'] === 'limite_superato') : ?>
                 <div class="alert alert-danger" role="alert">
                     Hai superato il limite massimo di commenti giornalieri consentiti (20).
@@ -193,7 +191,6 @@ $conn->close();
                 </form>
             <?php endif; ?>
 
-            <!-- Visualizzazione del logo del blog -->
             <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
 
             <!-- Visualizzazione dei post -->
@@ -225,17 +222,16 @@ $conn->close();
                                             <p class="card-text">
                                                 <strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>):
                                                 <span class="comment-text"><?php echo htmlspecialchars($comment['contenuto']); ?></span>
+                                                
                                                 <?php if ($comment['username'] == $_SESSION['username']) : ?>
-                                                    <!-- Pulsante Modifica -->
                                                     <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
-                                                    <!-- Pulsante Elimina -->
-                                            <form method="post" action="../risorse/comment.php" class="d-inline">
-                                                <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
-                                                <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                                                <input type="hidden" name="action" value="delete">
-                                                <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
-                                            </form>
-                                            <!-- Modifica commento -->
+                                                <form method="post" action="../risorse/comment.php" class="d-inline">
+                                                    <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                    <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+                                                </form>
+
                                             <!-- Modifica commento -->
                                             <div class="edit-comment-form d-none">
                                                 <form method="post" action="../risorse/comment.php">
@@ -250,7 +246,7 @@ $conn->close();
                                                 </form>
                                             </div>
                                         <?php endif; ?>
-                                        </p>
+                                        <!-- </p> -->
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
