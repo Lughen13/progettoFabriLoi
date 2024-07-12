@@ -256,14 +256,14 @@ $conn->close();
 
                         <!-- Form per inserire un commento -->
                         <form method="post" action="../risorse/comment.php" class="mt-3">
-                            <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-                            <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                            <input type="hidden" name="action" value="insert">
-                            <div class="form-group">
-                                <textarea class="form-control" name="comment" placeholder="Inserisci il tuo commento"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Commenta</button>
-                        </form>
+                        <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
+                        <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                        <input type="hidden" name="action" value="insert">
+                        <div class="form-group">
+                            <textarea class="form-control comment-textarea" name="comment" placeholder="Inserisci il tuo commento"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary comment-submit-btn" disabled>Commenta</button>
+                    </form>
 
                         <!-- Gestione Mi Piace -->
                         <div class="mt-3">
@@ -304,8 +304,8 @@ $conn->close();
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-<script>
-        $(document).ready(function() {
+    <script>
+$(document).ready(function() {
     // Funzione per aggiornare il testo del pulsante Mi Piace
     function updateLikeButton(button, action, likeCount) {
         if (action === 'like') {
@@ -361,7 +361,34 @@ $conn->close();
             }
         });
     });
+
+    // Prevenzione dell'invio di commenti vuoti
+    $('.comment-textarea').on('input', function() {
+        var form = $(this).closest('form');
+        var comment = $(this).val().trim();
+        var submitButton = form.find('.comment-submit-btn');
+
+        if (comment === '') {
+            submitButton.prop('disabled', true);
+        } else {
+            submitButton.prop('disabled', false);
+        }
+    });
+
+    // Chiamata iniziale per aggiornare lo stato del pulsante di submit
+    $('.comment-textarea').each(function() {
+        var form = $(this).closest('form');
+        var comment = $(this).val().trim();
+        var submitButton = form.find('.comment-submit-btn');
+
+        if (comment === '') {
+            submitButton.prop('disabled', true);
+        } else {
+            submitButton.prop('disabled', false);
+        }
+    });
 });
 </script>
+
 </body>
 </html>
