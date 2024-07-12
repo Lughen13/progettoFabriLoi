@@ -288,7 +288,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            /box-sizing: border-box;/
+            box-sizing: border-box;
         }
 
         input[type=checkbox] {

@@ -120,12 +120,40 @@ unset($_SESSION['error_msg']);
         input[type=submit]:hover {
             background-color: #45a049;
         }
+        input[type=submit]:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
         .error-message {
             color: red;
             margin-bottom: 15px;
             font-weight: bold;
         }
     </style>
+    <script>
+        function validateForm() {
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const submitButton = document.getElementById('submit-button');
+            
+            if (title.length > 0 && description.length > 0) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleField = document.getElementById('title');
+            const descriptionField = document.getElementById('description');
+            const submitButton = document.getElementById('submit-button');
+
+            titleField.addEventListener('input', validateForm);
+            descriptionField.addEventListener('input', validateForm);
+
+            validateForm();
+        });
+    </script>
 </head>
 <body>
     <header>
@@ -175,7 +203,7 @@ unset($_SESSION['error_msg']);
             <?php endwhile; ?>
         </select>
 
-        <input type="submit" value="Crea blog">
+        <input type="submit" value="Crea blog" id="submit-button" disabled>
     </form>
 </body>
 </html>
