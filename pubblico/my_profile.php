@@ -17,7 +17,7 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 // Gestione dell'eliminazione del blog
 // if ($action == 'delete_blog' && isset($_GET['id_blog'])) {
-    if ($action == 'delete_blog') {
+if ($action == 'delete_blog') {
     $id_blog = $_GET['id_blog'];
 
     // Prima eliminare i post associati al blog
@@ -175,6 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
 ?>
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -186,32 +187,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
         body {
             background-color: #f8f9fa;
         }
+
         .card {
             margin-bottom: 20px;
         }
+
         .navbar-brand {
             font-weight: bold;
         }
+
         .form-group label {
             font-weight: bold;
         }
+
         .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .navbar {
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
+
 <body>
-<div class="container mt-4">
+    <div class="container mt-4">
         <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-         <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
+            <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -232,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
         <div class="row">
             <div class="col-md-4">
                 <h3>Informazioni Personali</h3>
-                <?php if (!empty($user['img_profilo'])): ?>
+                <?php if (!empty($user['img_profilo'])) : ?>
                     <img src="../uploads/<?php echo $user['img_profilo']; ?>" alt="Immagine del profilo" class="img-thumbnail mb-3">
                 <?php endif; ?>
                 <form id="updateImgForm" action="my_profile.php" method="post" enctype="multipart/form-data">
@@ -256,41 +263,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                 <!-- bottone per aprire il modale di modifica della bio  -->
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editBioModal">Modifica Bio</button>
 
-<div class="modal fade" id="editBioModal" tabindex="-1" role="dialog" aria-labelledby="editBioModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editBioModalLabel">Modifica Bio</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="editBioForm" action="my_profile.php" method="post">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="bio">Nuova Bio:</label>
-                        <textarea class="form-control" id="bio" name="bio" rows="3"><?php echo $user['bio']; ?></textarea>
+                <div class="modal fade" id="editBioModal" tabindex="-1" role="dialog" aria-labelledby="editBioModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editBioModalLabel">Modifica Bio</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form id="editBioForm" action="my_profile.php" method="post">
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="bio">Nuova Bio:</label>
+                                        <textarea class="form-control" id="bio" name="bio" rows="3"><?php echo $user['bio']; ?></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                                    <button type="submit" name="update_bio" class="btn btn-primary" id="btnUpdateBio">Salva</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                    <button type="submit" name="update_bio" class="btn btn-primary" id="btnUpdateBio">Salva</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
             </div>
 
             <div class="col-md-8">
                 <h3>I Miei Blog</h3>
-                <?php foreach ($blogs as $blog): ?>
+                <?php foreach ($blogs as $blog) : ?>
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title"><?php echo htmlspecialchars($blog['titolo_blog']); ?></h5>
                             <p class="card-text"><?php echo htmlspecialchars($blog['descrizione']); ?></p>
                             <p class="card-text"><strong>Categoria:</strong> <?php echo htmlspecialchars($blog['nome_categoria']); ?></p>
-                            <?php if (!empty($blog['img_logo'])): ?>
+                            <?php if (!empty($blog['img_logo'])) : ?>
                                 <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del blog" class="img-thumbnail mb-3">
                             <?php endif; ?>
                             <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#editBlogModal<?php echo $blog['id_blog']; ?>">Modifica</a>
@@ -313,32 +320,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                                     <form action="my_profile.php" method="post" enctype="multipart/form-data">
                                         <input type="hidden" name="blog_id" value="<?php echo $blog['id_blog']; ?>">
                                         <div class="form-group">
-                                            <label for="edit_titolo_blog">Titolo Blog</label>
-                                            <input type="text" class="form-control" id="edit_titolo_blog" name="edit_titolo_blog" value="<?php echo htmlspecialchars($blog['titolo_blog']); ?>">
+                                            <label for="edit_titolo_blog<?php echo $blog['id_blog']; ?>">Titolo Blog</label>
+                                            <input type="text" class="form-control" id="edit_titolo_blog<?php echo $blog['id_blog']; ?>" name="edit_titolo_blog" value="<?php echo htmlspecialchars($blog['titolo_blog']); ?>">
                                         </div>
                                         <div class="form-group">
-                                            <label for="edit_descrizione">Descrizione</label>
-                                            <textarea class="form-control" id="edit_descrizione" name="edit_descrizione" rows="3"><?php echo htmlspecialchars($blog['descrizione']); ?></textarea>
+                                            <label for="edit_descrizione<?php echo $blog['id_blog']; ?>">Descrizione</label>
+                                            <textarea class="form-control" id="edit_descrizione<?php echo $blog['id_blog']; ?>" name="edit_descrizione" rows="3"><?php echo htmlspecialchars($blog['descrizione']); ?></textarea>
                                         </div>
                                         <div class="form-group">
-                                            <label for="edit_categoria">Categoria</label>
-                                            <select class="form-control" id="edit_categoria" name="edit_categoria">
-                                                <?php foreach ($categorie as $categoria): ?>
+                                            <label for="edit_categoria<?php echo $blog['id_blog']; ?>">Categoria</label>
+                                            <select class="form-control" id="edit_categoria<?php echo $blog['id_blog']; ?>" name="edit_categoria">
+                                                <?php foreach ($categorie as $categoria) : ?>
                                                     <option value="<?php echo $categoria['id_categoria']; ?>" <?php if ($blog['id_categoria'] == $categoria['id_categoria']) echo 'selected'; ?>>
                                                         <?php echo htmlspecialchars($categoria['nome_categoria']); ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="edit_img_logo">Carica nuova immagine logo</label>
-                                            <input type="file" class="form-control-file" id="edit_img_logo" name="edit_img_logo">
-                                        </div>
-                                        <button type="submit" name="edit_blog" class="btn btn-primary">Salva modifiche</button>
+                                        <!-- Aggiungi l'id dinamico al pulsante -->
+                                        <button type="submit" id="btnSaveChanges<?php echo $blog['id_blog']; ?>" name="edit_blog" class="btn btn-primary" disabled>Salva modifiche</button>
                                     </form>
                                 </div>
                             </div>
                         </div>
+
+                        <script>
+                            $(document).ready(function() {
+                                var originalTitolo = "<?php echo htmlspecialchars($blog['titolo_blog']); ?>";
+                                var originalDescrizione = "<?php echo htmlspecialchars($blog['descrizione']); ?>";
+                                var originalCategoria = "<?php echo $blog['id_categoria']; ?>";
+
+                                // Funzione per verificare la lunghezza dei valori
+                                function checkInputLength() {
+                                    var titoloValue = $('#edit_titolo_blog<?php echo $blog['id_blog']; ?>').val().trim();
+                                    var descrizioneValue = $('#edit_descrizione<?php echo $blog['id_blog']; ?>').val().trim();
+
+                                    var titoloValid = titoloValue.length > 0;
+                                    var descrizioneValid = descrizioneValue.length > 0;
+
+                                    return titoloValid && descrizioneValid;
+                                }
+
+                                $('#editBlogModal<?php echo $blog['id_blog']; ?>').on('show.bs.modal', function() {
+                                    $('#edit_titolo_blog<?php echo $blog['id_blog']; ?>').val(originalTitolo);
+                                    $('#edit_descrizione<?php echo $blog['id_blog']; ?>').val(originalDescrizione);
+                                    $('#edit_categoria<?php echo $blog['id_blog']; ?>').val(originalCategoria);
+
+                                    // Verifica la lunghezza dei valori all'apertura del modale
+                                    var inputsValid = checkInputLength();
+                                    $('#btnSaveChanges<?php echo $blog['id_blog']; ?>').prop('disabled', !inputsValid);
+                                });
+
+                                $('#edit_titolo_blog<?php echo $blog['id_blog']; ?>, #edit_descrizione<?php echo $blog['id_blog']; ?>, #edit_categoria<?php echo $blog['id_blog']; ?>').on('input change', function() {
+                                    // Verifica la lunghezza dei valori ad ogni cambiamento
+                                    var inputsValid = checkInputLength();
+                                    var titoloChanged = $('#edit_titolo_blog<?php echo $blog['id_blog']; ?>').val() !== originalTitolo;
+                                    var descrizioneChanged = $('#edit_descrizione<?php echo $blog['id_blog']; ?>').val() !== originalDescrizione;
+                                    var categoriaChanged = $('#edit_categoria<?php echo $blog['id_blog']; ?>').val() !== originalCategoria;
+
+                                    // Abilita il pulsante solo se ci sono modifiche e i campi non sono vuoti
+                                    if ((titoloChanged || descrizioneChanged || categoriaChanged) && inputsValid) {
+                                        $('#btnSaveChanges<?php echo $blog['id_blog']; ?>').prop('disabled', false);
+                                    } else {
+                                        $('#btnSaveChanges<?php echo $blog['id_blog']; ?>').prop('disabled', true);
+                                    }
+                                });
+                            });
+                        </script>
                     </div>
 
                     <!-- Modale di Eliminazione Blog -->
@@ -348,7 +396,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>">Elimina Blog</h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;                                    </button>
+                                        <span aria-hidden="true">&times; </button>
                                 </div>
                                 <div class="modal-body">
                                     <p>Sei sicuro di voler eliminare il blog "<?php echo htmlspecialchars($blog['titolo_blog']); ?>"?</p>
@@ -367,42 +415,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                 <?php endforeach; ?>
 
                 <!-- Bottone per creare un nuovo blog -->
-<div class="text-center">
-    <a href="../pubblico/create_blog.php" class="btn btn-success btn-lg mt-4">Crea Nuovo Blog</a>
-    <a href=" ../pubblico/create_post.php" class="btn btn-success btn-lg mt-4">Crea Nuovo Post</a>
-</div>
+                <div class="text-center">
+                    <a href="../pubblico/create_blog.php" class="btn btn-success btn-lg mt-4">Crea Nuovo Blog</a>
+                    <a href=" ../pubblico/create_post.php" class="btn btn-success btn-lg mt-4">Crea Nuovo Post</a>
+                </div>
             </div>
         </div>
     </div>
-    
+
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var inputImg = document.getElementById('img_profilo');
-        var btnUpdateImg = document.getElementById('btnUpdateImg');
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var inputImg = document.getElementById('img_profilo');
+            var btnUpdateImg = document.getElementById('btnUpdateImg');
 
-        inputImg.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                var fileName = this.files[0].name;
-                var extension = fileName.split('.').pop().toLowerCase();
-                var allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+            inputImg.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    var fileName = this.files[0].name;
+                    var extension = fileName.split('.').pop().toLowerCase();
+                    var allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
-                if (allowedExtensions.includes(extension)) {
-                    btnUpdateImg.removeAttribute('disabled');
+                    if (allowedExtensions.includes(extension)) {
+                        btnUpdateImg.removeAttribute('disabled');
+                    } else {
+                        btnUpdateImg.setAttribute('disabled', 'disabled');
+                        alert('Formato dell\'immagine non valido. Sono ammessi solo file JPG, JPEG, PNG o GIF.');
+                    }
                 } else {
                     btnUpdateImg.setAttribute('disabled', 'disabled');
-                    alert('Formato dell\'immagine non valido. Sono ammessi solo file JPG, JPEG, PNG o GIF.');
                 }
-            } else {
-                btnUpdateImg.setAttribute('disabled', 'disabled');
-            }
+            });
         });
-    });
-</script>
-<script>
+    </script>
+    <script>
         $(document).ready(function() {
             $('#bioForm').on('submit', function(e) {
                 e.preventDefault();
@@ -428,4 +476,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
         });
     </script>
 </body>
+
 </html>
