@@ -58,15 +58,33 @@ if ($action == 'delete_post') {
     $stmt->close();
 }
 
+// Eliminazione del commento
 if ($action == 'delete_comment') {
     $id_comm = $_GET['id_comm'];
 
-    $deleteCommentQuery = "DELETE FROM commento WHERE id_comm = ? AND id_post IN (SELECT id_post FROM post WHERE id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?))";
+    // Recupero dell'ID del blog associato al commento
+    $getBlogIdQuery = "SELECT p.id_blog FROM commento c 
+                       INNER JOIN post p ON c.id_post = p.id_post
+                       WHERE c.id_comm = ?";
+    $stmt_blog = $conn->prepare($getBlogIdQuery);
+    $stmt_blog->bind_param("i", $id_comm);
+    $stmt_blog->execute();
+    $stmt_blog->bind_result($id_blog);
+    $stmt_blog->fetch();
+    $stmt_blog->close();
+
+    if (!$id_blog) {
+        echo "Errore: l'ID del blog non è stato recuperato correttamente.";
+        exit();
+    }
+
+    // Eliminazione effettiva del commento
+    $deleteCommentQuery = "DELETE FROM commento WHERE id_comm = ?";
     $stmt = $conn->prepare($deleteCommentQuery);
-    $stmt->bind_param("ii", $id_comm, $userId);
+    $stmt->bind_param("i", $id_comm);
     if ($stmt->execute()) {
-        // Eliminazione del commento eseguita con successo
-        header("Location: ../pubblico/my_blog.php");  // Reindirizza alla pagina del profilo
+        // Redirect alla pagina del blog
+        header("Location: ../pubblico/my_blog.php?id_blog=$id_blog");
         exit();
     } else {
         echo "Errore durante l'eliminazione del commento: " . $stmt->error;

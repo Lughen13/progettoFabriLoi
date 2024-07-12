@@ -60,7 +60,8 @@ $queryComments = "SELECT c.id_comm, c.data_comm, c.contenuto, u.username, p.id_p
                   FROM commento c
                   INNER JOIN utente u ON c.id_utente = u.id_utente
                   INNER JOIN post p ON c.id_post = p.id_post
-                  WHERE p.id_blog = ?";
+                  WHERE p.id_blog = ?
+                  ORDER BY c.data_comm ASC";
 $stmt = $conn->prepare($queryComments);
 $stmt->bind_param("i", $id_blog);
 $stmt->execute();
