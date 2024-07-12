@@ -33,7 +33,7 @@ if ($action == 'delete_blog') {
     $stmt->bind_param("ii", $id_blog, $userId);
     if ($stmt->execute()) {
         // Eliminazione del blog eseguita con successo
-        header("Location: ../pubblico/my_blog.php");  // Reindirizza alla pagina del profilo
+        header("Location: ../pubblico/my_profile.php");  
         exit();
     } else {
         echo "Errore durante l'eliminazione del blog: " . $stmt->error;
