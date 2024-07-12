@@ -424,6 +424,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
     </div>
 
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</body>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -469,12 +470,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                         }
                     },
                     error: function() {
-                        alert('Errore durante l\'invio della richiesta.');
+                        alert('Inserisci del testo nella bio!');
                     }
                 });
             });
         });
     </script>
-</body>
+    <script>
+    $(document).ready(function() {
+        var originalBio = "<?php echo htmlspecialchars($user['bio'] ?? ''); ?>";
+
+        // Funzione per verificare se la bio è stata modificata
+        function isBioChanged() {
+            var currentBio = $('#bio').val().trim();
+            return currentBio !== originalBio;
+        }
+
+        // Verifica al caricamento del modale
+        $('#editBioModal').on('show.bs.modal', function() {
+            $('#bio').val(originalBio);
+            $('#btnUpdateBio').prop('disabled', true); // Disabilita il pulsante Salva inizialmente
+        });
+
+        // Verifica il cambiamento nel campo bio
+        $('#bio').on('input', function() {
+            var bioChanged = isBioChanged();
+            if (bioChanged) {
+                $('#btnUpdateBio').prop('disabled', false); // Abilita il pulsante Salva se la bio è stata modificata
+            } else {
+                $('#btnUpdateBio').prop('disabled', true); // Disabilita il pulsante Salva se non ci sono modifiche
+            }
+        });
+
+        // Gestisci il submit del form per la modifica della bio
+        $('#editBioForm').on('submit', function(e) {
+            e.preventDefault();
+            var bioData = $(this).serialize();
+            $.ajax({
+                type: 'POST',
+                url: 'my_profile.php',
+                data: bioData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Bio aggiornata con successo!');
+                        $('#editBioModal').modal('hide');
+                        location.reload();
+                    } else {
+                        alert('Errore durante l\'aggiornamento della bio: ' + response.error);
+                    }
+                },
+                error: function() {
+                    alert('Inserisci del testo nella bio!');
+                }
+            });
+        });
+    });
+</script>
+
 
 </html>
