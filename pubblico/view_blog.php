@@ -223,18 +223,20 @@ $conn->close();
                                             <p class="card-text">
                                                 <strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>):
                                                 <span class="comment-text"><?php echo htmlspecialchars($comment['contenuto']); ?></span>
-                                                <?php if ($comment['username'] == $_SESSION['username']) : ?>
-                                                    <!-- Pulsante Modifica -->
-                                                    <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
-                                                    <!-- Pulsante Elimina -->
-                                            <form method="post" action="../risorse/comment.php" class="d-inline">
-                                                <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
-                                                <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                                                <input type="hidden" name="action" value="delete">
-                                                <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
-                                            </form>
+                                            </p>    
+                                            <?php if ($comment['username'] == $_SESSION['username']) : ?>
+                                                <!-- Pulsante Modifica -->
+                                                <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
+                                                <!-- Pulsante Elimina -->
+                                                <form method="post" action="../risorse/comment.php" class="d-inline">
+                                                    <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                    <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+                                                </form>
+                                            <?php endif; ?>
                                             <!-- Modifica commento -->
-                                            <!-- Modifica commento -->
+                                             
                                             <div class="edit-comment-form d-none">
                                                 <form method="post" action="../risorse/comment.php">
                                                     <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
@@ -247,8 +249,6 @@ $conn->close();
                                                     <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
                                                 </form>
                                             </div>
-                                        <?php endif; ?>
-                                        </p>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
