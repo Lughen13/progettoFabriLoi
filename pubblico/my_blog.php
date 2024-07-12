@@ -243,7 +243,7 @@ while ($row = $resultLikes->fetch_assoc()) {
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-        }.        
+        }        
         .container {
             background-color: #fff;
             padding: 20px;
