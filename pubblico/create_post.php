@@ -83,6 +83,10 @@ $maxImages = $_SESSION['premium'] ? 3 : 1;
         input[type="submit"]:hover {
             background-color: #45a049;
         }
+        input[type="submit"]:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
         .error {
             color: red;
         }
@@ -93,6 +97,65 @@ $maxImages = $_SESSION['premium'] ? 3 : 1;
             display: none; /* Nasconde il blocco per utenti standard */
         }
     </style>
+    <script>
+        function validateForm() {
+            const blog = document.getElementById('blog').value.trim();
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const subcategory = document.getElementById('subcategory').value.trim();
+            const submitButton = document.getElementById('submit-button');
+            
+            if (blog.length > 0 && title.length > 0 && description.length > 0 && subcategory.length > 0) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const blogField = document.getElementById('blog');
+            const titleField = document.getElementById('title');
+            const descriptionField = document.getElementById('description');
+            const subcategoryField = document.getElementById('subcategory');
+            const submitButton = document.getElementById('submit-button');
+
+            blogField.addEventListener('change', validateForm);
+            titleField.addEventListener('input', validateForm);
+            descriptionField.addEventListener('input', validateForm);
+            subcategoryField.addEventListener('change', validateForm);
+
+            validateForm();
+        });
+
+        $(document).ready(function() {
+            $('#blog').on('change', function() {
+                var blogId = $(this).val();
+                if (blogId) {
+                    $.ajax({
+                        url: '../risorse/get_subcategories_by_blog.php',
+                        type: 'POST',
+                        data: {id_blog: blogId},
+                        success: function(response) {
+                            $('#subcategory').html(response);
+                            validateForm(); // Valida il form quando le sottocategorie vengono aggiornate
+                        },
+                        error: function(xhr, status, error) {
+                            console.log('Errore AJAX: ' + status + ' - ' + error);
+                        }
+                    });
+                } else {
+                    $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
+                    validateForm(); // Valida il form quando il blog selezionato è vuoto
+                }
+            });
+
+            // Mostra/nascondi i campi immagine in base allo stato premium dell'utente
+            var maxImages = <?php echo $maxImages; ?>;
+            if (maxImages === 1) {
+                $('.premium-only').hide();
+            }
+        });
+    </script>
 </head>
 <body>
     <h1>Crea un nuovo post</h1>
@@ -133,38 +196,9 @@ $maxImages = $_SESSION['premium'] ? 3 : 1;
             <input type="file" name="immagine" id="image">
         </div>
 
-        <input type="submit" value="Crea post">
+        <input type="submit" value="Crea post" id="submit-button" disabled>
     </form>
         
     <a href="../pubblico/home.php" class="button">Torna alla Home</a>
-
-    <script>
-    $(document).ready(function() {
-        $('#blog').on('change', function() {
-            var blogId = $(this).val();
-            if (blogId) {
-                $.ajax({
-                    url: '../risorse/get_subcategories_by_blog.php',
-                    type: 'POST',
-                    data: {id_blog: blogId},
-                    success: function(response) {
-                        $('#subcategory').html(response);
-                    },
-                    error: function(xhr, status, error) {
-                        console.log('Errore AJAX: ' + status + ' - ' + error);
-                    }
-                });
-            } else {
-                $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
-            }
-        });
-
-        // Mostra/nascondi i campi immagine in base allo stato premium dell'utente
-        var maxImages = <?php echo $maxImages; ?>;
-        if (maxImages === 1) {
-            $('.premium-only').hide();
-        }
-    });
-    </script>
 </body>
 </html>

@@ -115,30 +115,32 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizza Blog</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style> 
+    <style>
         .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .navbar {
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
+        .navbar {
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
+
 <body>
-<div class="container mt-4">
+    <div class="container mt-4">
         <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-         <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
+            <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -155,211 +157,273 @@ $conn->close();
                 </form>
             </div>
         </nav>
-        
-    <div class="container mt-5">
-        <h1>Questo è il blog: <?php echo htmlspecialchars(isset($blog['titolo_blog']) ? $blog['titolo_blog'] : ''); ?></h1>
-        <p><?php echo htmlspecialchars(isset($blog['descrizione']) ? $blog['descrizione'] : ''); ?></p>
-        <p>Follower: <?php echo $follow_count; ?></p>
 
-        <!-- Bottone per stampare il blog (visualizzato solo per utenti premium) -->
-         
-        <?php if ($_SESSION['premium'] == 1): ?>
-            <button class="btn btn-primary mb-3" onclick="window.print();">Stampa Blog</button>
-        <?php endif; ?>
+        <div class="container mt-5">
+            <h1>Questo è il blog: <?php echo htmlspecialchars(isset($blog['titolo_blog']) ? $blog['titolo_blog'] : ''); ?></h1>
+            <p><?php echo htmlspecialchars(isset($blog['descrizione']) ? $blog['descrizione'] : ''); ?></p>
+            <p>Follower: <?php echo $follow_count; ?></p>
+
+            <!-- Bottone per stampare il blog (visualizzato solo per utenti premium) -->
+
+            <?php if ($_SESSION['premium'] == 1) : ?>
+                <button class="btn btn-primary mb-3" onclick="window.print();">Stampa Blog</button>
+            <?php endif; ?>
 
 
-        <!-- Mostra il messaggio di errore se presente -->
-        <?php if (isset($_GET['error']) && $_GET['error'] === 'limite_superato'): ?>
-            <div class="alert alert-danger" role="alert">
-                Hai superato il limite massimo di commenti giornalieri consentiti (20).
-            </div>
-        <?php endif; ?>
+            <!-- Mostra il messaggio di errore se presente -->
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'limite_superato') : ?>
+                <div class="alert alert-danger" role="alert">
+                    Hai superato il limite massimo di commenti giornalieri consentiti (20).
+                </div>
+            <?php endif; ?>
 
-        <!-- Form per seguire o smettere di seguire il blog -->
-        <?php if ($isFollowing): ?>
-            <form method="post" action="../risorse/follow.php" class="d-inline">
-                <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
-                <input type="hidden" name="action" value="unfollow">
-                <button type="submit" class="btn btn-danger">Non Seguire più</button>
-            </form>
-        <?php else: ?>
-            <form method="post" action="../risorse/follow.php" class="d-inline">
-                <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
-                <input type="hidden" name="action" value="follow">
-                <button type="submit" class="btn btn-primary">Segui questo Blog</button>
-            </form>
-        <?php endif; ?>
+            <!-- Form per seguire o smettere di seguire il blog -->
+            <?php if ($isFollowing) : ?>
+                <form method="post" action="../risorse/follow.php" class="d-inline">
+                    <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+                    <input type="hidden" name="action" value="unfollow">
+                    <button type="submit" class="btn btn-danger">Non Seguire più</button>
+                </form>
+            <?php else : ?>
+                <form method="post" action="../risorse/follow.php" class="d-inline">
+                    <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
+                    <input type="hidden" name="action" value="follow">
+                    <button type="submit" class="btn btn-primary">Segui questo Blog</button>
+                </form>
+            <?php endif; ?>
 
-        <!-- Visualizzazione del logo del blog -->
-        <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
+            <!-- Visualizzazione del logo del blog -->
+            <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
 
-        <!-- Visualizzazione dei post -->
-        <?php if ($resultPosts->num_rows > 0): ?>
-            <h2 class="mt-5">Post:</h2>
-            <?php while ($post = $resultPosts->fetch_assoc()): ?>
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
-                        <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
+            <!-- Visualizzazione dei post -->
+            <?php if ($resultPosts->num_rows > 0) : ?>
+                <h2 class="mt-5">Post:</h2>
+                <?php while ($post = $resultPosts->fetch_assoc()) : ?>
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
+                            <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
 
-                        <!-- Visualizzazione delle immagini del post -->
-                        <?php 
-                        $images = json_decode($post['img_post'], true);
-                        if (!empty($images)): ?>
-                            <div class="post-images">
-                                <?php foreach ($images as $image): ?>
-                                    <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-thumbnail mr-2 mb-2" alt="Immagine del Post" width="100">
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
+                            <!-- Visualizzazione delle immagini del post -->
+                            <?php
+                            $images = json_decode($post['img_post'], true);
+                            if (!empty($images)) : ?>
+                                <div class="post-images">
+                                    <?php foreach ($images as $image) : ?>
+                                        <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-thumbnail mr-2 mb-2" alt="Immagine del Post" width="100">
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
 
-                                               <!-- Visualizzazione dei commenti -->
-                        <?php if (isset($comments[$post['id_post']])): ?>
-                            <h4>Commenti:</h4>
-                            <?php foreach ($comments[$post['id_post']] as $comment): ?>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <p class="card-text">
-                                            <strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>): 
-                                            <span class="comment-text"><?php echo htmlspecialchars($comment['contenuto']); ?></span>
-                                            <?php if ($comment['username'] == $_SESSION['username']): ?>
-                                                <!-- Pulsante Modifica -->
-                                                <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
-                                                <!-- Pulsante Elimina -->
-                                                <form method="post" action="../risorse/comment.php" class="d-inline">
+                            <!-- Visualizzazione dei commenti -->
+                            <?php if (isset($comments[$post['id_post']])) : ?>
+                                <h4>Commenti:</h4>
+                                <?php foreach ($comments[$post['id_post']] as $comment) : ?>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                <strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>):
+                                                <span class="comment-text"><?php echo htmlspecialchars($comment['contenuto']); ?></span>
+                                                <?php if ($comment['username'] == $_SESSION['username']) : ?>
+                                                    <!-- Pulsante Modifica -->
+                                                    <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
+                                                    <!-- Pulsante Elimina -->
+                                            <form method="post" action="../risorse/comment.php" class="d-inline">
+                                                <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                <input type="hidden" name="action" value="delete">
+                                                <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+                                            </form>
+                                            <!-- Modifica commento -->
+                                            <!-- Modifica commento -->
+                                            <div class="edit-comment-form d-none">
+                                                <form method="post" action="../risorse/comment.php">
                                                     <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
                                                     <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                                                    <input type="hidden" name="action" value="delete">
-                                                    <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+                                                    <input type="hidden" name="action" value="update">
+                                                    <div class="form-group">
+                                                        <textarea class="form-control" name="comment" id="edit-comment-textarea" rows="3"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary btn-sm" id="save-edit-btn" disabled>Salva</button>
+                                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
                                                 </form>
-                                                <!-- Modifica commento -->
-                                                <div class="edit-comment-form d-none">
-                                                    <form method="post" action="../risorse/comment.php">
-                                                        <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
-                                                        <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                                                        <input type="hidden" name="action" value="update">
-                                                        <div class="form-group">
-                                                            <textarea class="form-control" name="comment"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary btn-sm">Salva</button>
-                                                        <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
-                                                    </form>
-                                                </div>
-                                            <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
                                         </p>
+                                        </div>
                                     </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+
+                            <!-- Form per inserire un commento -->
+                            <form method="post" action="../risorse/comment.php" class="mt-3" id="comment-form">
+                                <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
+                                <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                <input type="hidden" name="action" value="insert">
+                                <div class="form-group">
+                                    <textarea class="form-control" name="comment" id="comment-textarea" placeholder="Inserisci il tuo commento"></textarea>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-
-                        <!-- Form per inserire un commento -->
-                        <form method="post" action="../risorse/comment.php" class="mt-3">
-                            <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-                            <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                            <input type="hidden" name="action" value="insert">
-                            <div class="form-group">
-                                <textarea class="form-control" name="comment" placeholder="Inserisci il tuo commento"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Commenta</button>
-                        </form>
-
-                        <!-- Gestione Mi Piace -->
-                        <div class="mt-3">
-                            <form class="like-form">
-                                <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
-                                <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
-                                <?php
-                                $likeAction = 'like'; // Default to 'like' if user has not liked the post yet
-                                if ($_SESSION['loggedin'] === true) {
-                                    include '../configurazione/conn.php';
-
-                                    $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
-                                    $stmt = $conn->prepare($likeQuery);
-                                    $stmt->bind_param("ii", $post['id_post'], $userId);
-                                    $stmt->execute();
-                                    $likeResult = $stmt->get_result();
-                                    if ($likeResult->num_rows > 0) {
-                                        $likeAction = 'unlike'; // If user has liked the post, set action to 'unlike'
-                                    }
-                                    $stmt->close();
-                                }
-                                ?>
-                                <button type="button" class="btn btn-success like-btn" data-action="<?php echo $likeAction; ?>">
-                                    <?php echo $likeAction === 'like' ? 'Mi Piace' : 'Togli Mi Piace'; ?>
-                                </button>
+                                <button type="submit" class="btn btn-primary" id="comment-btn" disabled>Commenta</button>
                             </form>
+
+                            <!-- Gestione Mi Piace -->
+                            <div class="mt-3">
+                                <form class="like-form">
+                                    <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
+                                    <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
+                                    <?php
+                                    $likeAction = 'like'; // Default to 'like' if user has not liked the post yet
+                                    if ($_SESSION['loggedin'] === true) {
+                                        include '../configurazione/conn.php';
+
+                                        $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
+                                        $stmt = $conn->prepare($likeQuery);
+                                        $stmt->bind_param("ii", $post['id_post'], $userId);
+                                        $stmt->execute();
+                                        $likeResult = $stmt->get_result();
+                                        if ($likeResult->num_rows > 0) {
+                                            $likeAction = 'unlike'; // If user has liked the post, set action to 'unlike'
+                                        }
+                                        $stmt->close();
+                                    }
+                                    ?>
+                                    <button type="button" class="btn btn-success like-btn" data-action="<?php echo $likeAction; ?>">
+                                        <?php echo $likeAction === 'like' ? 'Mi Piace' : 'Togli Mi Piace'; ?>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <p>Non ci sono post da mostrare.</p>
-        <?php endif; ?>
-    </div>
+                <?php endwhile; ?>
+            <?php else : ?>
+                <p>Non ci sono post da mostrare.</p>
+            <?php endif; ?>
+        </div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-<script>
-        $(document).ready(function() {
-    // Funzione per aggiornare il testo del pulsante Mi Piace
-    function updateLikeButton(button, action, likeCount) {
-        if (action === 'like') {
-            button.data('action', 'unlike');
-            button.text('Togli Mi Piace (' + likeCount + ')');
-        } else {
-            button.data('action', 'like');
-            button.text('Mi Piace (' + likeCount + ')');
-        }
-    }
+        <script>
+            $(document).ready(function() {
+                // Funzione per controllare lo stato del pulsante "Commenta"
+                function updateCommentButtonState() {
+                    var commentTextarea = $('#comment-textarea');
+                    var commentButton = $('#comment-btn');
 
-    // Gestione del clic sul pulsante Mi Piace
-    $('.like-btn').click(function() {
-        var button = $(this);
-        var postId = button.closest('.like-form').find('.post-id').val();
-        var action = button.data('action');
+                    // Abilita il pulsante se il campo textarea non è vuoto
+                    if (commentTextarea.val().trim().length > 0) {
+                        commentButton.prop('disabled', false);
+                    } else {
+                        commentButton.prop('disabled', true);
+                    }
+                }
 
-        $.ajax({
-            url: '../risorse/likes.php',
-            type: 'POST',
-            data: {
-                post_id: postId,
-                action: action
-            },
-            success: function(likeCount) {
-                // Aggiorna il testo del pulsante e il conteggio dei Mi Piace dinamicamente
-                updateLikeButton(button, action, likeCount);
-            },
-            error: function(xhr, status, error) {
-                console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
-            }
-        });
-    });
+                // Aggiorna lo stato del pulsante "Commenta" al caricamento della pagina
+                updateCommentButtonState();
 
-    // Chiamata iniziale per aggiornare il testo del pulsante per tutti i Mi Piace
-    $('.like-btn').each(function() {
-        var button = $(this);
-        var postId = button.closest('.like-form').find('.post-id').val();
+                // Controlla lo stato del pulsante "Commenta" ad ogni cambio nel textarea
+                $('#comment-textarea').on('input', function() {
+                    updateCommentButtonState();
+                });
+            });
 
-        $.ajax({
-            url: '../risorse/likes.php',
-            type: 'POST',
-            data: {
-                post_id: postId,
-                action: 'get_like_count' // Chiamata per ottenere il conteggio iniziale dei Mi Piace
-            },
-            success: function(likeCount) {
-                // Aggiorna il testo del pulsante con il conteggio iniziale dei Mi Piace
-                updateLikeButton(button, 'like', likeCount);
-            },
-            error: function(xhr, status, error) {
-                console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
-            }
-        });
-    });
-});
-</script>
+            $(document).ready(function() {
+                // Gestione del clic sul pulsante Modifica
+                $('.edit-comment-btn').click(function() {
+                    // Trova il form di modifica relativo al commento
+                    var editForm = $(this).closest('.card-body').find('.edit-comment-form');
+                    // Mostra il form di modifica
+                    editForm.removeClass('d-none');
+                });
+
+                // Gestione del clic sul pulsante Annulla nella modifica del commento
+                $('.cancel-edit-btn').click(function() {
+                    // Nascondi il form di modifica
+                    $(this).closest('.edit-comment-form').addClass('d-none');
+                });
+            });
+
+            $(document).ready(function() {
+                // Funzione per aggiornare lo stato del pulsante "Salva" in base al contenuto del textarea
+                function updateSaveButtonState() {
+                    var commentTextarea = $('#edit-comment-textarea');
+                    var saveButton = $('#save-edit-btn');
+
+                    if (commentTextarea.val().trim().length === 0) {
+                        saveButton.prop('disabled', true);
+                    } else {
+                        saveButton.prop('disabled', false);
+                    }
+                }
+
+                // Monitora il cambiamento nel contenuto del textarea
+                $('#edit-comment-textarea').on('input', function() {
+                    updateSaveButtonState();
+                });
+
+                // Chiamata iniziale per aggiornare lo stato del pulsante "Salva"
+                updateSaveButtonState();
+            });
+            $(document).ready(function() {
+                // Funzione per aggiornare il testo del pulsante Mi Piace
+                function updateLikeButton(button, action, likeCount) {
+                    if (action === 'like') {
+                        button.data('action', 'unlike');
+                        button.text('Togli Mi Piace (' + likeCount + ')');
+                    } else {
+                        button.data('action', 'like');
+                        button.text('Mi Piace (' + likeCount + ')');
+                    }
+                }
+
+                // Gestione del clic sul pulsante Mi Piace
+                $('.like-btn').click(function() {
+                    var button = $(this);
+                    var postId = button.closest('.like-form').find('.post-id').val();
+                    var action = button.data('action');
+
+                    $.ajax({
+                        url: '../risorse/likes.php',
+                        type: 'POST',
+                        data: {
+                            post_id: postId,
+                            action: action
+                        },
+                        success: function(likeCount) {
+                            // Aggiorna il testo del pulsante e il conteggio dei Mi Piace dinamicamente
+                            updateLikeButton(button, action, likeCount);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
+                        }
+                    });
+                });
+
+                // Chiamata iniziale per aggiornare il testo del pulsante per tutti i Mi Piace
+                $('.like-btn').each(function() {
+                    var button = $(this);
+                    var postId = button.closest('.like-form').find('.post-id').val();
+
+                    $.ajax({
+                        url: '../risorse/likes.php',
+                        type: 'POST',
+                        data: {
+                            post_id: postId,
+                            action: 'get_like_count' // Chiamata per ottenere il conteggio iniziale dei Mi Piace
+                        },
+                        success: function(likeCount) {
+                            // Aggiorna il testo del pulsante con il conteggio iniziale dei Mi Piace
+                            updateLikeButton(button, 'like', likeCount);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
+                        }
+                    });
+                });
+            });
+        </script>
 </body>
+
 </html>
