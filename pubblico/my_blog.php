@@ -186,6 +186,12 @@ if ($action == 'edit_post') {
     exit(); // Assicurati di terminare l'esecuzione dopo l'aggiornamento
 }
 
+$likeCounts = [];
+$queryLikes = "SELECT id_post, COUNT(*) AS like_count FROM likes GROUP BY id_post";
+$resultLikes = $conn->query($queryLikes);
+while ($row = $resultLikes->fetch_assoc()) {
+    $likeCounts[$row['id_post']] = $row['like_count'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -237,7 +243,7 @@ if ($action == 'edit_post') {
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-        }       
+        }.        
         .container {
             background-color: #fff;
             padding: 20px;
@@ -427,6 +433,32 @@ if ($action == 'edit_post') {
                                                 <a href="../pubblico/my_blog.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
                                             </div>
 
+                                            <div class="mt-3">
+                                                <form class="like-form">
+                                                    <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
+                                                    <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
+                                                    <?php
+                                                    $likeAction = 'like'; // Default to 'like' if user has not liked the post yet
+                                                    if ($_SESSION['loggedin'] === true) {
+                                                        include '../configurazione/conn.php';
+
+                                                        $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
+                                                        $stmt = $conn->prepare($likeQuery);
+                                                        $stmt->bind_param("ii", $post['id_post'], $userId);
+                                                        $stmt->execute();
+                                                        $likeResult = $stmt->get_result();
+                                                        if ($likeResult->num_rows > 0) {
+                                                            $likeAction = 'unlike'; // If user has liked the post, set action to 'unlike'
+                                                        }
+                                                        $stmt->close();
+                                                    }
+                                                    ?>
+                                                    <button type="button" class="btn btn-success like-btn" data-action="<?php echo $likeAction; ?>">
+                                                        <?php echo $likeAction === 'like' ? 'Mi Piace' : 'Togli Mi Piace'; ?>
+                                                    </button>
+                                                </form>
+                                            </div>
+
                                             <!-- Recupero dei commenti per questo post -->
                                             <?php
                                             $commentsQuery = "SELECT c.id_comm, c.contenuto, c.data_comm, u.username, u.img_profilo
@@ -574,6 +606,65 @@ if ($action == 'edit_post') {
             }
         });
     }
+
+    $(document).ready(function() {
+    // Funzione per aggiornare il testo del pulsante Mi Piace
+    function updateLikeButton(button, action, likeCount) {
+        if (action === 'like') {
+            button.data('action', 'unlike');
+            button.text('Togli Mi Piace (' + likeCount + ')');
+        } else {
+            button.data('action', 'like');
+            button.text('Mi Piace (' + likeCount + ')');
+        }
+    }
+
+    // Gestione del clic sul pulsante Mi Piace
+    $('.like-btn').click(function() {
+        var button = $(this);
+        var postId = button.closest('.like-form').find('.post-id').val();
+        var action = button.data('action');
+
+        $.ajax({
+            url: '../risorse/likes.php',
+            type: 'POST',
+            data: {
+                post_id: postId,
+                action: action
+            },
+            success: function(likeCount) {
+                // Aggiorna il testo del pulsante e il conteggio dei Mi Piace dinamicamente
+                updateLikeButton(button, action, likeCount);
+            },
+            error: function(xhr, status, error) {
+                console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
+            }
+        });
+    });
+
+    // Chiamata iniziale per aggiornare il testo del pulsante per tutti i Mi Piace
+    $('.like-btn').each(function() {
+        var button = $(this);
+        var postId = button.closest('.like-form').find('.post-id').val();
+
+        $.ajax({
+            url: '../risorse/likes.php',
+            type: 'POST',
+            data: {
+                post_id: postId,
+                action: 'get_like_count' // Chiamata per ottenere il conteggio iniziale dei Mi Piace
+            },
+            success: function(likeCount) {
+                // Aggiorna il testo del pulsante con il conteggio iniziale dei Mi Piace
+                updateLikeButton(button, 'like', likeCount);
+            },
+            error: function(xhr, status, error) {
+                console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
+            }
+        });
+    });
+});
+
 </script>
 </body>
 </html>

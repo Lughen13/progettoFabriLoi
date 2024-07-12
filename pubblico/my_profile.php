@@ -16,7 +16,8 @@ $userId = $_SESSION['id'];  // ID dell'utente autenticato
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 // Gestione dell'eliminazione del blog
-if ($action == 'delete_blog' && isset($_GET['id_blog'])) {
+// if ($action == 'delete_blog' && isset($_GET['id_blog'])) {
+    if ($action == 'delete_blog') {
     $id_blog = $_GET['id_blog'];
 
     // Prima eliminare i post associati al blog
@@ -56,8 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_bio'])) {
     }
 }
 
-
-
 // Recupero informazioni utente
 $userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, numero_telefono FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($userQuery);
@@ -66,7 +65,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
-
 
 // Caricamento dell'immagine del profilo
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['img_profilo'])) {
@@ -358,7 +356,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                                 <div class="modal-footer">
                                     <form action="my_profile.php" method="post">
                                         <input type="hidden" name="blog_id" value="<?php echo $blog['id_blog']; ?>">
-                                        <button type="submit" name="delete_blog" class="btn btn-danger">Elimina</button>
+                                        <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
                                     </form>
                                 </div>

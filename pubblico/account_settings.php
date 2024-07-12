@@ -110,27 +110,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if (isset($_POST['email']) && !empty($_POST['email'])) {
                 $email = $_POST['email'];
-                $checkEmailQuery = "SELECT id_utente FROM utente WHERE email = ? AND id_utente != ?";
-                $stmt = $conn->prepare($checkEmailQuery);
-                $stmt->bind_param("si", $email, $userId);
-                $stmt->execute();
-                $stmt->store_result();
             
-                if ($stmt->num_rows > 0) {
-                    $emailError = "L'email inserita è già utilizzata da un altro utente.";
-                } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/\.[a-zA-Z]{2,}$/', $email)) {
-                    $emailError = "Inserisci un'email valida con un dominio corretto (es. .com, .it, .uk, ecc).";
+                // Check if the email ends with .it, .com, or .alice
+                if (!preg_match('/\.(it|com|alice)$/', $email)) {
+                    $emailError = "L'email deve terminare con .it, .com o .alice.";
                 } else {
-                    $updateFields[] = "email = '$email'";
-                }
+                    $checkEmailQuery = "SELECT id_utente FROM utente WHERE email = ? AND id_utente != ?";
+                    $stmt = $conn->prepare($checkEmailQuery);
+                    $stmt->bind_param("si", $email, $userId);
+                    $stmt->execute();
+                    $stmt->store_result();
             
-                $stmt->close();
+                    if ($stmt->num_rows > 0) {
+                        $emailError = "L'email inserita è già utilizzata da un altro utente.";
+                    } else {
+                        $updateFields[] = "email = '$email'";
+                    }
+            
+                    $stmt->close();
+                }
             }
+            
 
-            // if (isset($_POST['data_nascita']) && !empty($_POST['data_nascita'])) {
-            //     $data_nascita = $_POST['data_nascita'];
-            //     $updateFields[] = "data_nascita = '$data_nascita'";
-            // }
 
             $data_nascita = $_POST['data_nascita'];
             if (empty($data_nascita)) {
@@ -178,20 +179,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $carta = trim($_POST["carta"]);
                 }
 
-                if (empty($data_scadenza)) {
+                if (empty(trim($_POST["data_scadenza"]))) {
                     $data_scadenza_err = "Inserisci la data di scadenza della carta.";
                 } else {
+                    $data_scadenza = trim($_POST["data_scadenza"]); // Ensure $data_scadenza is assigned
                     $data_scadenza_obj = DateTime::createFromFormat('Y-m-d', $data_scadenza);
-                    $today = new DateTime();
-                
+
                     if (!$data_scadenza_obj || $data_scadenza_obj->format('Y-m-d') != $data_scadenza) {
                         $data_scadenza_err = "Formato data di scadenza non valido.";
-                    } elseif ($data_scadenza_obj < $today) {
+                    } elseif ($data_scadenza_obj < new DateTime()) {
                         $data_scadenza_err = "La data di scadenza non può essere nel passato.";
-                    } else {
-                        $updateFields[] = "data_scadenza = '$data_scadenza'";
                     }
                 }
+
 
                 if (empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
                     // Controllo se il numero della carta è già in uso
@@ -288,7 +288,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            /*box-sizing: border-box;*/
+            /box-sizing: border-box;/
         }
 
         input[type=checkbox] {
@@ -455,4 +455,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>
 </body>
 </html>
-
