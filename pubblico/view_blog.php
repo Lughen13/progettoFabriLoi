@@ -362,7 +362,6 @@ $(document).ready(function() {
         });
     });
 
-    // Prevenzione dell'invio di commenti vuoti
     $('.comment-textarea').on('input', function() {
         var form = $(this).closest('form');
         var comment = $(this).val().trim();
@@ -374,8 +373,29 @@ $(document).ready(function() {
             submitButton.prop('disabled', false);
         }
     });
+   
+    $(document).on('click', '.edit-comment-btn', function() {
+        var commentId = $(this).data('comment-id');
+        var editForm = $(this).closest('.card').find('.edit-comment-form');
+        editForm.removeClass('d-none');
+        $(this).closest('.comment-text').addClass('d-none');
+    });
 
-    // Chiamata iniziale per aggiornare lo stato del pulsante di submit
+    $(document).on('click', '.cancel-edit-btn', function() {
+        var editForm = $(this).closest('.edit-comment-form');
+        editForm.addClass('d-none');
+        editForm.closest('.card').find('.comment-text').removeClass('d-none');
+    });
+
+    $(document).on('input', '.edit-comment-form textarea', function() {
+        var saveButton = $(this).closest('.edit-comment-form').find('#save-edit-btn');
+        if ($(this).val().trim() === '') {
+            saveButton.prop('disabled', true);
+        } else {
+            saveButton.prop('disabled', false);
+        }
+    });
+
     $('.comment-textarea').each(function() {
         var form = $(this).closest('form');
         var comment = $(this).val().trim();
