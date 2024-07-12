@@ -527,6 +527,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
         });
     });
 </script>
-
-
 </html>
