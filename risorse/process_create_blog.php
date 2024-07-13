@@ -47,9 +47,9 @@ if (!$isPremium && $blogCount >= 1) {
     exit();
 }
 
-$logoName = '';
+$logoName = 'default.png'; // Nome predefinito per l'immagine del logo
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
     $logoFile = $_FILES['logo'];
     $logoTmpName = $logoFile['tmp_name'];
     $logoFileName = $logoFile['name'];
@@ -63,13 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo'])) {
         $logoName = $title . '.' . $logoExtension; // Nuovo nome del file del logo
         $logoDestination = '../blog_logo/' . $logoName;
 
-        if (move_uploaded_file($logoTmpName, $logoDestination)) {
-            echo "Logo caricato con successo.";
-        } else {
-            echo "Errore durante il caricamento del logo.";
+        if (!move_uploaded_file($logoTmpName, $logoDestination)) {
+            $logoName = 'default.png'; // In caso di errore, usa l'immagine predefinita
         }
-    } else {
-        echo "Formato del logo non valido o errore durante il caricamento.";
     }
 }
 
