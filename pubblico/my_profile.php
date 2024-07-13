@@ -16,7 +16,6 @@ $userId = $_SESSION['id'];  // ID dell'utente autenticato
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 // Gestione dell'eliminazione del blog
-// if ($action == 'delete_blog' && isset($_GET['id_blog'])) {
 if ($action == 'delete_blog') {
     $id_blog = $_GET['id_blog'];
 
