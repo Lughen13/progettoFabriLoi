@@ -194,24 +194,23 @@ $maxImages = $isPremium ? 3 : 1;
             <option value="">Seleziona una sottocategoria</option>
         </select>
 
-        <div class="premium-only">
-        <!-- Mostra solo per utenti premium -->
-        <div class="premium-only">
-            <label for="image1">Immagine 1:</label>
-            <input type="file" name="immagini[]" id="image1" accept="image/*">
-            <label for="image2">Immagine 2:</label>
-            <input type="file" name="immagini[]" id="image2" accept="image/*">
-            <label for="image3">Immagine 3:</label>
-            <input type="file" name="immagini[]" id="image3" accept="image/*">
-        </div>
+            <!-- Mostra solo per utenti premium -->
+            <div class="premium-only">
+                <label for="image1">Immagine 1:</label>
+                <input type="file" name="immagini[]" id="image1" accept="image/*">
+                <label for="image2">Immagine 2:</label>
+                <input type="file" name="immagini[]" id="image2" accept="image/*">
+                <label for="image3">Immagine 3:</label>
+                <input type="file" name="immagini[]" id="image3" accept="image/*">
+            </div>
 
-        <!-- Mostra solo per utenti standard -->
-        <div class="standard-only">
-            <label for="image">Immagine:</label>
-            <input type="file" name="immagini[]" id="image" accept="image/*">
-        </div>
+            <!-- Mostra solo per utenti standard -->
+            <div class="standard-only">
+                <label for="image1">Immagine:</label>
+                <input type="file" name="immagini[]" id="image" accept="image/*">
+            </div>
 
-        <input type="submit" value="Crea post" id="submit-button" disabled>
+            <input type="submit" value="Crea post" id="submit-button" disabled>
     </form>
         
     <a href="../pubblico/home.php" class="button">Torna alla Home</a>
