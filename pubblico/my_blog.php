@@ -45,17 +45,30 @@ if ($action == 'delete_blog') {
 if ($action == 'delete_post') {
     $id_post = $_GET['id_post'];
 
-    $deletePostQuery = "DELETE FROM post WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
-    $stmt = $conn->prepare($deletePostQuery);
-    $stmt->bind_param("ii", $id_post, $userId);
-    if ($stmt->execute()) {
-        // Eliminazione del post eseguita con successo
-        header("Location: ../pubblico/my_blog.php");  // Reindirizza alla pagina del profilo
-        exit();
-    } else {
-        echo "Errore durante l'eliminazione del post: " . $stmt->error;
-    }
+    // Recupera l'ID del blog a cui appartiene il post
+    $getBlogIdQuery = "SELECT id_blog FROM post WHERE id_post = ?";
+    $stmt = $conn->prepare($getBlogIdQuery);
+    $stmt->bind_param("i", $id_post);
+    $stmt->execute();
+    $stmt->bind_result($id_blog);
+    $stmt->fetch();
     $stmt->close();
+
+    if ($id_blog) {
+        $deletePostQuery = "DELETE FROM post WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
+        $stmt = $conn->prepare($deletePostQuery);
+        $stmt->bind_param("ii", $id_post, $userId);
+        if ($stmt->execute()) {
+            // Eliminazione del post eseguita con successo
+            header("Location: ../pubblico/my_blog.php?id_blog=" . $id_blog);  // Reindirizza alla pagina del blog con id_blog
+            exit();
+        } else {
+            echo "Errore durante l'eliminazione del post: " . $stmt->error;
+        }
+        $stmt->close();
+    } else {
+        echo "Errore: Post non trovato o accesso non autorizzato.";
+    }
 }
 
 // Eliminazione del commento
@@ -205,6 +218,7 @@ if ($action == 'edit_post') {
     $stmt->close();
     exit(); // Assicurati di terminare l'esecuzione dopo l'aggiornamento
 }
+
 
 $likeCounts = [];
 $queryLikes = "SELECT id_post, COUNT(*) AS like_count FROM likes GROUP BY id_post";
@@ -451,6 +465,8 @@ while ($row = $resultLikes->fetch_assoc()) {
                                             <div>
                                                 <button class="btn btn-primary mr-2" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
                                                 <a href="../pubblico/my_blog.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
+                                                
+
                                             </div>
 
                                             <div class="mt-3">
