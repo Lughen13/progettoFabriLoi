@@ -56,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_bio'])) {
     }
 }
 
-
 // Recupero informazioni utente
 $userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, numero_telefono FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($userQuery);
@@ -180,7 +179,7 @@ $stmt->close();
 
         <div class="row">
             <div class="col-md-4">
-                <h3>Informazioni Personali</h3>
+            <h3>Informazioni Personali</h3>
                 <?php if (!empty($user['img_profilo'])) : ?>
                     <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>?v=<?php echo time(); ?>" alt="Immagine del profilo" class="img-thumbnail mb-3">
                     <?php endif; ?>
@@ -191,6 +190,7 @@ $stmt->close();
                     </div>
                     <button type="submit" class="btn btn-primary" id="btnUpdateImg" disabled>Aggiorna Immagine</button>
                 </form>
+
                 <p><strong>Username:</strong> <?php echo htmlspecialchars($user['username']); ?></p>
                 <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
                 <p><strong>Nome:</strong> <?php echo htmlspecialchars($user['nome']); ?></p>
@@ -309,7 +309,8 @@ $stmt->close();
             }
         });
     });
-
+</script>
+<script> 
     $(document).ready(function() {
         $('#bioForm').on('submit', function(e) {
             e.preventDefault();
@@ -333,7 +334,8 @@ $stmt->close();
             });
         });
     });
-
+</script>
+<script> 
     $(document).ready(function() {
         var originalBio = "<?php echo htmlspecialchars($user['bio'] ?? ''); ?>";
 
@@ -358,7 +360,6 @@ $stmt->close();
                 $('#btnUpdateBio').prop('disabled', true); // Disabilita il pulsante Salva se non ci sono modifiche
             }
         });
-
     });
 </script>
 </html>
