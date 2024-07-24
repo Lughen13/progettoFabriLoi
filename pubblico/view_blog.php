@@ -43,9 +43,10 @@ if ($result_check_follow->num_rows > 0) {
 $stmt_check_follow->close();
 
 // Recupera i post con i relativi commenti e il conteggio dei Mi Piace
-$queryPosts = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, 
+$queryPosts = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, s.nome_sottocat,
                      COUNT(l.id_like) AS total_likes
               FROM post p
+              JOIN sottocat s ON p.id_sottocat = s.id_sottocat
               LEFT JOIN likes l ON p.id_post = l.id_post
               WHERE p.id_blog = ?
               GROUP BY p.id_post";
@@ -132,7 +133,17 @@ $conn->close();
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card-title {
+            color: #1da1f2;
+        }
+        .card-text {
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -201,6 +212,7 @@ $conn->close();
                 <div class="card mt-3">
                     <div class="card-body">
                         <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
+                        <h6 class="card-text">Sottocategoria: <?php echo htmlspecialchars($post['nome_sottocat']); ?></h6>
                         <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
 
                         <!-- Visualizzazione delle immagini del post -->
