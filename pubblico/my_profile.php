@@ -56,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_bio'])) {
     }
 }
 
+
 // Recupero informazioni utente
 $userQuery = "SELECT username, email, nome, cognome, data_nascita, genere, bio, img_profilo, numero_telefono FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($userQuery);
@@ -81,26 +82,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['img_profilo'])) {
         $imgDestination = '../uploads/' . $newImgFileName;
 
         if (move_uploaded_file($imgTmpName, $imgDestination)) {
-            // Aggiorna l'immagine del profilo nel database
+            // Update the database with the new image filename
             $updateImgQuery = "UPDATE utente SET img_profilo = ? WHERE id_utente = ?";
             $stmt = $conn->prepare($updateImgQuery);
             $stmt->bind_param('si', $newImgFileName, $userId);
-            if ($stmt->execute()) {
-                // Aggiornamento dell'immagine del profilo eseguito con successo
-                $user['img_profilo'] = $newImgFileName;
-            } else {
-                echo "Errore durante l'aggiornamento dell'immagine del profilo: " . $stmt->error;
-            }
+            $stmt->execute();
             $stmt->close();
-        } else {
-            echo "Errore durante il caricamento dell'immagine.";
+
+            // Update the user array with the new image filename
+            $user['img_profilo'] = $newImgFileName;
         }
-    } else {
-        echo "Formato dell'immagine non valido o errore durante il caricamento.";
     }
 }
 
-// Caricamento dei blog dell'utente con il nome della categoria
+// query per i blog dell'utente con il recupero della categoria, da mostrare 
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, b.id_categoria, c.nome_categoria 
                FROM blog b 
                INNER JOIN categoria c ON b.id_categoria = c.id_categoria 
@@ -277,8 +272,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
             <div class="col-md-4">
                 <h3>Informazioni Personali</h3>
                 <?php if (!empty($user['img_profilo'])) : ?>
-                    <img src="../uploads/<?php echo $user['img_profilo']; ?>" alt="Immagine del profilo" class="img-thumbnail mb-3">
-                <?php endif; ?>
+                    <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>?v=<?php echo time(); ?>" alt="Immagine del profilo" class="img-thumbnail mb-3">
+                    <?php endif; ?>
                 <form id="updateImgForm" action="my_profile.php" method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="img_profilo">Carica nuova immagine profilo</label>
@@ -553,29 +548,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
             }
         });
 
-        // Gestisci il submit del form per la modifica della bio
-        $('#editBioForm').on('submit', function(e) {
-            e.preventDefault();
-            var bioData = $(this).serialize();
-            $.ajax({
-                type: 'POST',
-                url: 'my_profile.php',
-                data: bioData,
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        alert('Bio aggiornata con successo!');
-                        $('#editBioModal').modal('hide');
-                        location.reload();
-                    } else {
-                        alert('Errore durante l\'aggiornamento della bio: ' + response.error);
-                    }
-                },
-                error: function() {
-                    alert('Inserisci del testo nella bio!');
-                }
-            });
-        });
     });
 </script>
 

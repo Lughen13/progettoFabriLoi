@@ -20,6 +20,132 @@ function validateInput($data) {
     }
     return $data;
 }
+// Gestione delle richieste AJAX
+if (isset($_POST['action']) && $_POST['action'] == 'validate') {
+    $response = array();
+
+    // Validazione nome
+    if (isset($_POST["nome"])) {
+        $nome = validateInput($_POST["nome"]);
+        if (empty($nome)) {
+            $response['nome'] = "Inserisci il tuo nome.";
+        } elseif (strlen($nome) < 3) {
+            $response['nome'] = "Il nome deve contenere almeno 3 caratteri.";
+        } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $nome)) {
+            $response['nome'] = "Il nome può contenere solo lettere e spazi.";
+        }
+    }
+
+    // Validazione cognome
+    if (isset($_POST["cognome"])) {
+        $cognome = validateInput($_POST["cognome"]);
+        if (empty($cognome)) {
+            $response['cognome'] = "Inserisci il tuo cognome.";
+        } elseif (strlen($cognome) < 3) {
+            $response['cognome'] = "Il cognome deve contenere almeno 3 caratteri.";
+        } elseif (!preg_match("/^[a-zA-Z-' ]*$/", $cognome)) {
+            $response['cognome'] = "Il cognome può contenere solo lettere e spazi.";
+        }
+    }
+
+    // Validazione username
+    if (isset($_POST["username"])) {
+        $username = validateInput($_POST["username"]);
+        if (empty($username)) {
+            $response['username'] = "Inserisci un username.";
+        } elseif (!preg_match("/^[a-zA-Z0-9_]*$/", $username)) {
+            $response['username'] = "Il username può contenere solo lettere, numeri e underscore.";
+        } else {
+            // Controllo se l'username esiste già nel database
+            $sql = "SELECT id_utente FROM utente WHERE username = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                $response['username'] = "Questo username è già in utilizzo.";
+            }
+            $stmt->close();
+        }
+    }
+
+    // Validazione email
+    if (isset($_POST["email"])) {
+        $email = validateInput($_POST["email"]);
+        if (empty($email)) {
+            $response['email'] = "Inserisci un'email.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $response['email'] = "Formato email non valido.";
+        } else {
+            // Controllo se l'email esiste già nel database
+            $sql = "SELECT id_utente FROM utente WHERE email = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                $response['email'] = "Questa email è già stata utilizzata.";
+            }
+            $stmt->close();
+        }
+    }
+
+     // Validazione data di nascita
+     if (isset($_POST["data_nascita"])) {
+        $data_nascita = validateInput($_POST["data_nascita"]);
+        if (empty($data_nascita)) {
+            $response['data_nascita'] = "Inserisci la tua data di nascita.";
+        } else {
+            $data_nascita_obj = DateTime::createFromFormat('Y-m-d', $data_nascita);
+            $min_data = new DateTime("1910-01-01");
+            $max_data = (new DateTime())->sub(new DateInterval('P16Y'));
+
+            if (!$data_nascita_obj || $data_nascita_obj->format('Y-m-d') != $data_nascita) {
+                $response['data_nascita'] = "Formato data di nascita non valido.";
+            } elseif ($data_nascita_obj < $min_data || $data_nascita_obj > $max_data) {
+                $response['data_nascita'] = "La data di nascita deve essere dal primo gennaio 1910 in poi, oppure devi avere almeno 16 anni.";
+            }
+        }
+    }
+
+    // Validazione numero di telefono
+    if (isset($_POST["numero_telefono"])) {
+        $numero_telefono = validateInput($_POST["numero_telefono"]);
+        if (!empty($numero_telefono) && !preg_match("/^[0-9]{10}$/", $numero_telefono)) {
+            $response['numero_telefono'] = "Il numero di telefono deve essere di 10 cifre.";
+        }
+    }
+
+
+    // Validazione password
+    if (isset($_POST["password"])) {
+        $password = validateInput($_POST["password"]);
+        if (empty($password)) {
+            $response['password'] = "Inserisci una password.";
+        } elseif (strlen($password) < 8) {
+            $response['password'] = "La password deve essere di minimo 8 caratteri.";
+        } elseif (strlen($password) > 60) {
+            $response['password'] = "La password non deve superare i 60 caratteri.";
+        } elseif (!preg_match('/[A-Z]/', $password)) {
+            $response['password'] = "La password deve contenere almeno una lettera maiuscola.";
+        } elseif (!preg_match('/[\W]/', $password)) { // \W = /[!@#$%^&*(),.?":{}|<>]/
+            $response['password'] = "La password deve contenere almeno un carattere speciale.";
+        }
+    }
+
+    // Validazione conferma password
+    if (isset($_POST["confirm_password"])) {
+        $confirm_password = validateInput($_POST["confirm_password"]);
+        if (empty($confirm_password)) {
+            $response['confirm_password'] = "Conferma la password.";
+        } elseif ($confirm_password != $password) {
+            $response['confirm_password'] = "Le password non corrispondono.";
+        }
+    }
+
+    echo json_encode($response);
+    exit();
+}
 // Inizializzazione delle variabili
 $nome = $cognome = $username = $password = $confirm_password = $email = $data_nascita = $genere = $numero_telefono = $intestatario = $carta = $data_scadenza = "";
 $nome_err = $cognome_err = $username_err = $password_err = $email_err = $data_nascita_err = $genere_err = $numero_telefono_err = $intestatario_err = $carta_err = $data_scadenza_err = $confirm_password_err =  "";
@@ -71,14 +197,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password_err = "La password non deve superare i 60 caratteri.";
     } elseif (!preg_match('/[A-Z]/', $password)) {
         $password_err = "La password deve contenere almeno una lettera maiuscola.";
-    } elseif (!preg_match('/[\W]/', $password)) { // \W = /[!@#$%^&*(),.?":{}|<>]/
+    } elseif (!preg_match('/[\W]/', $password)) {
         $password_err = "La password deve contenere almeno un carattere speciale.";
     }
 
     // Conferma password
     $confirm_password = validateInput($_POST["confirm_password"]);
     if (empty($confirm_password)) {
-        $confirm_password  = "Conferma la password.";
+        $confirm_password_err = "Conferma la password.";
     } elseif ($confirm_password != $password) {
         $confirm_password_err = "Le password non corrispondono.";
     }
@@ -301,76 +427,76 @@ $conn->close();
     <div class="container">
         <h2>Registrazione</h2>
         <p>Compila i seguenti campi per registrarti</p>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
+        <form id="registration-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
             <div class="form-group">
                 <label>Nome:</label>
-                <input type="text" name="nome" value="<?php echo $nome;?>">
-                <span class="error"><?php echo $nome_err;?></span>
+                <input type="text" id="nome" name="nome" value="<?php echo $nome;?>">
+                <span class="error" id="nome_err"><?php echo $nome_err;?></span>
             </div>
             <div class="form-group">
                 <label>Cognome:</label>
-                <input type="text" name="cognome" value="<?php echo $cognome;?>">
-                <span class="error"><?php echo $cognome_err;?></span>
+                <input type="text" id="cognome" name="cognome" value="<?php echo $cognome;?>">
+                <span class="error" id="cognome_err"><?php echo $cognome_err;?></span>
             </div>
             <div class="form-group">
                 <label>Username:</label>
-                <input type="text" name="username" value="<?php echo $username;?>">
-                <span class="error"><?php echo $username_err;?></span>
+                <input type="text" id="username" name="username" value="<?php echo $username;?>">
+                <span class="error" id="username_err"><?php echo $username_err;?></span>
             </div>
             <div class="form-group">
-                <label>Password (deve contenere almeno una lettera maiuscola, un carattere speciale e deve essere minimo di 8 caratteri):</label>
-                <input type="password" name="password" value="<?php echo $password;?>">
-                <span class="error"><?php echo $password_err;?></span>
+                <label>Password:</label>
+                <input type="password" id="password" name="password" value="<?php echo $password;?>">
+                <span class="error" id="password_err"><?php echo $password_err;?></span>
             </div>
             <div class="form-group">
                 <label>Conferma Password:</label>
-                <input type="password" name="confirm_password" value="<?php echo $confirm_password;?>">
-                <span class="error"><?php echo $confirm_password_err;?></span>
+                <input type="password" id="confirm_password" name="confirm_password" value="<?php echo $confirm_password;?>">
+                <span class="error" id="confirm_password_err"><?php echo $confirm_password_err;?></span>
             </div>
             <div class="form-group">
                 <label>Email:</label>
-                <input type="email" name="email" value="<?php echo $email;?>">
-                <span class="error"><?php echo $email_err;?></span>
+                <input type="email" id="email" name="email" value="<?php echo $email;?>">
+                <span class="error" id="email_err"><?php echo $email_err;?></span>
             </div>
             <div class="form-group">
                 <label>Data di nascita:</label>
-                <input type="date" name="data_nascita" value="<?php echo $data_nascita;?>">
-                <span class="error"><?php echo $data_nascita_err;?></span>
+                <input type="date" id="data_nascita" name="data_nascita" value="<?php echo $data_nascita;?>">
+                <span class="error" id="data_nascita_err"><?php echo $data_nascita_err;?></span>
             </div>
             <div class="form-group">
                 <label>Genere:</label>
-                <select name="genere">
+                <select id="genere" name="genere">
                     <option value="" disabled <?php if (empty($genere)) echo 'selected'; ?>>Seleziona il tuo genere</option>
                     <option value="Maschio" <?php if($genere=="Maschio") echo "selected";?>>Maschio</option>
                     <option value="Femmina" <?php if($genere=="Femmina") echo "selected";?>>Femmina</option>
                     <option value="Altro" <?php if($genere=="Altro") echo "selected";?>>Altro</option>
                 </select>
-                <span class="error"><?php echo $genere_err;?></span>
+                <span class="error" id="genere_err"><?php echo $genere_err;?></span>
             </div>
             <div class="form-group">
                 <label>Numero di telefono:</label>
-                <input type="tel" name="numero_telefono" value="<?php echo $numero_telefono;?>">
-                <span class="error"><?php echo $numero_telefono_err;?></span>
+                <input type="tel" id="numero_telefono" name="numero_telefono" value="<?php echo $numero_telefono;?>">
+                <span class="error" id="numero_telefono_err"><?php echo $numero_telefono_err;?></span>
             </div>
             <div class="form-group">
                 <label>Premium:</label>
-                <input type="checkbox" name="premium" value="1" <?php if($premium==1) echo "checked";?>>
+                <input type="checkbox" id="premium" name="premium" value="1" <?php if($premium==1) echo "checked";?>>
             </div>
             <div id="premium-fields" style="display: <?php echo ($premium==1) ? 'block' : 'none';?>;">
                 <div class="form-group">
                     <label>Intestatario:</label>
-                    <input type="text" name="intestatario" value="<?php echo $intestatario;?>">
-                    <span class="error"><?php echo $intestatario_err;?></span>
+                    <input type="text" id="intestatario" name="intestatario" value="<?php echo $intestatario;?>">
+                    <span class="error" id="intestatario_err"><?php echo $intestatario_err;?></span>
                 </div>
                 <div class="form-group">
-                    <label>Numero di carta:</label>
-                    <input type="text" name="carta" value="<?php echo $carta;?>">
-                    <span class="error"><?php echo $carta_err;?></span>
+                    <label>Numero di carta di credito:</label>
+                    <input type="text" id="carta" name="carta" value="<?php echo $carta;?>">
+                    <span class="error" id="carta_err"><?php echo $carta_err;?></span>
                 </div>
                 <div class="form-group">
                     <label>Data di scadenza:</label>
-                    <input type="date" name="data_scadenza" value="<?php echo $data_scadenza;?>">
-                    <span class="error"><?php echo $data_scadenza_err;?></span>
+                    <input type="month" id="data_scadenza" name="data_scadenza" value="<?php echo $data_scadenza;?>">
+                    <span class="error" id="data_scadenza_err"><?php echo $data_scadenza_err;?></span>
                 </div>
             </div>
             <div class="form-group">
@@ -380,13 +506,69 @@ $conn->close();
         </form>
     </div>
     <script>
-    var premiumCheckbox = document.querySelector('input[name="premium"]');
-    var premiumFields = document.getElementById('premium-fields');
+        function validateField(field, value) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                const response = JSON.parse(xhr.responseText);
+                document.getElementById(field + '_err').textContent = response[field] || '';
+            } catch (e) {
+                console.error('Invalid JSON response:', e);
+            }
+        }
+    };
+    xhr.send('action=validate&' + encodeURIComponent(field) + '=' + encodeURIComponent(value));
+}
 
-    premiumCheckbox.addEventListener('change', function() {
-        premiumFields.style.display = this.checked ? 'block' : 'none';
-    });
-</script>
+// Gestione del cambio di valore dei campi
+document.getElementById('nome').addEventListener('input', function() {
+    const value = this.value;
+    if (value.length < 3) {
+        document.getElementById('nome_err').textContent = "Il nome deve contenere almeno 3 caratteri.";
+    } else {
+        validateField('nome', value);
+    }
+});
+
+document.getElementById('cognome').addEventListener('input', function() {
+    const value = this.value;
+    if (value.length < 3) {
+        document.getElementById('cognome_err').textContent = "Il cognome deve contenere almeno 3 caratteri.";
+    } else {
+        validateField('cognome', value);
+    }
+});
+
+document.getElementById('username').addEventListener('input', function() {
+    validateField('username', this.value);
+});
+
+document.getElementById('email').addEventListener('input', function() {
+    validateField('email', this.value);
+});
+
+document.getElementById('password').addEventListener('input', function() {
+    validateField('password', this.value);
+});
+
+document.getElementById('confirm_password').addEventListener('input', function() {
+    validateField('confirm_password', this.value);
+});
+
+document.getElementById('data_nascita').addEventListener('input', function() {
+    validateField('data_nascita', this.value);
+});
+
+document.getElementById('numero_telefono').addEventListener('input', function() {
+    validateField('numero_telefono', this.value);
+});
+
+document.getElementById('premium').addEventListener('change', function() {
+    document.getElementById('premium-fields').style.display = this.checked ? 'block' : 'none';
+});
+    </script>
 </body>
 </html>
-

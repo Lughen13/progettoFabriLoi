@@ -432,7 +432,13 @@ while ($row = $resultLikes->fetch_assoc()) {
 
                             <!-- Post del blog -->
                             <?php
-                            $postsQuery = "SELECT id_post, titolo_post, descrizione_post, img_post FROM post WHERE id_blog = ?";
+                            // recupero informazioni dei post (mi serve soprattutto per il recupero della sottocategoria)
+                            $postsQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, s.nome_sottocat 
+                                        FROM post p
+                                        JOIN sottocat s ON p.id_sottocat = s.id_sottocat
+                                        WHERE p.id_blog = ?";
+                            $stmt = $conn->prepare($postsQuery);
+                            $stmt->bind_param("i", $blog['id_blog']);
                             $stmt = $conn->prepare($postsQuery);
                             $stmt->bind_param("i", $blog['id_blog']);
                             $stmt->execute();
@@ -448,6 +454,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                     <div class="card mb-3">
                                         <div class="card-body">
                                             <h5 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h5>
+                                            <h6 class="card-text">Sottocategoria: <?php echo htmlspecialchars($post['nome_sottocat']); ?></h6>
                                             <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
                                             
                                             <?php
