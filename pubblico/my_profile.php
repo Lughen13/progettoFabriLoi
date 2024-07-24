@@ -114,96 +114,6 @@ $result = $stmt->get_result();
 $categorie = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Gestione della modifica del blog
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
-    $editBlogId = $_POST['blog_id'];
-    $editTitoloBlog = $_POST['edit_titolo_blog'];
-    $editDescrizione = $_POST['edit_descrizione'];
-    $editCategoriaId = $_POST['edit_categoria'];
-    $editCoautoreId = !empty($_POST['edit_coautore']) ? $_POST['edit_coautore'] : null;
-    $editImgLogo = '';
-
-    if (isset($_FILES['edit_img_logo']) && $_FILES['edit_img_logo']['error'] === UPLOAD_ERR_OK) {
-        $editImgFile = $_FILES['edit_img_logo'];
-        $editImgFileName = $editImgFile['name'];
-        $editImgTmpName = $editImgFile['tmp_name'];
-        $editImgSize = $editImgFile['size'];
-        $editImgError = $editImgFile['error'];
-
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-        $editImgExtension = strtolower(pathinfo($editImgFileName, PATHINFO_EXTENSION));
-
-        if (in_array($editImgExtension, $allowedExtensions) && $editImgError === 0) {
-            $editImgLogo = $editTitoloBlog . '_logo.' . $editImgExtension;
-            $editImgDestination = '../blog_logo/' . $editImgLogo;
-
-            if (!move_uploaded_file($editImgTmpName, $editImgDestination)) {
-                echo "Errore durante il caricamento dell'immagine.";
-            }
-        } else {
-            echo "Formato dell'immagine non valido o errore durante il caricamento.";
-        }
-    }
-
-    // Aggiorna la tabella blog
-    $editBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ?, id_categoria = ?";
-    if (!empty($editImgLogo)) {
-        $editBlogQuery .= ", img_logo = ?";
-    }
-    $editBlogQuery .= " WHERE id_blog = ? AND id_proprietario = ?";
-
-    $stmt = $conn->prepare($editBlogQuery);
-    if (!empty($editImgLogo)) {
-        $stmt->bind_param('sssisi', $editTitoloBlog, $editDescrizione, $editCategoriaId, $editImgLogo, $editBlogId, $userId);
-    } else {
-        $stmt->bind_param('sssii', $editTitoloBlog, $editDescrizione, $editCategoriaId, $editBlogId, $userId);
-    }
-
-    if ($stmt->execute()) {
-        // Aggiornamento del blog eseguito con successo
-        // Ora gestisci il co-autore
-        $checkCoautoreQuery = "SELECT COUNT(*) FROM co_autore WHERE id_blog = ?";
-        $checkStmt = $conn->prepare($checkCoautoreQuery);
-        $checkStmt->bind_param('i', $editBlogId);
-        $checkStmt->execute();
-        $checkStmt->bind_result($count);
-        $checkStmt->fetch();
-        $checkStmt->close();
-
-        if ($editCoautoreId) {
-            if ($count == 0) {
-                // Inserisci il nuovo co-autore
-                $insertCoautoreQuery = "INSERT INTO co_autore (id_utente, id_blog) VALUES (?, ?)";
-                $insertStmt = $conn->prepare($insertCoautoreQuery);
-                $insertStmt->bind_param('ii', $editCoautoreId, $editBlogId);
-                $insertStmt->execute();
-                $insertStmt->close();
-            } else {
-                // Aggiorna il co-autore esistente
-                $updateCoautoreQuery = "UPDATE co_autore SET id_utente = ? WHERE id_blog = ?";
-                $updateStmt = $conn->prepare($updateCoautoreQuery);
-                $updateStmt->bind_param('ii', $editCoautoreId, $editBlogId);
-                $updateStmt->execute();
-                $updateStmt->close();
-            }
-        } else {
-            if ($count > 0) {
-                // Rimuovi il co-autore esistente
-                $deleteCoautoreQuery = "DELETE FROM co_autore WHERE id_blog = ?";
-                $deleteStmt = $conn->prepare($deleteCoautoreQuery);
-                $deleteStmt->bind_param('i', $editBlogId);
-                $deleteStmt->execute();
-                $deleteStmt->close();
-            }
-        }
-
-        header("Location: ../pubblico/my_profile.php");  // Reindirizza alla pagina del profilo
-        exit();
-    } else {
-        echo "Errore durante l'aggiornamento del blog: " . $stmt->error;
-    }
-    $stmt->close();
-}
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -292,9 +202,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                     <label for="bio">Bio:</label>
                     <p id="currentBio"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></p>
                 </div>
+
                 <!-- bottone per aprire il modale di modifica della bio  -->
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editBioModal">Modifica Bio</button>
-
                 <div class="modal fade" id="editBioModal" tabindex="-1" role="dialog" aria-labelledby="editBioModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -332,108 +242,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                             <?php if (!empty($blog['img_logo'])) : ?>
                                 <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del blog" class="img-thumbnail mb-3">
                             <?php endif; ?>
-                            <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#editBlogModal<?php echo $blog['id_blog']; ?>">Modifica</a>
+                            <a href="../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Modifica Blog</a>
                             <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#deleteBlogModal<?php echo $blog['id_blog']; ?>">Elimina</a>
                             <a href="../pubblico/my_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-info">Visualizza</a>
                         </div>
                     </div>
-
-                    <!-- Modale di Modifica Blog -->
-                    <div class="modal fade" id="editBlogModal<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="editBlogModalLabel<?php echo $blog['id_blog']; ?>" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="editBlogModalLabel<?php echo $blog['id_blog']; ?>">Modifica Blog</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <form action="my_profile.php" method="post" enctype="multipart/form-data">
-                                        <input type="hidden" name="blog_id" value="<?php echo $blog['id_blog']; ?>">
-                                        <div class="form-group">
-                                            <label for="edit_titolo_blog<?php echo $blog['id_blog']; ?>">Titolo Blog</label>
-                                            <input type="text" class="form-control" id="edit_titolo_blog<?php echo $blog['id_blog']; ?>" name="edit_titolo_blog" value="<?php echo htmlspecialchars($blog['titolo_blog']); ?>">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="edit_descrizione<?php echo $blog['id_blog']; ?>">Descrizione</label>
-                                            <textarea class="form-control" id="edit_descrizione<?php echo $blog['id_blog']; ?>" name="edit_descrizione" rows="3"><?php echo htmlspecialchars($blog['descrizione']); ?></textarea>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="edit_categoria<?php echo $blog['id_blog']; ?>">Categoria</label>
-                                            <select class="form-control" id="edit_categoria<?php echo $blog['id_blog']; ?>" name="edit_categoria">
-                                                <?php foreach ($categorie as $categoria) : ?>
-                                                    <option value="<?php echo $categoria['id_categoria']; ?>" <?php if ($blog['id_categoria'] == $categoria['id_categoria']) echo 'selected'; ?>>
-                                                        <?php echo htmlspecialchars($categoria['nome_categoria']); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="edit_coautore<?php echo $blog['id_blog']; ?>">Coautore</label>
-                                            <select class="form-control" id="edit_coautore<?php echo $blog['id_blog']; ?>" name="edit_coautore">
-                                                <option value="">Nessun coautore</option>
-                                                <?php
-                                                // Recupera tutti gli utenti per popolare il campo select
-                                                $utentiQuery = "SELECT id_utente, username FROM utente";
-                                                $resultUtenti = $conn->query($utentiQuery);
-                                                while ($utente = $resultUtenti->fetch_assoc()) {
-                                                    $selected = ($utente['id_utente'] == $blog['id_coautore']) ? 'selected' : '';
-                                                    echo "<option value='{$utente['id_utente']}' $selected>{$utente['username']}</option>";
-                                                }
-                                                ?>
-                                            </select>
-                                        </div>
-                                        <button type="submit" name="edit_blog" class="btn btn-primary">Salva modifiche</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <script>
-                        $(document).ready(function() {
-                            var originalTitolo = "<?php echo htmlspecialchars($blog['titolo_blog']); ?>";
-                            var originalDescrizione = "<?php echo htmlspecialchars($blog['descrizione']); ?>";
-                            var originalCategoria = "<?php echo $blog['id_categoria']; ?>";
-
-                            // Funzione per verificare la lunghezza dei valori
-                            function checkInputLength() {
-                                var titoloValue = $('#edit_titolo_blog<?php echo $blog['id_blog']; ?>').val().trim();
-                                var descrizioneValue = $('#edit_descrizione<?php echo $blog['id_blog']; ?>').val().trim();
-
-                                var titoloValid = titoloValue.length > 0;
-                                var descrizioneValid = descrizioneValue.length > 0;
-
-                                return titoloValid && descrizioneValid;
-                            }
-
-                            $('#editBlogModal<?php echo $blog['id_blog']; ?>').on('show.bs.modal', function() {
-                                $('#edit_titolo_blog<?php echo $blog['id_blog']; ?>').val(originalTitolo);
-                                $('#edit_descrizione<?php echo $blog['id_blog']; ?>').val(originalDescrizione);
-                                $('#edit_categoria<?php echo $blog['id_blog']; ?>').val(originalCategoria);
-
-                                // Verifica la lunghezza dei valori all'apertura del modale
-                                var inputsValid = checkInputLength();
-                                $('#btnSaveChanges<?php echo $blog['id_blog']; ?>').prop('disabled', !inputsValid);
-                            });
-
-                            $('#edit_titolo_blog<?php echo $blog['id_blog']; ?>, #edit_descrizione<?php echo $blog['id_blog']; ?>, #edit_categoria<?php echo $blog['id_blog']; ?>').on('input change', function() {
-                                // Verifica la lunghezza dei valori ad ogni cambiamento
-                                var inputsValid = checkInputLength();
-                                var titoloChanged = $('#edit_titolo_blog<?php echo $blog['id_blog']; ?>').val() !== originalTitolo;
-                                var descrizioneChanged = $('#edit_descrizione<?php echo $blog['id_blog']; ?>').val() !== originalDescrizione;
-                                var categoriaChanged = $('#edit_categoria<?php echo $blog['id_blog']; ?>').val() !== originalCategoria;
-
-                                // Abilita il pulsante solo se ci sono modifiche e i campi non sono vuoti
-                                if ((titoloChanged || descrizioneChanged || categoriaChanged) && inputsValid) {
-                                    $('#btnSaveChanges<?php echo $blog['id_blog']; ?>').prop('disabled', false);
-                                } else {
-                                    $('#btnSaveChanges<?php echo $blog['id_blog']; ?>').prop('disabled', true);
-                                }
-                            });
-                        });
-                    </script>
-            </div>
+                </div>
 
             <!-- Modale di Eliminazione Blog -->
             <div class="modal fade" id="deleteBlogModal<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>" aria-hidden="true">
@@ -457,7 +271,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
                     </div>
                 </div>
             </div>
-
         <?php endforeach; ?>
 
         <!-- Bottone per creare un nuovo blog -->
@@ -496,8 +309,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
             }
         });
     });
-</script>
-<script>
+
     $(document).ready(function() {
         $('#bioForm').on('submit', function(e) {
             e.preventDefault();
@@ -521,8 +333,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
             });
         });
     });
-</script>
-<script>
+
     $(document).ready(function() {
         var originalBio = "<?php echo htmlspecialchars($user['bio'] ?? ''); ?>";
 
@@ -550,5 +361,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_blog'])) {
 
     });
 </script>
-
 </html>
+
