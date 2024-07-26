@@ -279,28 +279,25 @@ $conn->close();
 
                         <!-- Gestione Mi Piace -->
                         <div class="mt-3">
-                            <form class="like-form">
-                                <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
-                                <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
-                                <?php
-                                $likeAction = 'like'; // Default to 'like' if user has not liked the post yet
-                                if ($_SESSION['loggedin'] === true) {
-                                    include '../configurazione/conn.php';
-
-                                    $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
-                                    $stmt = $conn->prepare($likeQuery);
-                                    $stmt->bind_param("ii", $post['id_post'], $userId);
-                                    $stmt->execute();
-                                    $likeResult = $stmt->get_result();
-                                    if ($likeResult->num_rows > 0) {
-                                        $likeAction = 'unlike'; // If user has liked the post, set action to 'unlike'
-                                    }
-                                    $stmt->close();
-                                }
-                                ?>
-                                <button type="button" class="btn btn-success like-btn" data-action="<?php echo $likeAction; ?>">
-                                    <?php echo $likeAction === 'like' ? 'Mi Piace' : 'Togli Mi Piace'; ?>
-                                </button>
+                        <form class="like-form">
+                                                <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
+                                                <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
+                                                <?php
+                                                $likeAction = 'like'; // Default to 'like' if user has not liked the post yet
+                                                if ($_SESSION['loggedin'] === true) {
+                                                    include '../configurazione/conn.php';
+                                                    $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
+                                                    $stmt = $conn->prepare($likeQuery);
+                                                    $stmt->bind_param("ii", $post['id_post'], $userId);
+                                                    $stmt->execute();
+                                                    $likeResult = $stmt->get_result();
+                                                    $hasLiked = $likeResult->num_rows > 0;
+                                                    $stmt->close();
+                                                }
+                                                ?>
+                                                <button type="button" class="btn btn-success like-btn" data-action="<?php echo $hasLiked ? 'unlike' : 'like'; ?>">
+                                                    <?php echo $hasLiked ? 'Togli Mi Piace' : 'Mi Piace'; ?>
+                                                </button>
                             </form>
                         </div>
                     </div>
@@ -317,7 +314,7 @@ $conn->close();
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script>
-$(document).ready(function() {
+ $(document).ready(function() {
     // Funzione per aggiornare il testo del pulsante Mi Piace
     function updateLikeButton(button, action, likeCount) {
         if (action === 'like') {
@@ -353,26 +350,26 @@ $(document).ready(function() {
     });
 
     // Chiamata iniziale per aggiornare il testo del pulsante per tutti i Mi Piace
-    $('.like-btn').each(function() {
-        var button = $(this);
-        var postId = button.closest('.like-form').find('.post-id').val();
-
-        $.ajax({
-            url: '../risorse/likes.php',
-            type: 'POST',
-            data: {
-                post_id: postId,
-                action: 'get_like_count' // Chiamata per ottenere il conteggio iniziale dei Mi Piace
-            },
-            success: function(likeCount) {
-                // Aggiorna il testo del pulsante con il conteggio iniziale dei Mi Piace
-                updateLikeButton(button, 'like', likeCount);
-            },
-            error: function(xhr, status, error) {
-                console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
+    $.ajax({
+    url: '../risorse/likes.php',
+    type: 'POST',
+    data: {
+        post_id: postId,
+        action: action
+    },
+    success: function(response) {
+        var data = JSON.parse(response);
+        if (data.success) {
+            if (action === 'like') {
+                button.text('Togli Mi Piace (' + data.likeCount + ')');
+                button.data('action', 'unlike');
+            } else if (action === 'unlike') {
+                button.text('Mi Piace (' + data.likeCount + ')');
+                button.data('action', 'like');
             }
-        });
-    });
+        }
+    }
+});
 
     $('.comment-textarea').on('input', function() {
         var form = $(this).closest('form');

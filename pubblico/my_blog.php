@@ -26,7 +26,6 @@ if ($action == 'delete_blog') {
     $stmt->execute();
     $stmt->close();
 
-
     // Ora eliminare il blog
     $deleteBlogQuery = "DELETE FROM blog WHERE id_blog = ? AND id_proprietario = ?";
     $stmt = $conn->prepare($deleteBlogQuery);
@@ -106,6 +105,7 @@ if ($action == 'delete_comment') {
 }
 
 $id_blog = isset($_GET['id_blog']) ? intval($_GET['id_blog']) : 0;
+
 // Recupero dei blog dell'utente
 $blogsQuery = "SELECT id_blog, titolo_blog, descrizione, img_logo FROM blog WHERE id_blog = ? AND id_proprietario = ?";
 $stmt = $conn->prepare($blogsQuery);
@@ -115,41 +115,6 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Gestione della modifica del blog
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_blog'])) {
-    $id_blog = $_POST['id_blog'];
-    $titolo_blog = $_POST['titolo_blog'];
-    $descrizione = $_POST['descrizione'];
-
-    $updateBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ? WHERE id_blog = ? AND id_proprietario = ?";
-    $stmt = $conn->prepare($updateBlogQuery);
-    $stmt->bind_param('ssii', $titolo_blog, $descrizione, $id_blog, $userId);
-    if ($stmt->execute()) {
-        // Aggiornamento del blog eseguito con successo
-        header("Location: ../pubblico/my_blog.php");
-        exit();
-    } else {
-        echo "Errore durante l'aggiornamento del blog: " . $stmt->error;
-    }
-    $stmt->close();
-}
-// Gestione dell'aggiornamento del blog
-if ($action == 'edit_blog') {
-    $blogId = $_POST['blog_id'];
-    $newTitle = $_POST['edit_blog_title'];
-    $newDescription = $_POST['edit_blog_description'];
-
-    $updateBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ? WHERE id_blog = ? AND id_proprietario = ?";
-    $stmt = $conn->prepare($updateBlogQuery);
-    $stmt->bind_param('ssii', $newTitle, $newDescription, $blogId, $userId);
-    if ($stmt->execute()) {
-        echo "Blog aggiornato con successo!";
-    } else {
-        echo "Errore durante l'aggiornamento del blog: " . $stmt->error;
-    }
-    $stmt->close();
-    exit(); // Assicurati di terminare l'esecuzione dopo l'aggiornamento
-}
 // Gestione dell'aggiornamento del post
 if ($action == 'edit_post') {
     $postId = $_POST['post_id'];
@@ -381,54 +346,11 @@ while ($row = $resultLikes->fetch_assoc()) {
                                 <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog">
                             <?php endif; ?>
                             <div>
-                                <button class="btn btn-primary mr-2" onclick="showEditBlogModal(<?php echo $blog['id_blog']; ?>)">Modifica Blog</button>
+                            <a href="../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Modifica Blog</a>
                                 <a href="../pubblico/my_blog.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
                             </div>
 
-                            <!-- Modale per la modifica del blog -->
-                            <div class="modal fade" id="editBlogModal_<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="editBlogModalLabel_<?php echo $blog['id_blog']; ?>" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="editBlogModalLabel_<?php echo $blog['id_blog']; ?>">Modifica Blog</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form id="edit_blog_form_<?php echo $blog['id_blog']; ?>">
-                                                <input type="hidden" name="blog_id" value="<?php echo $blog['id_blog']; ?>">
-                                                <div class="form-group">
-                                                    <label for="edit_blog_title_<?php echo $blog['id_blog'];
-                                                    ?>">Nuovo titolo</label>
-                                                    <input type="text" name="edit_blog_title" id="edit_blog_title_<?php echo $blog['id_blog']; ?>" class="form-control" value="<?php echo htmlspecialchars($blog['titolo_blog']); ?>">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="edit_blog_description_<?php echo $blog['id_blog']; ?>">Nuova descrizione</label>
-                                                    <textarea name="edit_blog_description" id="edit_blog_description_<?php echo $blog['id_blog']; ?>" class="form-control"><?php echo htmlspecialchars($blog['descrizione']); ?></textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                <label for="edit_blog_coauthor_<?php echo $blog['id_blog']; ?>">Coautore</label>
-                                                <select name="edit_blog_coauthor" id="edit_blog_coauthor_<?php echo $blog['id_blog']; ?>" class="form-control">
-                                                    <option value="">Seleziona un nuovo coautore</option>
-                                                    <?php foreach ($users as $user): ?>
-                                                        <option value="<?php echo $user['id_utente']; ?>" <?php if ($user['id_utente'] == $blog['id_coautore']) echo 'selected'; ?>>
-                                                            <?php echo htmlspecialchars($user['username']); ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                    <option value="remove">Rimuovi coautore attuale</option>
-                                                </select>
-                                            </div>
-                                                
-                                            </form>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                                            <button type="button" class="btn btn-primary" onclick="editBlog(<?php echo $blog['id_blog']; ?>)">Salva</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <!-- Post del blog -->
                             <?php
@@ -477,29 +399,26 @@ while ($row = $resultLikes->fetch_assoc()) {
                                             </div>
 
                                             <div class="mt-3">
-                                                <form class="like-form">
-                                                    <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
-                                                    <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
-                                                    <?php
-                                                    $likeAction = 'like'; // Default to 'like' if user has not liked the post yet
-                                                    if ($_SESSION['loggedin'] === true) {
-                                                        include '../configurazione/conn.php';
-
-                                                        $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
-                                                        $stmt = $conn->prepare($likeQuery);
-                                                        $stmt->bind_param("ii", $post['id_post'], $userId);
-                                                        $stmt->execute();
-                                                        $likeResult = $stmt->get_result();
-                                                        if ($likeResult->num_rows > 0) {
-                                                            $likeAction = 'unlike'; // If user has liked the post, set action to 'unlike'
-                                                        }
-                                                        $stmt->close();
-                                                    }
-                                                    ?>
-                                                    <button type="button" class="btn btn-success like-btn" data-action="<?php echo $likeAction; ?>">
-                                                        <?php echo $likeAction === 'like' ? 'Mi Piace' : 'Togli Mi Piace'; ?>
-                                                    </button>
-                                                </form>
+                                            <form class="like-form">
+                                                <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
+                                                <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
+                                                <?php
+                                                $likeAction = 'like'; // Default to 'like' if user has not liked the post yet
+                                                if ($_SESSION['loggedin'] === true) {
+                                                    include '../configurazione/conn.php';
+                                                    $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
+                                                    $stmt = $conn->prepare($likeQuery);
+                                                    $stmt->bind_param("ii", $post['id_post'], $userId);
+                                                    $stmt->execute();
+                                                    $likeResult = $stmt->get_result();
+                                                    $hasLiked = $likeResult->num_rows > 0;
+                                                    $stmt->close();
+                                                }
+                                                ?>
+                                                <button type="button" class="btn btn-success like-btn" data-action="<?php echo $hasLiked ? 'unlike' : 'like'; ?>">
+                                                    <?php echo $hasLiked ? 'Togli Mi Piace' : 'Mi Piace'; ?>
+                                                </button>
+                                            </form>
                                             </div>
 
                                             <!-- Recupero dei commenti per questo post -->
@@ -686,26 +605,27 @@ while ($row = $resultLikes->fetch_assoc()) {
     });
 
     // Chiamata iniziale per aggiornare il testo del pulsante per tutti i Mi Piace
-    $('.like-btn').each(function() {
-        var button = $(this);
-        var postId = button.closest('.like-form').find('.post-id').val();
-
-        $.ajax({
-            url: '../risorse/likes.php',
-            type: 'POST',
-            data: {
-                post_id: postId,
-                action: 'get_like_count' // Chiamata per ottenere il conteggio iniziale dei Mi Piace
-            },
-            success: function(likeCount) {
-                // Aggiorna il testo del pulsante con il conteggio iniziale dei Mi Piace
-                updateLikeButton(button, 'like', likeCount);
-            },
-            error: function(xhr, status, error) {
-                console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
+    $.ajax({
+    url: '../risorse/likes.php',
+    type: 'POST',
+    data: {
+        post_id: postId,
+        action: action
+    },
+    success: function(response) {
+        var data = JSON.parse(response);
+        if (data.success) {
+            if (action === 'like') {
+                button.text('Togli Mi Piace (' + data.likeCount + ')');
+                button.data('action', 'unlike');
+            } else if (action === 'unlike') {
+                button.text('Mi Piace (' + data.likeCount + ')');
+                button.data('action', 'like');
             }
-        });
-    });
+        }
+    }
+});
+
 });
 
 </script>
