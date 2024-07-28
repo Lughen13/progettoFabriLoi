@@ -283,7 +283,6 @@ $stmt->close();
                             // Query per ottenere le notifiche recenti
                             $id_utente_corrente = $_SESSION['id'];
 
-                            // Query per ottenere le notifiche recenti
                             $queryNotifiche = "SELECT n.id, n.data, u.username, n.tipo, n.contenuto_id
                                             FROM notifiche n
                                             JOIN utente u ON n.sender_id = u.id_utente
@@ -294,7 +293,7 @@ $stmt->close();
                             $stmtNotifiche->bind_param("i", $id_utente_corrente);
                             $stmtNotifiche->execute();
                             $resultNotifiche = $stmtNotifiche->get_result();
-        
+                            $blogId = null;
                             // Output delle notifiche recenti
                             while ($notifica = $resultNotifiche->fetch_assoc()) {
                                 $notificaUsername = htmlspecialchars($notifica['username']);
@@ -306,10 +305,11 @@ $stmt->close();
         
                                 if ($tipo == 'comment' || $tipo == 'like') {
                                     $icon = ($tipo == 'comment') ? 'fas fa-comment' : 'fas fa-thumbs-up';
-                                    $link = "my_blog.php#post-$contenutoId";
+                                    $link = "view_blog.php?id_post=" . $contenutoId;
+                                    
                                 } elseif ($tipo == 'follow') {
                                     $icon = 'fas fa-user-plus';
-                                    $link = "my_blog.php#blog-$contenutoId";
+                                    $link = "view_blog.php?id_blog=" . $contenutoId;
                                 }
         
                                 if (!empty($link)) {

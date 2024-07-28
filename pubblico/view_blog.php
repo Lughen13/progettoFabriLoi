@@ -133,17 +133,7 @@ $conn->close();
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .card-title {
-            color: #1da1f2;
-        }
-        .card-text {
-            color: #333;
-        }
+
     </style>
 </head>
 <body>
@@ -213,6 +203,7 @@ $conn->close();
                     <div class="card-body">
                         <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
                         <h6 class="card-text">Sottocategoria: <?php echo htmlspecialchars($post['nome_sottocat']); ?></h6>
+
                         <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
 
                         <!-- Visualizzazione delle immagini del post -->
@@ -278,6 +269,7 @@ $conn->close();
                     </form>
 
                         <!-- Gestione Mi Piace -->
+                        <!-- Gestione Mi Piace -->
                         <div class="mt-3">
                         <form class="like-form">
                                                 <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
@@ -314,20 +306,21 @@ $conn->close();
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script>
- $(document).ready(function() {
+    $(document).ready(function() {
     // Funzione per aggiornare il testo del pulsante Mi Piace
-    function updateLikeButton(button, action, likeCount) {
-        if (action === 'like') {
-            button.data('action', 'unlike');
-            button.text('Togli Mi Piace (' + likeCount + ')');
-        } else {
-            button.data('action', 'like');
-            button.text('Mi Piace (' + likeCount + ')');
+        function updateLikeButton(button, action, likeCount) {
+            if (action === 'like') {
+                button.data('action', 'unlike');
+                button.text('Togli Mi Piace (' + likeCount + ')');
+            } else {
+                button.data('action', 'like');
+                button.text('Mi Piace (' + likeCount + ')');
+            }
         }
-    }
 
     // Gestione del clic sul pulsante Mi Piace
     $('.like-btn').click(function() {
+        
         var button = $(this);
         var postId = button.closest('.like-form').find('.post-id').val();
         var action = button.data('action');
@@ -369,7 +362,9 @@ $conn->close();
             }
         }
     }
+    });
 });
+
 
     $('.comment-textarea').on('input', function() {
         var form = $(this).closest('form');
@@ -416,7 +411,7 @@ $conn->close();
             submitButton.prop('disabled', false);
         }
     });
-});
+    
 </script>
 
 </body>
