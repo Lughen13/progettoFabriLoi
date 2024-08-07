@@ -281,58 +281,45 @@ $stmt->close();
                             <?php
                             // Query per ottenere le notifiche recenti
                             $id_utente_corrente = $_SESSION['id'];
+
                             $queryNotifiche = "SELECT n.id, n.data, u.username, n.tipo, n.contenuto_id
-                            FROM notifiche n
-                            JOIN utente u ON n.sender_id = u.id_utente
-                            WHERE n.user_id = ?
-                            ORDER BY n.data DESC
-                            LIMIT 5";
-         $stmtNotifiche = $conn->prepare($queryNotifiche);
-         $stmtNotifiche->bind_param("i", $id_utente_corrente);
-         $stmtNotifiche->execute();
-         $resultNotifiche = $stmtNotifiche->get_result();
-         $blogId = null;
-         
-         // Output delle notifiche recenti
-         while ($notifica = $resultNotifiche->fetch_assoc()) {
-             $notificaUsername = htmlspecialchars($notifica['username']);
-             $tipo = htmlspecialchars($notifica['tipo']);
-             $contenutoId = htmlspecialchars($notifica['contenuto_id']);
-             $data = htmlspecialchars($notifica['data']);
-             $icon = '';
-             $link = '';
-         
-             if ($tipo == 'comment' || $tipo == 'like') {
-                 // Recupera l'ID del blog associato al post
-                 $queryBlogId = "SELECT id_blog FROM post WHERE id_post = ?";
-                 $stmtBlogId = $conn->prepare($queryBlogId);
-                 $stmtBlogId->bind_param("i", $contenutoId);
-                 $stmtBlogId->execute();
-                 $resultBlogId = $stmtBlogId->get_result();
-                 
-                 if ($resultBlogId->num_rows > 0) {
-                     $rowBlogId = $resultBlogId->fetch_assoc();
-                     $blogId = htmlspecialchars($rowBlogId['id_blog']);
-                 }
-         
-                 $icon = ($tipo == 'comment') ? 'fas fa-comment' : 'fas fa-thumbs-up';
-                 $link = "view_blog.php?id_blog=" . $blogId . "&id_post=" . $contenutoId;
-                 
-             } elseif ($tipo == 'follow') {
-                 $icon = 'fas fa-user-plus';
-                 $link = "view_blog.php?id_blog=" . $contenutoId;
-             }
-         
-             if (!empty($link)) {
-                 echo "<li class='list-group-item'><i class='$icon text-primary'></i> $tipo da: <a href='$link'>$notificaUsername</a> il $data</li>";
-             }
-         }
-         
-         if ($resultNotifiche->num_rows == 0) {
-             echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
-         }
-         
-         
+                                            FROM notifiche n
+                                            JOIN utente u ON n.sender_id = u.id_utente
+                                            WHERE n.user_id = ?
+                                            ORDER BY n.data DESC
+                                            LIMIT 5";
+                            $stmtNotifiche = $conn->prepare($queryNotifiche);
+                            $stmtNotifiche->bind_param("i", $id_utente_corrente);
+                            $stmtNotifiche->execute();
+                            $resultNotifiche = $stmtNotifiche->get_result();
+                            $blogId = null;
+                            // Output delle notifiche recenti
+                            while ($notifica = $resultNotifiche->fetch_assoc()) {
+                                $notificaUsername = htmlspecialchars($notifica['username']);
+                                $tipo = htmlspecialchars($notifica['tipo']);
+                                $contenutoId = htmlspecialchars($notifica['contenuto_id']);
+                                $data = htmlspecialchars($notifica['data']);
+                                $icon = '';
+                                $link = '';
+        
+                                if ($tipo == 'comment' || $tipo == 'like') {
+                                    $icon = ($tipo == 'comment') ? 'fas fa-comment' : 'fas fa-thumbs-up';
+                                    $link = "view_blog.php?id_post=" . $contenutoId;
+                                    
+                                } elseif ($tipo == 'follow') {
+                                    $icon = 'fas fa-user-plus';
+                                    $link = "view_blog.php?id_blog=" . $contenutoId;
+                                }
+        
+                                if (!empty($link)) {
+                                    echo "<li class='list-group-item'><i class='$icon text-primary'></i> $tipo da: <a href='$link'>$notificaUsername</a> il $data</li>";
+                                }
+                            }
+                            if ($resultNotifiche->num_rows == 0) {
+                                echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
+                        //     } else {
+                        //     echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
+                        }
                         ?>
                 </ul>
             </div>
