@@ -51,76 +51,50 @@ unset($_SESSION['error_msg']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crea un nuovo blog</title>
     <style>
-        body {
+body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #333;
-            color: #fff;
             text-align: center;
-            padding: 10px 0;
-            margin-bottom: 20px;
-        }
-        header h1 {
-            margin: 0;
-        }
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-            text-align: center;
-            background-color: #444;
-            margin: 0;
-        }
-        nav ul li {
-            display: inline;
-            padding: 10px;
-        }
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-        }
-        nav ul li a:hover {
-            background-color: #555;
+            margin: 20px;
         }
         form {
             max-width: 600px;
             margin: 0 auto;
-            background-color: #fff;
+            background-color: #f9f9f9;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
         }
+        h1 {
+            margin-bottom: 20px;
+        }
         label {
             display: block;
-            margin-bottom: 8px;
+            margin: 10px 0;
             font-weight: bold;
         }
-        input[type=text], input[type=file], textarea, select {
-            width: calc(100% - 20px);
+        input[type="text"], textarea, select, input[type="file"], input[type="submit"] {
+            width: calc(100% - 22px);
             padding: 10px;
-            margin-bottom: 15px;
+            margin: 10px 0;
+            font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 16px;
             box-sizing: border-box;
         }
-        input[type=submit] {
+        select {
+            appearance: auto;
+            -webkit-appearance: menulist;
+        }
+        input[type="submit"] {
             background-color: #4CAF50;
             color: white;
-            padding: 14px 20px;
-            margin: 8px 0;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
         }
-        input[type=submit]:hover {
+        input[type="submit"]:hover {
             background-color: #45a049;
         }
-        input[type=submit]:disabled {
+        input[type="submit"]:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
@@ -156,17 +130,8 @@ unset($_SESSION['error_msg']);
     </script>
 </head>
 <body>
-    <header>
         <h1>Crea un nuovo blog</h1>
-    </header>
-    <nav>        
-        <ul>
-            <li><a href="../pubblico/home.php"> Home </a></li>
-            <li><a href="../pubblico/my_profile.php">Il mio profilo </a></li>
-            <li><a href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-            <li><a href="../pubblico/logout.php">Logout</a></li>
-        </ul>
-    </nav>
+
     <form method="post" action="../risorse/process_create_blog.php" enctype="multipart/form-data">
         <?php if (!empty($error_msg)): ?>
             <div class="error-message"><?php echo htmlspecialchars($error_msg); ?></div>

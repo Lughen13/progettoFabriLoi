@@ -171,6 +171,7 @@ $maxImages = $isPremium ? 3 : 1;
 </head>
 <body>
     <h1>Crea un nuovo post</h1>
+
     <?php if ($errorMsg): ?>
         <p class="error"><?php echo $errorMsg; ?></p>
     <?php endif; ?>
@@ -194,7 +195,6 @@ $maxImages = $isPremium ? 3 : 1;
             <option value="">Seleziona una sottocategoria</option>
         </select>
 
-            <!-- Mostra solo per utenti premium -->
             <div class="premium-only">
                 <label for="image1">Immagine 1:</label>
                 <input type="file" name="immagini[]" id="image1" accept="image/*">
@@ -204,7 +204,6 @@ $maxImages = $isPremium ? 3 : 1;
                 <input type="file" name="immagini[]" id="image3" accept="image/*">
             </div>
 
-            <!-- Mostra solo per utenti standard -->
             <div class="standard-only">
                 <label for="image1">Immagine:</label>
                 <input type="file" name="immagini[]" id="image" accept="image/*">

@@ -154,56 +154,56 @@ $stmt->close();
         }
     </style>
 </head>
-
 <body>
     <div class="container mt-4">
         <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-            <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
+        <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
-                </ul>
-                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-                </form>
-            </div>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                        <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
+                    </ul>
+                    <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                        <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+                    </form>
+                </div>
         </nav>
+
 
         <div class="row">
             <div class="col-md-4">
-            <h3>Informazioni Personali</h3>
-                <?php if (!empty($user['img_profilo'])) : ?>
-                    <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>?v=<?php echo time(); ?>" alt="Immagine del profilo" class="img-thumbnail mb-3">
-                    <?php endif; ?>
-                <form id="updateImgForm" action="my_profile.php" method="post" enctype="multipart/form-data">
+                <h3>Informazioni Personali</h3>
+                    <?php if (!empty($user['img_profilo'])) : ?>
+                        <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>?v=<?php echo time(); ?>" alt="Immagine del profilo" class="img-thumbnail mb-3">
+                        <?php endif; ?>
+                    <form id="updateImgForm" action="my_profile.php" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="img_profilo">Carica nuova immagine profilo</label>
+                            <input type="file" class="form-control-file" id="img_profilo" name="img_profilo" accept=".jpg, .jpeg, .png, .gif">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnUpdateImg" disabled>Aggiorna Immagine</button>
+                    </form>
+
+                    <p><strong>Username:</strong> <?php echo htmlspecialchars($user['username']); ?></p>
+                    <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
+                    <p><strong>Nome:</strong> <?php echo htmlspecialchars($user['nome']); ?></p>
+                    <p><strong>Cognome:</strong> <?php echo htmlspecialchars($user['cognome']); ?></p>
+                    <p><strong>Data di Nascita:</strong> <?php echo htmlspecialchars($user['data_nascita']); ?></p>
+                    <p><strong>Genere:</strong> <?php echo htmlspecialchars($user['genere']); ?></p>
+                    <p><strong>Numero di Telefono:</strong> <?php echo htmlspecialchars($user['numero_telefono']); ?></p>
                     <div class="form-group">
-                        <label for="img_profilo">Carica nuova immagine profilo</label>
-                        <input type="file" class="form-control-file" id="img_profilo" name="img_profilo" accept=".jpg, .jpeg, .png, .gif">
+                        <label for="bio">Bio:</label>
+                        <p id="currentBio"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></p>
                     </div>
-                    <button type="submit" class="btn btn-primary" id="btnUpdateImg" disabled>Aggiorna Immagine</button>
-                </form>
-
-                <p><strong>Username:</strong> <?php echo htmlspecialchars($user['username']); ?></p>
-                <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-                <p><strong>Nome:</strong> <?php echo htmlspecialchars($user['nome']); ?></p>
-                <p><strong>Cognome:</strong> <?php echo htmlspecialchars($user['cognome']); ?></p>
-                <p><strong>Data di Nascita:</strong> <?php echo htmlspecialchars($user['data_nascita']); ?></p>
-                <p><strong>Genere:</strong> <?php echo htmlspecialchars($user['genere']); ?></p>
-                <p><strong>Numero di Telefono:</strong> <?php echo htmlspecialchars($user['numero_telefono']); ?></p>
-                <div class="form-group">
-                    <label for="bio">Bio:</label>
-                    <p id="currentBio"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></p>
-                </div>
-
-                <!-- bottone per aprire il modale di modifica della bio  -->
+                    
+                    <!-- bottone per aprire il modale di modifica della bio  -->
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editBioModal">Modifica Bio</button>
                 <div class="modal fade" id="editBioModal" tabindex="-1" role="dialog" aria-labelledby="editBioModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -231,6 +231,7 @@ $stmt->close();
                 </div>
             </div>
 
+
             <div class="col-md-8">
                 <h3>I Miei Blog</h3>
                 <?php foreach ($blogs as $blog) : ?>
@@ -247,43 +248,42 @@ $stmt->close();
                             <a href="../pubblico/my_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-info">Visualizza</a>
                         </div>
                     </div>
-                </div>
+                
 
-            <!-- Modale di Eliminazione Blog -->
-            <div class="modal fade" id="deleteBlogModal<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>">Elimina Blog</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times; </button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Sei sicuro di voler eliminare il blog "<?php echo htmlspecialchars($blog['titolo_blog']); ?>"?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <form action="my_profile.php" method="post">
-                                <input type="hidden" name="blog_id" value="<?php echo $blog['id_blog']; ?>">
-                                <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                            </form>
+                <!-- Modale di Eliminazione Blog -->
+                <div class="modal fade" id="deleteBlogModal<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>">Elimina Blog</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times; </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Sei sicuro di voler eliminare il blog "<?php echo htmlspecialchars($blog['titolo_blog']); ?>"?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <form action="my_profile.php" method="post">
+                                    <input type="hidden" name="blog_id" value="<?php echo $blog['id_blog']; ?>">
+                                    <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
 
-        <!-- Bottone per creare un nuovo blog -->
-        <div class="text-center">
+            <div class="text-center">
             <a href="../pubblico/create_blog.php" class="btn btn-success btn-lg mt-4">Crea Nuovo Blog</a>
             <a href=" ../pubblico/create_post.php" class="btn btn-success btn-lg mt-4">Crea Nuovo Post</a>
-        </div>
+            </div>
         </div>
     </div>
-    </div>
-
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </body>
+
+
+
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

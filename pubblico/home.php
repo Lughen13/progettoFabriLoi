@@ -163,7 +163,7 @@ $stmt->close();
         <!-- Sezione per le categorie con loghi -->
         <div class="row">
             <?php if ($isPremium) : ?>
-                <h2>   A cosa sei <?php echo $interesse ?>?  </h2>
+                <h2>A cosa sei <?php echo $interesse ?>?  </h2>
                 <div class="row">
                     <div class="col-md-2 category-card">
                         <a href="../pubblico/search.php?categoria=Tecnologia">
