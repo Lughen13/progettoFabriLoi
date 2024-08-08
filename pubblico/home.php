@@ -1,3 +1,5 @@
+home.php
+
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -163,7 +165,7 @@ $stmt->close();
         <!-- Sezione per le categorie con loghi -->
         <div class="row">
             <?php if ($isPremium) : ?>
-                <h2>A cosa sei <?php echo $interesse ?>?  </h2>
+                <h2>   A cosa sei <?php echo $interesse ?>?  </h2>
                 <div class="row">
                     <div class="col-md-2 category-card">
                         <a href="../pubblico/search.php?categoria=Tecnologia">
@@ -273,64 +275,73 @@ $stmt->close();
             </div>
 
                         <!-- Sidebar per Notifiche -->
-                                <!-- Sidebar per Notifiche -->
             <div class="col-md-4">
-                <div class="card sidebar">                        
+                <div class="card sidebar">
                     <div class="card-body">
                         <h5 class="card-title">Notifiche recenti</h5>
-                        <ul class="list-group">
-                            <?php
-                            // Query per ottenere le notifiche recenti
-                            $id_utente_corrente = $_SESSION['id'];
-
-                            $queryNotifiche = "SELECT n.id, n.data, u.username, n.tipo, n.contenuto_id
-                                            FROM notifiche n
-                                            JOIN utente u ON n.sender_id = u.id_utente
-                                            WHERE n.user_id = ?
-                                            ORDER BY n.data DESC
-                                            LIMIT 5";
-                            $stmtNotifiche = $conn->prepare($queryNotifiche);
-                            $stmtNotifiche->bind_param("i", $id_utente_corrente);
-                            $stmtNotifiche->execute();
-                            $resultNotifiche = $stmtNotifiche->get_result();
-                            $blogId = null;
-                            // Output delle notifiche recenti
-                            while ($notifica = $resultNotifiche->fetch_assoc()) {
-                                $notificaUsername = htmlspecialchars($notifica['username']);
-                                $tipo = htmlspecialchars($notifica['tipo']);
-                                $contenutoId = htmlspecialchars($notifica['contenuto_id']);
-                                $data = htmlspecialchars($notifica['data']);
-                                $icon = '';
-                                $link = '';
-        
-                                if ($tipo == 'comment' || $tipo == 'like') {
-                                    $icon = ($tipo == 'comment') ? 'fas fa-comment' : 'fas fa-thumbs-up';
-                                    $link = "view_blog.php?id_post=" . $contenutoId;
-                                    
-                                } elseif ($tipo == 'follow') {
-                                    $icon = 'fas fa-user-plus';
-                                    $link = "view_blog.php?id_blog=" . $contenutoId;
-                                }
-        
-                                if (!empty($link)) {
-                                    echo "<li class='list-group-item'><i class='$icon text-primary'></i> $tipo da: <a href='$link'>$notificaUsername</a> il $data</li>";
-                                }
-                            }
-                            if ($resultNotifiche->num_rows == 0) {
-                                echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
-                        //     } else {
-                        //     echo "<li class='list-group-item'><i class='fas fa-bell text-primary'></i> Nessuna notifica recente</li>";
-                        }
-                        ?>
-                </ul>
+                        <ul class="list-group" id="notification-list">
+                            <!-- Notifiche caricate dinamicamente da JavaScript -->
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
+
+    <!-- jQuery e Bootstrap JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+$(document).ready(function() {
+    function fetchNotifications() {
+        $.ajax({
+            url: '../risorse/get_notifications.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                var notificationList = $('#notification-list');
+                notificationList.empty();
+
+                if (data.length === 0) {
+                    notificationList.append('<li class="list-group-item">Non ci sono notifiche.</li>');
+                } else {
+                    data.forEach(function(notification) {
+                        var listItem = '<li class="list-group-item">';
+                        listItem += '<strong>' + notification.sender_username + '</strong> ';
+
+                        // Costruzione del messaggio in base al tipo di notifica
+                        if (notification.tipo === 'comment') {
+                            listItem += 'ha commentato il tuo post: ';
+                            listItem += '<a href="view_blog.php?id_blog=' + notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                        } else if (notification.tipo === 'like') {
+                            listItem += 'ha messo mi piace al tuo post: ';
+                            listItem += '<a href="view_blog.php?id_blog=' + notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                        } else if (notification.tipo === 'follow') {
+                            listItem += 'ha iniziato a seguirti nel blog: ';
+                            listItem += '<a href="view_blog.php?id_blog=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                        } else {
+                            listItem += 'ha eseguito un\'azione.';
+                        }
+
+                        listItem += '<br><small>' + notification.data + '</small>';
+                        listItem += '</li>';
+
+                        notificationList.append(listItem);
+                    });
+                }
+            },
+            error: function() {
+                $('#notification-list').append('<li class="list-group-item text-danger">Errore nel caricamento delle notifiche.</li>');
+            }
+        });
+    }
+
+    // Carica le notifiche all'avvio
+    fetchNotifications();
+});
 
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</script>
 </body>
 </html>
