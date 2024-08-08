@@ -1,5 +1,3 @@
-home.php
-
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -50,7 +48,6 @@ function interesse($genere){
         return 'interessat*'; // Restituisce "Benvenut*" come valore predefinito
     }
 }
-
 $saluto = Saluta($genere);
 $interesse = interesse($genere);
 
@@ -81,7 +78,6 @@ $query = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, u.username
 if (!empty($favoriteBlogIdsStr)) {
     $query .= " AND b.id_blog NOT IN ($favoriteBlogIdsStr)";
 }
-
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $userId);
 $stmt->execute();
@@ -274,7 +270,7 @@ $stmt->close();
                 <?php endif; ?>
             </div>
 
-                        <!-- Sidebar per Notifiche -->
+            <!-- Sidebar per Notifiche -->
             <div class="col-md-4">
                 <div class="card sidebar">
                     <div class="card-body">
@@ -313,10 +309,10 @@ $(document).ready(function() {
                         // Costruzione del messaggio in base al tipo di notifica
                         if (notification.tipo === 'comment') {
                             listItem += 'ha commentato il tuo post: ';
-                            listItem += '<a href="view_blog.php?id_blog=' + notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                            listItem += '<a href="view_blog.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
                         } else if (notification.tipo === 'like') {
                             listItem += 'ha messo mi piace al tuo post: ';
-                            listItem += '<a href="view_blog.php?id_blog=' + notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                            listItem += '<a href="view_blog.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
                         } else if (notification.tipo === 'follow') {
                             listItem += 'ha iniziato a seguirti nel blog: ';
                             listItem += '<a href="view_blog.php?id_blog=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
@@ -336,7 +332,6 @@ $(document).ready(function() {
             }
         });
     }
-
     // Carica le notifiche all'avvio
     fetchNotifications();
 });
