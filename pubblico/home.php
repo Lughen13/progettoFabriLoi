@@ -273,6 +273,7 @@ $stmt->close();
             </div>
 
                         <!-- Sidebar per Notifiche -->
+                                <!-- Sidebar per Notifiche -->
             <div class="col-md-4">
                 <div class="card sidebar">                        
                     <div class="card-body">
