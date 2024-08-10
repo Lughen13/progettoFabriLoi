@@ -137,7 +137,6 @@ $stmt->close();
 <div class="container mt-4">
         <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-         <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -155,11 +154,10 @@ $stmt->close();
             </div>
         </nav>
 
-    <div class="container mt-5">
+    <div class="container mt-4">
         <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
-
         <!-- Sezione per le categorie con loghi -->
-        <div class="row">
+        <div class="col-md-8">
             <?php if ($isPremium) : ?>
                 <h2>   A cosa sei <?php echo $interesse ?>?  </h2>
                 <div class="row">

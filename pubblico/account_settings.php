@@ -131,8 +131,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
             
-
-
             $data_nascita = $_POST['data_nascita'];
             if (empty($data_nascita)) {
                 $data_nascita_err = "Inserisci la tua data di nascita.";
@@ -149,7 +147,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $updateFields[] = "data_nascita = '$data_nascita'";
                 }
             }
-
 
             if (isset($_POST['genere']) && !empty($_POST['genere'])) {
                 $genere = $_POST['genere'];
@@ -192,7 +189,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     }
                 }
 
-
                 if (empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
                     // Controllo se il numero della carta è già in uso
                     $checkCardQuery = "SELECT id_utente FROM premium WHERE numero_carta = ? AND id_utente != ?";
@@ -218,7 +214,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $stmt->close();
                         }
                     }
-
                    // $stmt->close();
                 }
             } elseif (isset($user['premium']) && $user['premium'] == 1) {
@@ -228,7 +223,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->execute();
                 $stmt->close();
             }
-
 
             if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)&& empty($data_nascita_err)) {
                 if (!empty($updateFields)) {
@@ -245,6 +239,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -256,24 +251,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Font Awesome per icone -->
     
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
-        }
 
         form {
-            /* width: 50%; */
             margin: 20px auto;
             background-color: #fff;
-            padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
 
         form div {
-            margin-bottom: 10px;
             text-align: left;
+            padding: 10px;
+
         }
 
         label {
@@ -332,12 +321,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         button {
             margin-top: 10px;
+            margin-bottom: 10px;
             background-color: #007bff;
         }
 
         button:hover {
             background-color: #0056b3;
         }
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
         .navbar-brand {
             font-weight: bold;
         }
@@ -449,7 +447,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div>
             <label for="old_password">Per salvare le modifiche, inserisci la password:</label>
             <input type="password" id="old_password" name="old_password" required>  
-            <p>  in caso tu avessi cambiato password, inserisci la nuova password</p>
+            <p>  In caso tu avessi cambiato password, inserisci la vecchia password</p>
         </div>
 
         <button type="submit" name="save_changes" value="1">Salva Modifiche</button>

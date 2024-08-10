@@ -205,7 +205,7 @@ while ($row = $resultLikes->fetch_assoc()) {
      body {
             font-family: "<?php echo $font; ?>", sans-serif;
             color: <?php echo $colore_testo; ?>;
-            background-color: <?php echo $colore_sfondo; ?>;
+            background-color: #f8f9fa;
         }
     .comments-container {
         border: 1px solid #ddd;
@@ -214,7 +214,6 @@ while ($row = $resultLikes->fetch_assoc()) {
         padding: 20px;
         margin-top: 20px;
     }
-
     .comment-item {
         background-color: #f9f9f9;
         padding: 10px;
@@ -236,23 +235,7 @@ while ($row = $resultLikes->fetch_assoc()) {
 
     .comment-item .comment-content {
         margin-top: 8px;
-    }
-</style>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }        
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .navbar {
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+    }        
         .form-control {
             border-radius: 20px;
         }
@@ -278,11 +261,6 @@ while ($row = $resultLikes->fetch_assoc()) {
         .btn-primary:hover {
             background-color: #0e71a1;
             border-color: #0e71a1;
-        }
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
         }
         .card-title {
             color: #1da1f2;
@@ -311,6 +289,27 @@ while ($row = $resultLikes->fetch_assoc()) {
         }
         .comment-item strong {
             color: #1da1f2;
+        }
+
+        
+        .navbar-brand {
+            font-weight: bold;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar {
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>

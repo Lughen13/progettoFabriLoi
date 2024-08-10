@@ -169,6 +169,7 @@ body {
         </select>
 
         <input type="submit" value="Crea blog" id="submit-button" disabled>
+        <a href="../pubblico/home.php" class="button">Torna alla Home</a>
     </form>
 </body>
 </html>

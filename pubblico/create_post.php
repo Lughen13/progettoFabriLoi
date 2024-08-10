@@ -210,9 +210,10 @@ $maxImages = $isPremium ? 3 : 1;
             </div>
 
             <input type="submit" value="Crea post" id="submit-button" disabled>
+            <a href="../pubblico/home.php" class="button">Torna alla Home</a>
     </form>
         
-    <a href="../pubblico/home.php" class="button">Torna alla Home</a>
+
 </body>
 </html>
 
