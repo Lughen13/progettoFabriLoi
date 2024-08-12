@@ -147,7 +147,7 @@ $conn->close();
     </style>
 </head>
 <body>
-    
+
 <div class="container mt-4">
         <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
@@ -280,8 +280,10 @@ $conn->close();
                             <form class="like-form">
                                 <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
                                 <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
+                            <input type="hidden" name="action" value="insert">
+
                                 <?php
-                                    $likeAction = 'like'; // Default to 'like' if user has not liked the post yet
+                                    $likeAction = 'like'; 
                                     if ($_SESSION['loggedin'] === true) {
                                         include '../configurazione/conn.php';
                                         $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
@@ -348,27 +350,7 @@ $conn->close();
             });
         });
 
-        // Chiamata iniziale per aggiornare il testo del pulsante per tutti i Mi Piace
-        $.ajax({
-        url: '../risorse/likes.php',
-        type: 'POST',
-        data: {
-            post_id: postId,
-            action: action
-            },
-            success: function(response) {
-                var data = JSON.parse(response);
-                if (data.success) {
-                    if (action === 'like') {
-                        button.text('Togli Mi Piace (' + data.likeCount + ')');
-                        button.data('action', 'unlike');
-                    } else if (action === 'unlike') {
-                        button.text('Mi Piace (' + data.likeCount + ')');
-                        button.data('action', 'like');
-                    }
-                }
-            }
-        });
+
     });
 
 
@@ -417,7 +399,8 @@ $conn->close();
             submitButton.prop('disabled', false);
         }
     });
-
 </script>
+
+
 </body>
 </html>

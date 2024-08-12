@@ -84,6 +84,9 @@ $stmt->execute();
 $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
+
+
+
 ?>
 
 
@@ -135,25 +138,26 @@ $stmt->close();
 </head>
 <body>
 <div class="container mt-4">
-        <h1>ToteBlog</h1>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
-                </ul>
-                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-                </form>
-            </div>
-        </nav>
+    <h1>ToteBlog</h1>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+            </form>
+        </div>
+    </nav>
 
+ 
     <div class="container mt-4">
         <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
         <!-- Sezione per le categorie con loghi -->
@@ -243,7 +247,6 @@ $stmt->close();
                 <?php else: ?>
                     <p>Non stai seguendo nessun blog.</p>
                 <?php endif; ?>
-
                 <!-- Sezione per i blog degli altri utenti -->
                 <h2>Blog a cui potresti dare un'occhiata</h2>
                 <?php if (!empty($blogs)): ?>
@@ -275,17 +278,29 @@ $stmt->close();
                         <h5 class="card-title">Notifiche recenti</h5>
                         <ul class="list-group" id="notification-list">
                             <!-- Notifiche caricate dinamicamente da JavaScript -->
+                            <?php
+                            // Seleziona le ultime 10 notifiche per l'utente
+                            $query = "SELECT * FROM notifiche WHERE user_id = ? ORDER BY data DESC LIMIT 10";
+                            $stmt = $conn->prepare($query);
+                            $stmt->bind_param("i", $userId);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $notifiche = $result->fetch_all(MYSQLI_ASSOC);
+                            $stmt->close();
+                            ?>
+
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+</div>
 
-    <!-- jQuery e Bootstrap JavaScript -->
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<!-- jQuery e Bootstrap JavaScript -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
 <script>
 $(document).ready(function() {
     function fetchNotifications() {
@@ -303,24 +318,21 @@ $(document).ready(function() {
                     data.forEach(function(notification) {
                         var listItem = '<li class="list-group-item">';
                         listItem += '<strong>' + notification.sender_username + '</strong> ';
-
                         // Costruzione del messaggio in base al tipo di notifica
                         if (notification.tipo === 'comment') {
                             listItem += 'ha commentato il tuo post: ';
-                            listItem += '<a href="view_blog.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                            listItem += '<a href="my_blog.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
                         } else if (notification.tipo === 'like') {
                             listItem += 'ha messo mi piace al tuo post: ';
-                            listItem += '<a href="view_blog.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                            listItem += '<a href="my_blog.php?id_post=' +  notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
                         } else if (notification.tipo === 'follow') {
                             listItem += 'ha iniziato a seguirti nel blog: ';
-                            listItem += '<a href="view_blog.php?id_blog=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                            listItem += '<a href="my_blog.php?id_blog=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
                         } else {
                             listItem += 'ha eseguito un\'azione.';
                         }
-
                         listItem += '<br><small>' + notification.data + '</small>';
                         listItem += '</li>';
-
                         notificationList.append(listItem);
                     });
                 }
