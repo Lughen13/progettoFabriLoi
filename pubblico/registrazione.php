@@ -311,9 +311,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
         }
-
-
-
+    }
         // se tutto è stato inserito correttamente si procede con l'inserimento dell'utente nella tabella del DB
         if (empty($nome_err) && empty($cognome_err) && empty($username_err) && empty($password_err) && empty($email_err) && empty($data_nascita_err) && empty($genere_err) && empty($numero_telefono_err) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
 
@@ -361,7 +359,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->close();
         }
     }
-}
+
 
 $conn->close();
 ?>

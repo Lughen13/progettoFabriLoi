@@ -21,13 +21,6 @@ if (!$categoriesResult) {
     die("Errore nella query delle categorie: " . $conn->error);
 }
 
-// Recupera gli stili dal file manage_styles.php
-require_once '../risorse/manage_styles.php';
-$stylesResult = getStyles();
-if (!$stylesResult) {
-    die("Errore nel recupero degli stili");
-}
-
 // Recupera tutti gli utenti tranne il proprietario corrente
 $current_user_id = $_SESSION['id'];
 $usersQuery = "SELECT id_utente, username FROM utente WHERE id_utente != ?";
@@ -147,13 +140,6 @@ body {
         <select name="category" id="category" required>
             <?php while ($category = $categoriesResult->fetch_assoc()): ?>
                 <option value="<?php echo htmlspecialchars($category['id_categoria']); ?>"><?php echo htmlspecialchars($category['nome_categoria']); ?></option>
-            <?php endwhile; ?>
-        </select>
-
-        <label for="style">Stile:</label>
-        <select name="style" id="style" required>
-            <?php while ($style = $stylesResult->fetch_assoc()): ?>
-                <option value="<?php echo htmlspecialchars($style['id_stile']); ?>"><?php echo htmlspecialchars($style['nome']); ?></option>
             <?php endwhile; ?>
         </select>
 
