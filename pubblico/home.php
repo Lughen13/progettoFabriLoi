@@ -321,10 +321,10 @@ $(document).ready(function() {
                         // Costruzione del messaggio in base al tipo di notifica
                         if (notification.tipo === 'comment') {
                             listItem += 'ha commentato il tuo post: ';
-                            listItem += '<a href="my_blog.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                            listItem += '<a href="my_post.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
                         } else if (notification.tipo === 'like') {
                             listItem += 'ha messo mi piace al tuo post: ';
-                            listItem += '<a href="my_blog.php?id_post=' +  notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                            listItem += '<a href="my_post.php?id_post=' +  notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
                         } else if (notification.tipo === 'follow') {
                             listItem += 'ha iniziato a seguirti nel blog: ';
                             listItem += '<a href="my_blog.php?id_blog=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';

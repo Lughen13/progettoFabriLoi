@@ -69,6 +69,7 @@ if ($action === 'insert' && $postId && !empty($comment)) {
     }
     $stmt->close();
 } elseif ($action === 'update' && $id_comm && !empty($comment)) {
+
     // Aggiorna il commento esistente
     $updateCommentQuery = "UPDATE commento SET contenuto = ? WHERE id_comm = ? AND id_utente = ?";
     $stmt = $conn->prepare($updateCommentQuery);
@@ -81,6 +82,7 @@ if ($action === 'insert' && $postId && !empty($comment)) {
     }
     $stmt->close();
 } elseif ($action === 'delete' && $id_comm) {
+
     // Elimina il commento
     $deleteCommentQuery = "DELETE FROM commento WHERE id_comm = ? AND id_utente = ?";
     $stmt = $conn->prepare($deleteCommentQuery);

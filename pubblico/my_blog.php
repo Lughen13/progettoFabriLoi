@@ -343,7 +343,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                             <h3 class="card-title"><?php echo $blog['titolo_blog']; ?></h3>
                             <p class="card-text"><?php echo $blog['descrizione']; ?></p>
                             <?php if (!empty($blog['img_logo'])): ?>
-                                <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog" width="300">  
+                                <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog">
                             <?php endif; ?>
                             <div>
                             <a href="../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Modifica Blog</a>
@@ -384,7 +384,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                             ?>
                                                 <div class="post-images">
                                                     <?php foreach ($images as $image): ?>
-                                                        <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-fluid mb-2" alt="Immagine del Post" width="500">
+                                                        <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-fluid mb-2" alt="Immagine del Post">
                                                     <?php endforeach; ?>
                                                 </div>
                                             <?php endif; ?>
