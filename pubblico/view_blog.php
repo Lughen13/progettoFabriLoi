@@ -149,40 +149,33 @@ $conn->close();
 <body>
 
 <div class="container mt-4">
-        <h1>ToteBlog</h1>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-         <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
-                </ul>
-                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-                </form>
-            </div>
-        </nav>
+    <h1>ToteBlog</h1>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+            </form>
+        </div>
+    </nav>
         
     <div class="container mt-5">
         <h1>Questo è il blog: <?php echo htmlspecialchars(isset($blog['titolo_blog']) ? $blog['titolo_blog'] : ''); ?></h1>
         <p><?php echo htmlspecialchars(isset($blog['descrizione']) ? $blog['descrizione'] : ''); ?></p>
         <p>Follower: <?php echo $follow_count; ?></p>
-
-            <!-- Bottone per stampare il blog (visualizzato solo per utenti premium) -->
+        <div class="form-group">
+        <!-- Bottone per stampare il blog (visualizzato solo per utenti premium) -->
             <?php if ($_SESSION['premium'] == 1) : ?>
                 <button class="btn btn-primary mb-3" onclick="window.print();">Stampa Blog</button>
-            <?php endif; ?>
-
-            <?php if (isset($_GET['error']) && $_GET['error'] === 'limite_superato') : ?>
-                <div class="alert alert-danger" role="alert">
-                    Hai superato il limite massimo di commenti giornalieri consentiti (20).
-                </div>
             <?php endif; ?>
 
             <!-- Form per seguire o smettere di seguire il blog -->
@@ -190,19 +183,26 @@ $conn->close();
                 <form method="post" action="../risorse/follow.php" class="d-inline">
                     <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
                     <input type="hidden" name="action" value="unfollow">
-                    <button type="submit" class="btn btn-danger">Non Seguire più</button>
+                    <button type="submit" class="btn btn-primary mb-3">Non Seguire più</button>
                 </form>
             <?php else: ?>
                 <form method="post" action="../risorse/follow.php" class="d-inline">
                     <input type="hidden" name="blog_id" value="<?php echo $id_blog; ?>">
                     <input type="hidden" name="action" value="follow">
-                    <button type="submit" class="btn btn-primary">Segui questo Blog</button>
+                    <button type="submit" class="btn btn-primary mb-3">Segui questo Blog</button>
                 </form>
             <?php endif; ?>
+        </div>
+        <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="300">
 
-            <!-- Visualizzazione del logo del blog -->
-            <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="100">
+        
 
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'limite_superato') : ?>
+                <div class="alert alert-danger" role="alert">
+                    Hai superato il limite massimo di commenti giornalieri consentiti (20).
+                </div>
+            <?php endif; ?>
+            
             <!-- Visualizzazione dei post -->
             <?php if ($resultPosts->num_rows > 0): ?>
                 <h2 class="mt-5">Post:</h2>
@@ -219,7 +219,7 @@ $conn->close();
                             if (!empty($images)): ?>
                                 <div class="post-images">
                                     <?php foreach ($images as $image): ?>
-                                        <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-thumbnail mr-2 mb-2" alt="Immagine del Post" width="100">
+                                        <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-thumbnail mr-2 mb-2" alt="Immagine del Post" width="300">
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
@@ -246,7 +246,6 @@ $conn->close();
                                                 </form>
                                             <?php endif; ?>
                                             <!-- Modifica commento -->
-                                                
                                             <div class="edit-comment-form d-none">
                                                 <form method="post" action="../risorse/comment.php">
                                                     <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
@@ -280,24 +279,24 @@ $conn->close();
                             <form class="like-form">
                                 <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
                                 <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
-                            <input type="hidden" name="action" value="insert">
-
+                                <input type="hidden" name="action" value="insert">
                                 <?php
-                                    $likeAction = 'like'; 
-                                    if ($_SESSION['loggedin'] === true) {
-                                        include '../configurazione/conn.php';
-                                        $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
-                                        $stmt = $conn->prepare($likeQuery);
-                                        $stmt->bind_param("ii", $post['id_post'], $userId);
-                                        $stmt->execute();
-                                        $likeResult = $stmt->get_result();
-                                        $hasLiked = $likeResult->num_rows > 0;
-                                        $stmt->close();
-                                    }
+                                $likeAction = 'like'; 
+                                if ($_SESSION['loggedin'] === true) {
+                                    include '../configurazione/conn.php';
+                                    $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
+                                    $stmt = $conn->prepare($likeQuery);
+                                    $stmt->bind_param("ii", $post['id_post'], $userId);
+                                    $stmt->execute();
+                                    $likeResult = $stmt->get_result();
+                                    $hasLiked = $likeResult->num_rows > 0;
+                                    $stmt->close();
+                                }
                                 ?>
-                                    <button type="button" class="btn btn-success like-btn" data-action="<?php echo $hasLiked ? 'unlike' : 'like'; ?>">
-                                        <?php echo $hasLiked ? 'Togli Mi Piace' : 'Mi Piace'; ?>
-                                    </button>
+                                
+                                <button type="button" class="btn btn-success like-btn" data-action="<?php echo $hasLiked ? 'unlike' : 'like'; ?>">
+                                    <?php echo $hasLiked ? 'Togli Mi Piace' : 'Mi Piace'; ?>
+                                </button>
                             </form>
                         </div>
                     </div>

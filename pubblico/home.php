@@ -232,7 +232,7 @@ $stmt->close();
                         <?php foreach ($favoriteBlogs as $favoriteBlog): ?>
                             <div class="col-md-6 mb-4">
                                 <div class="card">
-                                    <img src="../blog_logo/<?php echo htmlspecialchars($favoriteBlog['img_logo']); ?>" class="card-img-top" alt="Logo del Blog">
+                                    <img src="../blog_logo/<?php echo htmlspecialchars($favoriteBlog['img_logo']); ?>" class="card-img-top" alt="Logo del Blog" >
                                     <div class="card-body">
                                         <h5 class="card-title"><?php echo htmlspecialchars($favoriteBlog['titolo_blog']); ?></h5>
                                         <p class="card-text"><?php echo htmlspecialchars($favoriteBlog['descrizione']); ?></p>
