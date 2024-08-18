@@ -207,8 +207,6 @@ $conn->close();
         </div>
         <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del Blog" width="300">
 
-        
-
             <?php if (isset($_GET['error']) && $_GET['error'] === 'limite_superato') : ?>
                 <div class="alert alert-danger" role="alert">
                     Hai superato il limite massimo di commenti giornalieri consentiti (20).
@@ -217,7 +215,7 @@ $conn->close();
             
             <!-- Visualizzazione dei post -->
             <?php if ($resultPosts->num_rows > 0): ?>
-                <h2 class="mt-5">Post:</h2>
+                <!-- <h2 class="mt-5">Post:</h2> -->
                 <?php while ($post = $resultPosts->fetch_assoc()): ?>
                     <div class="card mt-3">
                         <div class="card-body">

@@ -203,6 +203,7 @@ while ($row = $resultLikes->fetch_assoc()) {
 
 <style>
 
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
@@ -279,43 +280,44 @@ while ($row = $resultLikes->fetch_assoc()) {
     </style>
 </head>
 <body>
+
 <div class="container mt-4">
-        <h1>ToteBlog</h1>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-         <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
-                </ul>
-                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-                </form>
-            </div>
-        </nav>
-        <div class="my-4">
-            <?php if (!empty($blogs)): ?>
-                <?php foreach ($blogs as $blog): ?>
-                    <div class="card">
-                        <div class="card-body">
-                            <h3 class="card-title"><?php echo $blog['titolo_blog']; ?></h3>
-                            <p class="card-text"><?php echo $blog['descrizione']; ?></p>
-                            <?php if (!empty($blog['img_logo'])): ?>
-                                <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog" width="200">
+    <h1>ToteBlog</h1>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+            </form>
+        </div>
+    </nav>
+    
+    <div class="my-4">
+        <?php if (!empty($blogs)): ?>
+            <?php foreach ($blogs as $blog): ?>
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title"><?php echo $blog['titolo_blog']; ?></h3>
+                        <p class="card-text"><?php echo $blog['descrizione']; ?></p>
+                        <?php if (!empty($blog['img_logo'])): ?>
+                            <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog" width="200">
                             <?php endif; ?>
                             <div>
-                            <a href="../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Modifica Blog</a>
+                                <a href="../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Modifica Blog</a>
                                 <a href="../pubblico/my_blog.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
                             </div>
-
                             <!-- Post del blog -->
-                            <?php
+                             <?php
                             // recupero informazioni dei post (mi serve soprattutto per il recupero della sottocategoria)
                             $postsQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, s.nome_sottocat, u.username
                                         FROM post p
@@ -331,13 +333,13 @@ while ($row = $resultLikes->fetch_assoc()) {
                             $posts = $postsResult->fetch_all(MYSQLI_ASSOC);
                             $stmt->close();
                             ?>
-
-                        <?php if (!empty($posts)): ?>
-                            <div class="posts-container">
-                                <h4 class="mt-3">I post di questo blog:</h4>
-                                <?php foreach ($posts as $post): ?>
-                                    <div class="card mb-3">
-                                        <div class="card-body">
+                            
+                            <?php if (!empty($posts)): ?>
+                                <div class="posts-container">
+                                    <!-- <h4 class="mt-3">I post di questo blog:</h4> -->
+                                    <?php foreach ($posts as $post): ?>
+                                        <div class="card mb-3">
+                                            <div class="card-body">
                                             <h4 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h4>
                                             <h6 class="card-text">Autore: <?php echo htmlspecialchars($post['username']) ?> </h6>
                                             <h6 class="card-text">Sottocategoria: <?php echo htmlspecialchars($post['nome_sottocat']); ?></h6>
@@ -478,37 +480,37 @@ while ($row = $resultLikes->fetch_assoc()) {
         <div class="my-4">
         <a href="../pubblico/create_post.php" class="btn btn-primary">Crea Post</a>
         </div>
-    </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        function showEditBlogModal(blogId) {
-            $('#editBlogModal_' + blogId).modal('show');
-        }
-
-        function editBlog(blogId) {
-            var formData = new FormData($('#edit_blog_form_' + blogId)[0]);
-
-            $.ajax({
-                url: '../pubblico/my_blog.php?action=edit_blog',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                    alert('Blog aggiornato con successo!');
-                    $('#editBlogModal_' + blogId).modal('hide');
-                    location.reload();
-                },
-                error: function() {
-                    alert('Errore durante l\'aggiornamento del blog.');
-                }
-            });
-        }
-
-        function showEditPostModal(postId) {
+<script>
+    function showEditBlogModal(blogId) {
+        $('#editBlogModal_' + blogId).modal('show');
+    }
+    
+    function editBlog(blogId) {
+        var formData = new FormData($('#edit_blog_form_' + blogId)[0]);
+        
+        $.ajax({
+            url: '../pubblico/my_blog.php?action=edit_blog',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                alert('Blog aggiornato con successo!');
+                $('#editBlogModal_' + blogId).modal('hide');
+                location.reload();
+            },
+            error: function() {
+                alert('Errore durante l\'aggiornamento del blog.');
+            }
+        });
+    }
+    
+    function showEditPostModal(postId) {
         $('#editPostModal_' + postId).modal('show');
     }
 

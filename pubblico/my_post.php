@@ -189,7 +189,7 @@ if ($action == 'delete_comment') {
                         ?>   
                         <div class="post-images">
                             <?php foreach ($images as $image): ?>
-                                <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-fluid mb-2" alt="Immagine del Post" width="200">
+                                <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-fluid mb-2" alt="Immagine del Post" width="400">
                             <?php endforeach; ?>
                         </div>
                         <?php endif; ?>
@@ -202,7 +202,7 @@ if ($action == 'delete_comment') {
                                 <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
                                 <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
                                 <?php
-                                $likeAction = 'like'; // Default to 'like' if user has not liked the post yet
+                                $likeAction = 'like'; 
                                 if ($_SESSION['loggedin'] === true) {
                                     include '../configurazione/conn.php';
                                     $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
@@ -266,9 +266,9 @@ if ($action == 'delete_comment') {
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="editPostModalLabel_<?php echo $post['id_post']; ?>">Modifica Post</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
                                         </div>
                                         <div class="modal-body">
                                             <form id="edit_post_form_<?php echo $post['id_post']; ?>" enctype="multipart/form-data">
@@ -308,11 +308,12 @@ if ($action == 'delete_comment') {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 
-    function editPost(postId) {
+
+        function editPost(postId) {
         var formData = new FormData($('#edit_post_form_' + postId)[0]);
 
         $.ajax({
-            url: '../pubblico/my_past.php?action=edit_post',
+            url: '../pubblico/my_blog.php?action=edit_post',
             type: 'POST',
             data: formData,
             contentType: false,
@@ -327,6 +328,12 @@ if ($action == 'delete_comment') {
             }
         });
     }
+
+        function showEditPostModal(postId) {
+        $('#editPostModal_' + postId).modal('show');
+    }
+
+   
 
     $(document).ready(function() {
     // Funzione per aggiornare il testo del pulsante Mi Piace
@@ -362,6 +369,7 @@ if ($action == 'delete_comment') {
             }
         });
     });
+
 
 
 });
