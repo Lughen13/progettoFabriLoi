@@ -202,43 +202,7 @@ while ($row = $resultLikes->fetch_assoc()) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
 <style>
-     body {
-            font-family: "<?php echo $font; ?>", sans-serif;
-            color: <?php echo $colore_testo; ?>;
-            background-color: <?php echo $colore_sfondo; ?>;
-        }
-    .comments-container {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-top: 20px;
-    }
 
-    .comment-item {
-        background-color: #f9f9f9;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 8px;
-    }
-
-    .comment-item .comment-header {
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-
-    .comment-item .comment-header img {
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-
-    .comment-item .comment-content {
-        margin-top: 8px;
-    }
-</style>
-    <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
@@ -343,7 +307,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                             <h3 class="card-title"><?php echo $blog['titolo_blog']; ?></h3>
                             <p class="card-text"><?php echo $blog['descrizione']; ?></p>
                             <?php if (!empty($blog['img_logo'])): ?>
-                                <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog">
+                                <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog" width="200">
                             <?php endif; ?>
                             <div>
                             <a href="../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Modifica Blog</a>
@@ -353,8 +317,9 @@ while ($row = $resultLikes->fetch_assoc()) {
                             <!-- Post del blog -->
                             <?php
                             // recupero informazioni dei post (mi serve soprattutto per il recupero della sottocategoria)
-                            $postsQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, s.nome_sottocat 
+                            $postsQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, s.nome_sottocat, u.username
                                         FROM post p
+                                        JOIN utente u ON u.id_utente = p.id_autore
                                         JOIN sottocat s ON p.id_sottocat = s.id_sottocat
                                         WHERE p.id_blog = ?";
                             $stmt = $conn->prepare($postsQuery);
@@ -373,7 +338,8 @@ while ($row = $resultLikes->fetch_assoc()) {
                                 <?php foreach ($posts as $post): ?>
                                     <div class="card mb-3">
                                         <div class="card-body">
-                                            <h5 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h5>
+                                            <h4 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h4>
+                                            <h6 class="card-text">Autore: <?php echo htmlspecialchars($post['username']) ?> </h6>
                                             <h6 class="card-text">Sottocategoria: <?php echo htmlspecialchars($post['nome_sottocat']); ?></h6>
                                             <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
                                             
@@ -384,7 +350,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                             ?>
                                                 <div class="post-images">
                                                     <?php foreach ($images as $image): ?>
-                                                        <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-fluid mb-2" alt="Immagine del Post">
+                                                        <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-fluid mb-2" alt="Immagine del Post" width="200">
                                                     <?php endforeach; ?>
                                                 </div>
                                             <?php endif; ?>
@@ -392,7 +358,6 @@ while ($row = $resultLikes->fetch_assoc()) {
                                             <div>
                                                 <button class="btn btn-primary mr-2" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
                                                 <a href="../pubblico/my_blog.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
-                                                
 
                                             </div>
 

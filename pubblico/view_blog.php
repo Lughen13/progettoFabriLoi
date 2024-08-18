@@ -42,14 +42,17 @@ if ($result_check_follow->num_rows > 0) {
 }
 $stmt_check_follow->close();
 
-// Recupera i post con i relativi commenti e il conteggio dei Mi Piace
-$queryPosts = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, s.nome_sottocat,
+// Recupera i post con: sottocategoria, autore,commenti e mi piace
+$queryPosts = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, s.nome_sottocat, u.username,
                      COUNT(l.id_like) AS total_likes
               FROM post p
               JOIN sottocat s ON p.id_sottocat = s.id_sottocat
+              JOIN utente u ON u.id_utente = p.id_autore
               LEFT JOIN likes l ON p.id_post = l.id_post
               WHERE p.id_blog = ?
               GROUP BY p.id_post";
+
+
 $stmt = $conn->prepare($queryPosts);
 $stmt->bind_param("i", $id_blog);
 $stmt->execute();
@@ -57,7 +60,7 @@ $resultPosts = $stmt->get_result();
 $stmt->close();
 
 // Preparazione per la visualizzazione dei commenti
-$queryComments = "SELECT c.id_comm, c.data_comm, c.contenuto, u.username, p.id_post
+$queryComments = "SELECT c.id_comm, c.data_comm, c.contenuto, u.username, p.id_post, u.img_profilo
                   FROM commento c
                   INNER JOIN utente u ON c.id_utente = u.id_utente
                   INNER JOIN post p ON c.id_post = p.id_post
@@ -144,6 +147,15 @@ $conn->close();
         .card-text {
             color: #333;
         }
+        .comment-item {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .comment-item strong {
+            color: #1da1f2;
+        }
     </style>
 </head>
 <body>
@@ -209,7 +221,8 @@ $conn->close();
                 <?php while ($post = $resultPosts->fetch_assoc()): ?>
                     <div class="card mt-3">
                         <div class="card-body">
-                            <h3 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h3>
+                            <h4 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h4>
+                            <h6 class="card-text">Autore: <?php echo htmlspecialchars($post['username']) ?> </h6>
                             <h6 class="card-text">Sottocategoria: <?php echo htmlspecialchars($post['nome_sottocat']); ?></h6>
                             <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
 
@@ -226,14 +239,20 @@ $conn->close();
 
                             <!-- Visualizzazione dei commenti -->
                             <?php if (isset($comments[$post['id_post']])) : ?>
-                                <h4>Commenti:</h4>
-                                <?php foreach ($comments[$post['id_post']] as $comment) : ?>
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <p class="card-text">
-                                                <strong><?php echo htmlspecialchars($comment['username']); ?></strong> (<?php echo htmlspecialchars($comment['data_comm']); ?>):
-                                                <span class="comment-text"><?php echo htmlspecialchars($comment['contenuto']); ?></span>
-                                            </p>    
+                                <div class="comments-container mt-4">
+                                    <?php foreach ($comments[$post['id_post']] as $comment) : ?>
+                                        <div class="comment-item mb-3 p-3 rounded">
+                                            <div class="comment-header d-flex align-items-center">
+                                                <?php if (!empty($comment['img_profilo'])): ?>
+                                                    <img src="../uploads/<?php echo htmlspecialchars($comment['img_profilo']); ?>" class="rounded-circle mr-2" width="40" height="40" alt="Immagine profilo">
+                                                <?php endif; ?>
+                                                <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
+                                                <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
+                                            </div>
+                                            
+                                            <div class="comment-content mt-2">
+                                                <?php echo htmlspecialchars($comment['contenuto']); ?>
+                                            </div>
                                             <?php if ($comment['username'] == $_SESSION['username']) : ?>
                                                 <!-- Pulsante Modifica -->
                                                 <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
@@ -259,9 +278,9 @@ $conn->close();
                                                 </form>
                                             </div>
                                         </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                                    <?php endforeach; ?>
+</div>
+                                    <?php endif; ?>
 
                         <!-- Form per inserire un commento -->
                         <form method="post" action="../risorse/comment.php" class="mt-3">

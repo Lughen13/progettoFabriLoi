@@ -18,8 +18,9 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 $postId = isset($_GET['id_post']) ? (int) $_GET['id_post'] : 0;
 
 // Retrieve the post details from the database
-$queryPost = "SELECT p.*, s.nome_sottocat 
+$queryPost = "SELECT p.*, s.nome_sottocat, u.username
               FROM post p
+              JOIN utente u ON p.id_autore = u.id_utente
               LEFT JOIN sottocat s ON p.id_sottocat = s.id_sottocat
               WHERE p.id_post = ?";
 $stmtPost = $conn->prepare($queryPost);
@@ -176,7 +177,8 @@ if ($action == 'delete_comment') {
             <?php if ($post): ?>
                 <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h5>
+                        <h4 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h4>
+                        <h6 classe="card-text">Autore: <?php echo htmlspecialchars($post['username']) ?> </h6>
                         <h6 class="card-text">Sottocategoria: <?php echo htmlspecialchars($post['nome_sottocat']); ?></h6>
                         <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
                             

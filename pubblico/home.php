@@ -235,9 +235,9 @@ $stmt->close();
                                     <img src="../blog_logo/<?php echo htmlspecialchars($favoriteBlog['img_logo']); ?>" class="card-img-top" alt="Logo del Blog" >
                                     <div class="card-body">
                                         <h5 class="card-title"><?php echo htmlspecialchars($favoriteBlog['titolo_blog']); ?></h5>
-                                        <p class="card-text"><?php echo htmlspecialchars($favoriteBlog['descrizione']); ?></p>
                                         <p class="card-text">Proprietario: <?php echo htmlspecialchars($favoriteBlog['username']); ?></p>
                                         <p class="card-text">Categoria: <?php echo htmlspecialchars($favoriteBlog['nome_categoria']); ?></p>
+                                        <p class="card-text"><?php echo htmlspecialchars($favoriteBlog['descrizione']); ?></p>
                                         <a href="../pubblico/view_blog.php?id_blog=<?php echo $favoriteBlog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
                                     </div>
                                 </div>
@@ -256,10 +256,10 @@ $stmt->close();
                                 <div class="card">
                                     <img src="../blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top" alt="Logo del Blog">
                                     <div class="card-body">
-                                        <h5 class="card-title"><?php echo $blog['titolo_blog']; ?></h5>
-                                        <p class="card-text"><?php echo $blog['descrizione']; ?></p>
-                                        <p class="card-text">Proprietario: <?php echo $blog['username']; ?></p>
-                                        <p class="card-text">Categoria: <?php echo $blog['nome_categoria']; ?></p>
+                                        <h5 class="card-title"><?php echo htmlspecialchars($blog['titolo_blog']); ?></h5>
+                                        <p class="card-text">Proprietario: <?php echo htmlspecialchars($blog['username']); ?></p>
+                                        <p class="card-text">Categoria: <?php echo htmlspecialchars($blog['nome_categoria']); ?></p>
+                                        <p class="card-text"><?php echo htmlspecialchars($blog['descrizione']); ?></p>
                                         <a href="../pubblico/view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
                                     </div>
                                 </div>
