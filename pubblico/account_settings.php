@@ -248,7 +248,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <meta charset="UTF-8">
     <title>Impostazioni account</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Font Awesome per icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
     
     <style>
 
@@ -355,29 +355,81 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
+        
+        #notificationDropdown {
+            position: relative;
+        }
+
+        #notificationCount {
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: translate(50%, -50%);
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .dropdown-menu {
+            width: 400px; /* Larghezza del dropdown delle notifiche */
+            padding: 0;
+            border: 2px solid #ddd; /* Bordo laterale */
+            border-radius: 10px; /* Angoli arrotondati */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); /* Ombra per il dropdown */
+        }
+
+        #notificationList {
+            max-height: 300px; /* Altezza massima del contenitore delle notifiche */
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .dropdown-item {
+            padding: 10px 10px;
+            text-decoration: none;
+            pointer-events: none;
+            border-top: 1px solid #ddd; /* Bordo superiore */
+        }
+        .category-container {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            justify-items: center;
+            align-items: center;
+        }
+        .category-card {
+            flex: 1 1 auto;
+            margin: 5px;
+            text-align: center;
+        }
+
         </style>
 </head>
  <body>
  <div class="container mt-4">
         <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-        <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
-                    </ul>
-                    <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                        <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-                    </form>
-                </div>
-        </nav>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
+            </ul>
+            
+            <div class="d-flex align-items-right">
+                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+                </form>
+            </div>
+        </div>
+    </nav>
 
     <h1>Impostazioni Account</h1>
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
@@ -452,13 +504,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <button type="submit" name="save_changes" value="1">Salva Modifiche</button>
         <button type="submit" name="delete_user" value="1" style="background-color: red;">Elimina Utente</button>
-</form>
     </form>
+    
     <button onclick="window.location.href='../pubblico/home.php'">Torna alla Home</button>
+
+
     <script>
         document.getElementById('premium').addEventListener('change', function () {
             document.getElementById('premiumInfo').style.display = this.checked ? 'block' : 'none';
         });
+
+
     </script>
 </body>
 </html>

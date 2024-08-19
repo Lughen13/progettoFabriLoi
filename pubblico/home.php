@@ -85,6 +85,12 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+// Recupera le notifiche da utenti diversi dall'utente loggato
+$query = "SELECT sender_id, user_id tipo, contenuto_id, data
+          FROM notifiche
+          WHERE sender_id != ?
+          ORDER BY data DESC
+          LIMIT 10";
 
 
 ?>
@@ -96,7 +102,7 @@ $stmt->close();
     <meta charset="UTF-8">
     <title>Home</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- Font Awesome per icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
     <style>
         .error {color: red;}
         .card {
@@ -122,7 +128,7 @@ $stmt->close();
         }
         .category-card {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .container {
             background-color: #fff;
@@ -134,6 +140,57 @@ $stmt->close();
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
+        #notificationDropdown {
+            position: relative;
+        }
+
+        #notificationCount {
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: translate(50%, -50%);
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .dropdown-menu {
+            width: 400px; /* Larghezza del dropdown delle notifiche */
+            padding: 0;
+            border: 2px solid #ddd; /* Bordo laterale */
+            border-radius: 10px; /* Angoli arrotondati */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); /* Ombra per il dropdown */
+        }
+
+        #notificationList {
+            max-height: 300px; /* Altezza massima del contenitore delle notifiche */
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .dropdown-item {
+            padding: 10px 10px;
+            text-decoration: none;
+            pointer-events: none;
+            border-top: 1px solid #ddd; /* Bordo superiore */
+        }
+        .category-container {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            justify-items: center;
+            align-items: center;
+        }
+        .category-card {
+            flex: 1 1 auto;
+            margin: 5px;
+            text-align: center;
+        }
+
+
+
     </style>
 </head>
 <body>
@@ -150,70 +207,88 @@ $stmt->close();
                 <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
                 <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
             </ul>
-            <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-            </form>
+            
+            <div class="d-flex align-items-right">
+                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+                </form>
+
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bell"></i> 
+                            <!-- <span class="badge badge-danger" id="notificationCount">3</span> Numero notifiche -->
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
+                            <h6 class="dropdown-header">Notifiche recenti</h6>
+                            <div id="notificationList">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
  
-    <div class="container mt-4">
+    <div class="container">
+        
         <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
         <!-- Sezione per le categorie con loghi -->
-        <div class="col-md-8">
+        <div class="col-md-12">
             <?php if ($isPremium) : ?>
-                <h2>   A cosa sei <?php echo $interesse ?>?  </h2>
-                <div class="row">
-                    <div class="col-md-2 category-card">
+                <h2>A cosa sei <?php echo $interesse ?>?  </h2>
+                <div class="row category-container">
+                    <div class="col-md-1 category-card">
                         <a href="../pubblico/search.php?categoria=Tecnologia">
                             <div class="category-logo"><i class="fas fa-laptop-code"></i></div>
                             <p>Tecnologia</p>
                         </a>
                     </div>
-                    <div class="col-md-2 category-card">
+                    <div class="col-md-1 category-card">
                         <a href="../pubblico/search.php?categoria=Moda">
                             <div class="category-logo"><i class="fas fa-tshirt"></i></div>
                             <p>Moda</p>
                         </a>
                     </div>
-                    <div class="col-md-2 category-card">
+                    <div class="col-md-1 category-card">
                         <a href="../pubblico/search.php?categoria=Tempo libero">
                             <div class="category-logo"><i class="fas fa-theater-masks"></i></div>
                             <p>Tempo libero</p>
                         </a>
                     </div>
-                    <div class="col-md-2 category-card">
+                    <div class="col-md-1 category-card">
                         <a href="../pubblico/search.php?categoria=Viaggi">
                             <div class="category-logo"><i class="fas fa-plane"></i></div>
                             <p>Viaggi</p>
                         </a>
                     </div>
-                    <div class="col-md-2 category-card">
+                    <div class="col-md-1 category-card">
                         <a href="../pubblico/search.php?categoria=Cucina">
                             <div class="category-logo"><i class="fas fa-utensils"></i></div>
                             <p>Cucina</p>
                         </a>
                     </div>
-                    <div class="col-md-2 category-card">
+                    <div class="col-md-1 category-card">
                         <a href="../pubblico/search.php?categoria=Scienze">
                             <div class="category-logo"><i class="fas fa-flask"></i></div>
                             <p>Scienze</p>
                         </a>
                     </div>
-                    <div class="col-md-2 category-card">
+                    <div class="col-md-1 category-card">
                         <a href="../pubblico/search.php?categoria=Recensioni">
                             <div class="category-logo"><i class="fas fa-star"></i></div>
                             <p>Recensioni</p>
                         </a>
                     </div>
-                    <div class="col-md-2 category-card">
+                    <div class="col-md-1 category-card">
                         <a href="../pubblico/search.php?categoria=Arredamento">
                             <div class="category-logo"><i class="fas fa-couch"></i></div>
                             <p>Arredamento</p>
                         </a>
                     </div>
-                    <div class="col-md-2 category-card">
+                    <div class="col-md-1 category-card">
                         <a href="../pubblico/search.php?categoria=Altro">
                             <div class="category-logo"><i class="fas fa-ellipsis-h"></i></div>
                             <p>Altro</p>
@@ -223,14 +298,14 @@ $stmt->close();
             <?php endif; ?>
         </div>
 
-        <!-- Sezione per i blog preferiti -->
+        <!-- i blog seguiti -->
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <h2>I tuoi blog preferiti</h2>
                 <?php if (!empty($favoriteBlogs)): ?>
                     <div class="row">
                         <?php foreach ($favoriteBlogs as $favoriteBlog): ?>
-                            <div class="col-md-6 mb-4">
+                            <div class="col-md-4 mb-4">
                                 <div class="card">
                                     <img src="../blog_logo/<?php echo htmlspecialchars($favoriteBlog['img_logo']); ?>" class="card-img-top" alt="Logo del Blog" >
                                     <div class="card-body">
@@ -247,12 +322,13 @@ $stmt->close();
                 <?php else: ?>
                     <p>Non stai seguendo nessun blog.</p>
                 <?php endif; ?>
-                <!-- Sezione per i blog degli altri utenti -->
+                
+                <!-- i blog degli altri utenti / non seguiti -->
                 <h2>Blog a cui potresti dare un'occhiata</h2>
                 <?php if (!empty($blogs)): ?>
                     <div class="row">
                         <?php foreach ($blogs as $blog): ?>
-                            <div class="col-md-6 mb-4">
+                            <div class="col-md-4 mb-4">
                                 <div class="card">
                                     <img src="../blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top" alt="Logo del Blog">
                                     <div class="card-body">
@@ -270,30 +346,8 @@ $stmt->close();
                     <p>Non ci sono blog disponibili.</p>
                 <?php endif; ?>
             </div>
-
-            <!-- Sidebar per Notifiche -->
-            <div class="col-md-4">
-                <div class="card sidebar">
-                    <div class="card-body">
-                        <h5 class="card-title">Notifiche recenti</h5>
-                        <ul class="list-group" id="notification-list">
-                            <!-- Notifiche caricate dinamicamente da JavaScript -->
-                            <?php
-                            // Seleziona le ultime 10 notifiche per l'utente
-                            $query = "SELECT * FROM notifiche WHERE user_id = ? ORDER BY data DESC LIMIT 10";
-                            $stmt = $conn->prepare($query);
-                            $stmt->bind_param("i", $userId);
-                            $stmt->execute();
-                            $result = $stmt->get_result();
-                            $notifiche = $result->fetch_all(MYSQLI_ASSOC);
-                            $stmt->close();
-                            ?>
-
-                        </ul>
-                    </div>
-                </div>
-            </div>
         </div>
+    </div>
 </div>
 
 <!-- jQuery e Bootstrap JavaScript -->
@@ -309,16 +363,15 @@ $(document).ready(function() {
             method: 'GET',
             dataType: 'json',
             success: function(data) {
-                var notificationList = $('#notification-list');
+                var notificationList = $('#notificationList');
                 notificationList.empty();
 
                 if (data.length === 0) {
-                    notificationList.append('<li class="list-group-item">Non ci sono notifiche.</li>');
+                    notificationList.append('<a class="dropdown-item">Non ci sono notifiche.</a>');
                 } else {
                     data.forEach(function(notification) {
-                        var listItem = '<li class="list-group-item">';
+                        var listItem = '<a class="dropdown-item">';
                         listItem += '<strong>' + notification.sender_username + '</strong> ';
-                        // Costruzione del messaggio in base al tipo di notifica
                         if (notification.tipo === 'comment') {
                             listItem += 'ha commentato il tuo post: ';
                             listItem += '<a href="my_post.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
@@ -332,19 +385,23 @@ $(document).ready(function() {
                             listItem += 'ha eseguito un\'azione.';
                         }
                         listItem += '<br><small>' + notification.data + '</small>';
-                        listItem += '</li>';
+                        listItem += '</a>';
                         notificationList.append(listItem);
                     });
                 }
             },
             error: function() {
-                $('#notification-list').append('<li class="list-group-item text-danger">Errore nel caricamento delle notifiche.</li>');
+                $('#notificationList').append('<a class="dropdown-item text-danger">Errore nel caricamento delle notifiche.</a>');
             }
         });
     }
-    // Carica le notifiche all'avvio
-    fetchNotifications();
+
+    // Carica le notifiche all'apertura del dropdown
+    $('#notificationDropdown').on('click', function() {
+        fetchNotifications();
+    });
 });
+
 
 
 </script>

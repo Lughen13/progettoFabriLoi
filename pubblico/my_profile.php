@@ -125,9 +125,9 @@ $stmt->close();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <style>
-        body {
+        /* body {
             background-color: #f8f9fa;
-        }
+        } */
 
         .card {
             margin-bottom: 20px;
@@ -152,29 +152,95 @@ $stmt->close();
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
+        
+        #notificationDropdown {
+            position: relative;
+        }
+
+        #notificationCount {
+            position: absolute;
+            top: 0;
+            right: 0;
+            transform: translate(50%, -50%);
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .dropdown-menu {
+            width: 400px; /* Larghezza del dropdown delle notifiche */
+            padding: 0;
+            border: 2px solid #ddd; /* Bordo laterale */
+            border-radius: 10px; /* Angoli arrotondati */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); /* Ombra per il dropdown */
+        }
+
+        #notificationList {
+            max-height: 300px; /* Altezza massima del contenitore delle notifiche */
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .dropdown-item {
+            padding: 10px 10px;
+            text-decoration: none;
+            pointer-events: none;
+            border-top: 1px solid #ddd; /* Bordo superiore */
+        }
+        .category-container {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            justify-items: center;
+            align-items: center;
+        }
+        .category-card {
+            flex: 1 1 auto;
+            margin: 5px;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
     <div class="container mt-4">
         <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-        <!-- <a class="navbar-brand" href="#">Il Mio Profilo</a> -->
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-                        <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
-                    </ul>
-                    <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                        <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-                    </form>
-                </div>
-        </nav>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
+            </ul>
+            
+            <div class="d-flex align-items-right">
+                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+                </form>
+
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bell"></i> 
+                            <!-- <span class="badge badge-danger" id="notificationCount">3</span> Numero notifiche -->
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
+                            <h6 class="dropdown-header">Notifiche recenti</h6>
+                            <div id="notificationList">
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
 
         <div class="row">
@@ -361,6 +427,56 @@ $stmt->close();
             }
         });
     });
+
+</script>
+
+<script>
+    $(document).ready(function() {
+    function fetchNotifications() {
+        $.ajax({
+            url: '../risorse/get_notifications.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                var notificationList = $('#notificationList');
+                notificationList.empty();
+
+                if (data.length === 0) {
+                    notificationList.append('<a class="dropdown-item">Non ci sono notifiche.</a>');
+                } else {
+                    data.forEach(function(notification) {
+                        var listItem = '<a class="dropdown-item">';
+                        listItem += '<strong>' + notification.sender_username + '</strong> ';
+                        if (notification.tipo === 'comment') {
+                            listItem += 'ha commentato il tuo post: ';
+                            listItem += '<a href="my_post.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                        } else if (notification.tipo === 'like') {
+                            listItem += 'ha messo mi piace al tuo post: ';
+                            listItem += '<a href="my_post.php?id_post=' +  notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                        } else if (notification.tipo === 'follow') {
+                            listItem += 'ha iniziato a seguirti nel blog: ';
+                            listItem += '<a href="my_blog.php?id_blog=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                        } else {
+                            listItem += 'ha eseguito un\'azione.';
+                        }
+                        listItem += '<br><small>' + notification.data + '</small>';
+                        listItem += '</a>';
+                        notificationList.append(listItem);
+                    });
+                }
+            },
+            error: function() {
+                $('#notificationList').append('<a class="dropdown-item text-danger">Errore nel caricamento delle notifiche.</a>');
+            }
+        });
+    }
+
+    // Carica le notifiche all'apertura del dropdown
+    $('#notificationDropdown').on('click', function() {
+        fetchNotifications();
+    });
+});
+
 </script>
 </html>
 

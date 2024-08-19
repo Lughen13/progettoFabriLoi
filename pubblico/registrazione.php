@@ -438,7 +438,7 @@ $conn->close();
 </head>
 
 <body>
-    <div class="container">
+    <div class="container mt-4">
         <h2>Registrazione</h2>
         <p>Compila i seguenti campi per registrarti</p>
         <form id="registration-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">

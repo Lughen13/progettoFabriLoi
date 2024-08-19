@@ -49,11 +49,12 @@ if ($action === 'insert' && $postId && !empty($comment)) {
         if ($result_blog_owner->num_rows > 0) {
             $blogOwner = $result_blog_owner->fetch_assoc();
             $id_blogOwner = $blogOwner['id_proprietario'];
-
-            $queryInsertNotifica = "INSERT INTO notifiche (user_id, sender_id, tipo, contenuto_id) VALUES (?, ?, 'comment', ?)";
-            $stmt_insert_notifica = $conn->prepare($queryInsertNotifica);
-            $stmt_insert_notifica->bind_param("iii", $id_blogOwner, $userId, $postId);
-            $stmt_insert_notifica->execute();
+            if ($userId != $id_blogOwner) {
+                $queryInsertNotifica = "INSERT INTO notifiche (user_id, sender_id, tipo, contenuto_id) VALUES (?, ?, 'comment', ?)";
+                $stmt_insert_notifica = $conn->prepare($queryInsertNotifica);
+                $stmt_insert_notifica->bind_param("iii", $id_blogOwner, $userId, $postId);
+                $stmt_insert_notifica->execute();
+            }
         }
         $stmt_blog_owner->close();
         header("Location: " . $referer);   // referer serve per tornare alla pagina in cui si trova l'utente quando inserisce il commento 
