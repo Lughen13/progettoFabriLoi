@@ -331,44 +331,40 @@ $conn->close();
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        // Funzione per aggiornare il testo del pulsante Mi Piace
-        function updateLikeButton(button, action, likeCount) {
-            if (action === 'like') {
-                button.data('action', 'unlike');
-                button.text('Togli Mi Piace (' + likeCount + ')');
-            } else {
-                button.data('action', 'like');
-                button.text('Mi Piace (' + likeCount + ')');
-            }
+$(document).ready(function() {
+    // Funzione per aggiornare il testo del pulsante Mi Piace
+    function updateLikeButton(button, action, likeCount) {
+        if (action === 'like') {
+            button.data('action', 'unlike');
+            button.text('Togli Mi Piace (' + likeCount + ')');
+        } else {
+            button.data('action', 'like');
+            button.text('Mi Piace (' + likeCount + ')');
         }
+    }
 
-        // Gestione del clic sul pulsante Mi Piace
-        $('.like-btn').click(function() {
-            var button = $(this);
-            var postId = button.closest('.like-form').find('.post-id').val();
-            var action = button.data('action');
+    // Gestione del clic sul pulsante Mi Piace
+    $('.like-btn').click(function() {
+        var button = $(this);
+        var postId = button.closest('.like-form').find('.post-id').val();
+        var action = button.data('action');
 
-            $.ajax({
-                url: '../risorse/likes.php',
-                type: 'POST',
-                data: {
-                    post_id: postId,
-                    action: action
-                },
-                success: function(likeCount) {
-                    // Aggiorna il testo del pulsante e il conteggio dei Mi Piace dinamicamente
-                    updateLikeButton(button, action, likeCount);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
-                }
-            });
+        $.ajax({
+            url: '../risorse/likes.php',
+            type: 'POST',
+            data: {
+                post_id: postId,
+                action: action
+            },
+            success: function(likeCount) {
+                // Aggiorna il testo del pulsante e il conteggio dei Mi Piace dinamicamente
+                updateLikeButton(button, action, likeCount);
+            },
+            error: function(xhr, status, error) {
+                console.error('Errore durante l\'invio della richiesta AJAX: ' + error);
+            }
         });
-
-
     });
-
 
     $('.comment-textarea').on('input', function() {
         var form = $(this).closest('form');
@@ -381,18 +377,26 @@ $conn->close();
             submitButton.prop('disabled', false);
         }
     });
-   
+
     $(document).on('click', '.edit-comment-btn', function() {
         var commentId = $(this).data('comment-id');
-        var editForm = $(this).closest('.card').find('.edit-comment-form');
+        var commentItem = $(this).closest('.comment-item');
+        var editForm = commentItem.find('.edit-comment-form');
+        var commentContent = commentItem.find('.comment-content');
+
+        // Nascondi il contenuto attuale del commento e mostra il modulo di modifica
+        commentContent.addClass('d-none');
         editForm.removeClass('d-none');
-        $(this).closest('.comment-text').addClass('d-none');
     });
 
     $(document).on('click', '.cancel-edit-btn', function() {
-        var editForm = $(this).closest('.edit-comment-form');
+        var commentItem = $(this).closest('.comment-item');
+        var editForm = commentItem.find('.edit-comment-form');
+        var commentContent = commentItem.find('.comment-content');
+
+        // Mostra il contenuto attuale del commento e nascondi il modulo di modifica
+        commentContent.removeClass('d-none');
         editForm.addClass('d-none');
-        editForm.closest('.card').find('.comment-text').removeClass('d-none');
     });
 
     $(document).on('input', '.edit-comment-form textarea', function() {
@@ -415,6 +419,8 @@ $conn->close();
             submitButton.prop('disabled', false);
         }
     });
+});
+
 </script>
 
 
