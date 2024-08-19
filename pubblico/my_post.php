@@ -75,11 +75,7 @@ if ($action == 'delete_comment') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }        
-        .container {
+          .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
@@ -88,32 +84,6 @@ if ($action == 'delete_comment') {
         .navbar {
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-control {
-            border-radius: 20px;
-        }
-        .profile-picture {
-            max-width: 150px;
-            max-height: 150px;
-            border-radius: 50%;
-            border: 5px solid #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .btn-outline-success {
-            border-color: #1da1f2;
-            color: #1da1f2;
-        }
-        .btn-outline-success:hover {
-            background-color: #1da1f2;
-            color: #fff;
-        }
-        .btn-primary {
-            background-color: #1da1f2;
-            border-color: #1da1f2;
-        }
-        .btn-primary:hover {
-            background-color: #0e71a1;
-            border-color: #0e71a1;
         }
         .card {
             border-radius: 10px;
@@ -125,19 +95,6 @@ if ($action == 'delete_comment') {
         }
         .card-text {
             color: #333;
-        }
-        .modal-content {
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .modal-title {
-            color: #1da1f2;
-        }
-        .form-group label {
-            color: #333;
-        }
-        .list-unstyled {
-            padding-left: 0;
         }
         .comment-item {
             background-color: #f0f0f0;
@@ -235,30 +192,61 @@ if ($action == 'delete_comment') {
                         ?>
                         
                         <?php if (!empty($comments)): ?>
-                            <div class="comments-container mt-4">
-                                <?php foreach ($comments as $comment): ?>
-                                    <div class="comment-item mb-3 p-3 rounded">
-                                        <div class="comment-header d-flex align-items-center">
-                                            <?php if (!empty($comment['img_profilo'])): ?>
-                                                <img src="../uploads/<?php echo htmlspecialchars($comment['img_profilo']); ?>" class="rounded-circle mr-2" width="40" height="40" alt="Immagine profilo">
+                                                <div class="comments-container mt-4">
+                                                    <?php foreach ($comments as $comment): ?>
+                                                        <div class="comment-item mb-3 p-3 rounded">
+                                                            <div class="comment-header d-flex align-items-center">
+                                                                <?php if (!empty($comment['img_profilo'])): ?>
+                                                                    <img src="../uploads/<?php echo htmlspecialchars($comment['img_profilo']); ?>" class="rounded-circle mr-2" width="40" height="40" alt="Immagine profilo">
+                                                                <?php endif; ?>
+                                                                <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
+                                                                <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
+                                                                <!-- Aggiungi un'icona per eliminare il commento -->
+                                                                <a href="../pubblico/my_post.php?action=delete_comment&id_comm=<?php echo $comment['id_comm']; ?>" class="ml-2 text-danger" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
+                                                                    <i class="fas fa-times"></i>
+                                                                </a>
+                                                            </div>
+                                                            <div class="comment-content mt-2">
+                                                                <?php echo htmlspecialchars($comment['contenuto']); ?>
+                                                            </div>
+                                                            
+                                                            <?php if ($comment['username'] == $_SESSION['username']) : ?>
+                                                <!-- Pulsante Modifica -->
+                                                <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
+                                                
+                                            <?php endif; ?>
+                                            <!-- Modifica commento -->
+                                            <div class="edit-comment-form d-none">
+                                                <form method="post" action="../risorse/comment.php">
+                                                    <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                    <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                    <input type="hidden" name="action" value="update">
+                                                    <div class="form-group">
+                                                        <textarea class="form-control" name="comment" id="edit-comment-textarea" rows="3"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary btn-sm" id="save-edit-btn" disabled>Salva</button>
+                                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
+                                                </form>
+                                            </div>
+
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <p class="mt-3">Nessun commento disponibile.</p>
                                                 <?php endif; ?>
-                                                <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
-                                                <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
-                                                <!-- Aggiungi un'icona per eliminare il commento -->
-                                                <a href="../pubblico/my_post.php?action=delete_comment&id_comm=<?php echo $comment['id_comm']; ?>" class="ml-2 text-danger" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
-                                                    <i class="fas fa-times"></i>
-                                                </a>
-                                        </div>
-                                    <div class="comment-content mt-2">
-                                        <?php echo htmlspecialchars($comment['contenuto']); ?>
-                                    </div>
-                                </div>
-                                
-                            <?php endforeach; ?>
+
+ <!-- Form per inserire un commento -->
+ <form method="post" action="../risorse/comment.php" class="mt-3">
+                            <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
+                            <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                            <input type="hidden" name="action" value="insert">
+                            <div class="form-group">
+                                <textarea class="form-control comment-textarea" name="comment" placeholder="Inserisci il tuo commento"></textarea>
                             </div>
-                            <?php else: ?>
-                            <p class="mt-3"> Ancora nessun commento per questo post.</p>
-                            <?php endif; ?>
+                            <button type="submit" class="btn btn-primary comment-submit-btn" disabled>Commenta</button>
+                        </form>
+
                             
                             <!-- Modale per la modifica del post -->
                             <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel_<?php echo $post['id_post']; ?>" aria-hidden="true">
@@ -309,11 +297,11 @@ if ($action == 'delete_comment') {
 <script>
 
 
-        function editPost(postId) {
-        var formData = new FormData($('#edit_post_form_' + postId)[0]);
+    function editPost(postId) {
+    var formData = new FormData($('#edit_post_form_' + postId)[0]);
 
         $.ajax({
-            url: '../pubblico/my_blog.php?action=edit_post',
+            url: '../pubblico/my_post.php?action=edit_post',
             type: 'POST',
             data: formData,
             contentType: false,
@@ -329,13 +317,13 @@ if ($action == 'delete_comment') {
         });
     }
 
-        function showEditPostModal(postId) {
-        $('#editPostModal_' + postId).modal('show');
+    function showEditPostModal(postId) {
+    $('#editPostModal_' + postId).modal('show');
     }
 
    
 
-    $(document).ready(function() {
+$(document).ready(function() {
     // Funzione per aggiornare il testo del pulsante Mi Piace
     function updateLikeButton(button, action, likeCount) {
         if (action === 'like') {
@@ -369,10 +357,62 @@ if ($action == 'delete_comment') {
             }
         });
     });
-
-
-
 });
+
+
+$('.comment-textarea').on('input', function() {
+        var form = $(this).closest('form');
+        var comment = $(this).val().trim();
+        var submitButton = form.find('.comment-submit-btn');
+
+        if (comment === '') {
+            submitButton.prop('disabled', true);
+        } else {
+            submitButton.prop('disabled', false);
+        }
+    });
+
+    $(document).on('click', '.edit-comment-btn', function() {
+        var commentId = $(this).data('comment-id');
+        var commentItem = $(this).closest('.comment-item');
+        var editForm = commentItem.find('.edit-comment-form');
+        var commentContent = commentItem.find('.comment-content');
+
+        // Nascondi il contenuto attuale del commento e mostra il modulo di modifica
+        commentContent.addClass('d-none');
+        editForm.removeClass('d-none');
+    });
+
+    $(document).on('click', '.cancel-edit-btn', function() {
+        var commentItem = $(this).closest('.comment-item');
+        var editForm = commentItem.find('.edit-comment-form');
+        var commentContent = commentItem.find('.comment-content');
+
+        // Mostra il contenuto attuale del commento e nascondi il modulo di modifica
+        commentContent.removeClass('d-none');
+        editForm.addClass('d-none');
+    });
+
+    $(document).on('input', '.edit-comment-form textarea', function() {
+        var saveButton = $(this).closest('.edit-comment-form').find('#save-edit-btn');
+        if ($(this).val().trim() === '') {
+            saveButton.prop('disabled', true);
+        } else {
+            saveButton.prop('disabled', false);
+        }
+    });
+
+    $('.comment-textarea').each(function() {
+        var form = $(this).closest('form');
+        var comment = $(this).val().trim();
+        var submitButton = form.find('.comment-submit-btn');
+
+        if (comment === '') {
+            submitButton.prop('disabled', true);
+        } else {
+            submitButton.prop('disabled', false);
+        }
+    });
 
 </script>
 </body>

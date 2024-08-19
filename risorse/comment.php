@@ -6,7 +6,6 @@ ini_set('error_log', '/path/to/your/php_error.log');
 require_once '../configurazione/conn.php';
 session_start();
 
-// Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header('Location: ../pubblico/login.php');
     exit;
@@ -18,13 +17,11 @@ $postId = isset($_POST['post_id']) ? intval($_POST['post_id']) : null;
 $comment = isset($_POST['comment']) ? trim($_POST['comment']) : '';
 $id_comm = isset($_POST['id_comm']) ? intval($_POST['id_comm']) : null;
 $id_blog = isset($_POST['id_blog']) ? intval($_POST['id_blog']) : null;
+$referer = $_SERVER['HTTP_REFERER'];  // Ottieni l'URL della pagina precedente
 
-// Verifica se l'utente è premium
 $premium_status = $_SESSION['premium'] ?? false;
 
-// Gestione delle azioni di commento
 if ($action === 'insert' && $postId && !empty($comment)) {
-    // Verifica se l'utente ha superato il limite di commenti giornalieri
     if (!$premium_status) {
         $queryCountComments = "SELECT COUNT(*) AS num_comments FROM commento WHERE id_utente = ? AND DATE(data_comm) = CURDATE()";
         $stmt_count_comments = $conn->prepare($queryCountComments);
@@ -35,17 +32,15 @@ if ($action === 'insert' && $postId && !empty($comment)) {
         $stmt_count_comments->close();
 
         if ($num_comments_today >= 20) {
-            header("Location: ../pubblico/view_blog.php?id_blog=$id_blog&error=limite_superato");
+            header("Location: " . $referer . "?error=limite_superato");
             exit;
         }
     }
 
-    // Inserisci il nuovo commento
     $insertCommentQuery = "INSERT INTO commento (data_comm, contenuto, id_utente, id_post) VALUES (NOW(), ?, ?, ?)";
     $stmt = $conn->prepare($insertCommentQuery);
     $stmt->bind_param("sii", $comment, $userId, $postId);
     if ($stmt->execute()) {
-        // Recupera il proprietario del blog per notificare
         $queryBlogOwner = "SELECT b.id_proprietario FROM post p JOIN blog b ON p.id_blog = b.id_blog WHERE p.id_post = ?";
         $stmt_blog_owner = $conn->prepare($queryBlogOwner);
         $stmt_blog_owner->bind_param("i", $postId);
@@ -55,40 +50,35 @@ if ($action === 'insert' && $postId && !empty($comment)) {
             $blogOwner = $result_blog_owner->fetch_assoc();
             $id_blogOwner = $blogOwner['id_proprietario'];
 
-            // Inserisci la notifica per il proprietario del blog
             $queryInsertNotifica = "INSERT INTO notifiche (user_id, sender_id, tipo, contenuto_id) VALUES (?, ?, 'comment', ?)";
             $stmt_insert_notifica = $conn->prepare($queryInsertNotifica);
             $stmt_insert_notifica->bind_param("iii", $id_blogOwner, $userId, $postId);
             $stmt_insert_notifica->execute();
         }
         $stmt_blog_owner->close();
-        header("Location: ../pubblico/view_blog.php?id_blog=$id_blog");
+        header("Location: " . $referer);   // referer serve per tornare alla pagina in cui si trova l'utente quando inserisce il commento 
         exit;
     } else {
         echo "Errore durante l'inserimento del commento: " . $stmt->error;
     }
     $stmt->close();
 } elseif ($action === 'update' && $id_comm && !empty($comment)) {
-
-    // Aggiorna il commento esistente
     $updateCommentQuery = "UPDATE commento SET contenuto = ? WHERE id_comm = ? AND id_utente = ?";
     $stmt = $conn->prepare($updateCommentQuery);
     $stmt->bind_param("sii", $comment, $id_comm, $userId);
     if ($stmt->execute()) {
-        header("Location: ../pubblico/view_blog.php?id_blog=$id_blog");
+        header("Location: " . $referer); // referer serve per tornare alla pagina in cui si trova l'utente quando modifica il commento
         exit;
     } else {
         echo "Errore durante l'aggiornamento del commento: " . $stmt->error;
     }
     $stmt->close();
 } elseif ($action === 'delete' && $id_comm) {
-
-    // Elimina il commento
     $deleteCommentQuery = "DELETE FROM commento WHERE id_comm = ? AND id_utente = ?";
     $stmt = $conn->prepare($deleteCommentQuery);
     $stmt->bind_param("ii", $id_comm, $userId);
     if ($stmt->execute()) {
-        header("Location: ../pubblico/view_blog.php?id_blog=$id_blog");
+        header("Location: " . $referer); // referer serve per tornare alla pagina in cui si trova l'utente quando  elimina il commento 
         exit;
     } else {
         echo "Errore durante l'eliminazione del commento: " . $stmt->error;

@@ -203,11 +203,6 @@ while ($row = $resultLikes->fetch_assoc()) {
 
 <style>
 
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }        
         .container {
             background-color: #fff;
             padding: 20px;
@@ -217,32 +212,6 @@ while ($row = $resultLikes->fetch_assoc()) {
         .navbar {
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .form-control {
-            border-radius: 20px;
-        }
-        .profile-picture {
-            max-width: 150px;
-            max-height: 150px;
-            border-radius: 50%;
-            border: 5px solid #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .btn-outline-success {
-            border-color: #1da1f2;
-            color: #1da1f2;
-        }
-        .btn-outline-success:hover {
-            background-color: #1da1f2;
-            color: #fff;
-        }
-        .btn-primary {
-            background-color: #1da1f2;
-            border-color: #1da1f2;
-        }
-        .btn-primary:hover {
-            background-color: #0e71a1;
-            border-color: #0e71a1;
         }
         .card {
             border-radius: 10px;
@@ -254,19 +223,6 @@ while ($row = $resultLikes->fetch_assoc()) {
         }
         .card-text {
             color: #333;
-        }
-        .modal-content {
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .modal-title {
-            color: #1da1f2;
-        }
-        .form-group label {
-            color: #333;
-        }
-        .list-unstyled {
-            padding-left: 0;
         }
         .comment-item {
             background-color: #f0f0f0;
@@ -418,12 +374,43 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                             <div class="comment-content mt-2">
                                                                 <?php echo htmlspecialchars($comment['contenuto']); ?>
                                                             </div>
+                                                            
+                                                            <?php if ($comment['username'] == $_SESSION['username']) : ?>
+                                                <!-- Pulsante Modifica -->
+                                                <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
+                                               
+                                            <?php endif; ?>
+                                            <!-- Modifica commento -->
+                                            <div class="edit-comment-form d-none">
+                                                <form method="post" action="../risorse/comment.php">
+                                                    <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                    <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                    <input type="hidden" name="action" value="update">
+                                                    <div class="form-group">
+                                                        <textarea class="form-control" name="comment" id="edit-comment-textarea" rows="3"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary btn-sm" id="save-edit-btn" disabled>Salva</button>
+                                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
+                                                </form>
+                                            </div>
+
                                                         </div>
                                                     <?php endforeach; ?>
                                                 </div>
                                             <?php else: ?>
                                                 <p class="mt-3">Nessun commento disponibile.</p>
                                                 <?php endif; ?>
+
+ <!-- Form per inserire un commento -->
+ <form method="post" action="../risorse/comment.php" class="mt-3">
+                            <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
+                            <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                            <input type="hidden" name="action" value="insert">
+                            <div class="form-group">
+                                <textarea class="form-control comment-textarea" name="comment" placeholder="Inserisci il tuo commento"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary comment-submit-btn" disabled>Commenta</button>
+                        </form>
 
                                                 <!-- Modale per la modifica del post -->
                                                 <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel_<?php echo $post['id_post']; ?>" aria-hidden="true">
@@ -534,7 +521,7 @@ while ($row = $resultLikes->fetch_assoc()) {
         });
     }
 
-    $(document).ready(function() {
+$(document).ready(function() {
     // Funzione per aggiornare il testo del pulsante Mi Piace
     function updateLikeButton(button, action, likeCount) {
         if (action === 'like') {
@@ -568,10 +555,62 @@ while ($row = $resultLikes->fetch_assoc()) {
             }
         });
     });
-
-
-
 });
+
+
+$('.comment-textarea').on('input', function() {
+        var form = $(this).closest('form');
+        var comment = $(this).val().trim();
+        var submitButton = form.find('.comment-submit-btn');
+
+        if (comment === '') {
+            submitButton.prop('disabled', true);
+        } else {
+            submitButton.prop('disabled', false);
+        }
+    });
+
+    $(document).on('click', '.edit-comment-btn', function() {
+        var commentId = $(this).data('comment-id');
+        var commentItem = $(this).closest('.comment-item');
+        var editForm = commentItem.find('.edit-comment-form');
+        var commentContent = commentItem.find('.comment-content');
+
+        // Nascondi il contenuto attuale del commento e mostra il modulo di modifica
+        commentContent.addClass('d-none');
+        editForm.removeClass('d-none');
+    });
+
+    $(document).on('click', '.cancel-edit-btn', function() {
+        var commentItem = $(this).closest('.comment-item');
+        var editForm = commentItem.find('.edit-comment-form');
+        var commentContent = commentItem.find('.comment-content');
+
+        // Mostra il contenuto attuale del commento e nascondi il modulo di modifica
+        commentContent.removeClass('d-none');
+        editForm.addClass('d-none');
+    });
+
+    $(document).on('input', '.edit-comment-form textarea', function() {
+        var saveButton = $(this).closest('.edit-comment-form').find('#save-edit-btn');
+        if ($(this).val().trim() === '') {
+            saveButton.prop('disabled', true);
+        } else {
+            saveButton.prop('disabled', false);
+        }
+    });
+
+    $('.comment-textarea').each(function() {
+        var form = $(this).closest('form');
+        var comment = $(this).val().trim();
+        var submitButton = form.find('.comment-submit-btn');
+
+        if (comment === '') {
+            submitButton.prop('disabled', true);
+        } else {
+            submitButton.prop('disabled', false);
+        }
+    });
 
 </script>
 </body>

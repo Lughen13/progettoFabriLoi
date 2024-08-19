@@ -156,6 +156,7 @@ $conn->close();
         .comment-item strong {
             color: #1da1f2;
         }
+
     </style>
 </head>
 <body>
@@ -277,8 +278,8 @@ $conn->close();
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
-</div>
-                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
 
                         <!-- Form per inserire un commento -->
                         <form method="post" action="../risorse/comment.php" class="mt-3">
