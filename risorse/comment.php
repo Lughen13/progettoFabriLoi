@@ -96,7 +96,20 @@ if ($action === 'insert' && $postId && !empty($comment)) {
         echo "Errore durante l'eliminazione del commento: " . $stmt->error;
     }
     $stmt->close();
-} else {
+}elseif ($action === 'update' && $id_comm && !empty($comment)) {
+
+    // Aggiorna il commento esistente
+    $updateCommentQuery = "UPDATE commento SET contenuto = ? WHERE id_comm = ? AND id_utente = ?";
+    $stmt = $conn->prepare($updateCommentQuery);
+    $stmt->bind_param("sii", $comment, $id_comm, $userId);
+    if ($stmt->execute()) {
+        header("Location: ../pubblico/view_blog.php?id_blog=$id_blog");
+        exit;
+    } else {
+        echo "Errore durante l'aggiornamento del commento: " . $stmt->error;
+    }
+    $stmt->close();
+}  else {
     echo "Parametri non validi.";
 }
 $conn->close();
