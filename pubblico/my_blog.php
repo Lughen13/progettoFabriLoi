@@ -115,6 +115,15 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
+// Recupera il conteggio dei follower per questo blog
+$queryFollowCount = "SELECT COUNT(*) AS followers_count FROM follow WHERE id_blog = ?";
+$stmt_follow_count = $conn->prepare($queryFollowCount);
+$stmt_follow_count->bind_param("i", $id_blog);
+$stmt_follow_count->execute();
+$result_follow_count = $stmt_follow_count->get_result();
+$follow_count = $result_follow_count->fetch_assoc()['followers_count'];
+$stmt_follow_count->close();
+
 // Gestione dell'aggiornamento del post
 if ($action == 'edit_post') {
     $postId = $_POST['post_id'];
@@ -202,9 +211,8 @@ while ($row = $resultLikes->fetch_assoc()) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     
 
-<style>
-
-        .container {
+    <style>
+          .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
@@ -234,7 +242,6 @@ while ($row = $resultLikes->fetch_assoc()) {
         .comment-item strong {
             color: #1da1f2;
         }
-
         
         #notificationDropdown {
             position: relative;
@@ -284,6 +291,9 @@ while ($row = $resultLikes->fetch_assoc()) {
             text-align: center;
         }
 
+
+    </style>
+
     </style>
 </head>
 <body>
@@ -331,6 +341,8 @@ while ($row = $resultLikes->fetch_assoc()) {
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title"><?php echo $blog['titolo_blog']; ?></h3>
+                        <h6>Follower: <?php echo $follow_count; ?></h6>
+
                         <p class="card-text"><?php echo $blog['descrizione']; ?></p>
                         <?php if (!empty($blog['img_logo'])): ?>
                             <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog" width="200">

@@ -105,7 +105,6 @@ if ($action == 'delete_comment') {
         .comment-item strong {
             color: #1da1f2;
         }
-
         
         #notificationDropdown {
             position: relative;

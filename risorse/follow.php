@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $action = isset($_POST['action']) ? $_POST['action'] : null;
 
     if ($blogId && ($action == 'follow' || $action == 'unfollow')) {
-        // Controllo per vedere se l'utente segue già il blog
+
         $checkFollowQuery = "SELECT COUNT(*) as cnt FROM follow WHERE id_utente = ? AND id_blog = ?";
         $stmt_check = $conn->prepare($checkFollowQuery);
         $stmt_check->bind_param("ii", $userId, $blogId);
@@ -24,13 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt_check->close();
 
         if ($action == 'follow' && !$isFollowing) {
-            // Aggiunge il follow
+            // aggiungo il follow alla tabella 
             $queryFollow = "INSERT INTO follow (id_utente, id_blog, data_follow) VALUES (?, ?, NOW())";
             $stmt_follow = $conn->prepare($queryFollow);
             if ($stmt_follow) {
                 $stmt_follow->bind_param("ii", $userId, $blogId);
                 if ($stmt_follow->execute()) {
-                    // Recupera l'ID del proprietario del blog
+
+                    // recupero il proprietario del blog 
                     $queryGetBlogOwner = "SELECT id_proprietario FROM blog WHERE id_blog = ?";
                     $stmtBlogOwner = $conn->prepare($queryGetBlogOwner);
                     $stmtBlogOwner->bind_param("i", $blogId);
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $blogOwner = $resultBlogOwner->fetch_assoc();
                         $id_blogOwner = $blogOwner['id_proprietario'];
 
-                        // Aggiungi la notifica
+                        // ed aggiungo il follow alla tabella notifiche
                         $queryInsertNotifica = "INSERT INTO notifiche (user_id, sender_id, tipo, contenuto_id) VALUES (?, ?, 'follow', ?)";
                         $stmtInsertNotifica = $conn->prepare($queryInsertNotifica);
                         $stmtInsertNotifica->bind_param("iii", $id_blogOwner, $userId, $blogId);
@@ -49,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                     $stmtBlogOwner->close();
 
-                    // Incrementa il conteggio dei follower
-                    $queryIncrementFollower = "UPDATE blog SET followers_count = followers_count + 1 WHERE id_blog = ?";
+                    // incremento il numero di follower 
+                    $queryIncrementFollower = "UPDATE blog SET followers_count = + 1 WHERE id_blog = ?";
                     $stmt_increment = $conn->prepare($queryIncrementFollower);
                     $stmt_increment->bind_param("i", $blogId);
                     $stmt_increment->execute();
@@ -66,18 +67,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 echo "Errore nella preparazione della query: " . $conn->error;
             }
         } elseif ($action == 'unfollow' && $isFollowing) {
-            // Rimuove il follow
+            // rimuovo il follow dalla tabella
             $queryUnfollow = "DELETE FROM follow WHERE id_utente = ? AND id_blog = ?";
             $stmt_unfollow = $conn->prepare($queryUnfollow);
             if ($stmt_unfollow) {
                 $stmt_unfollow->bind_param("ii", $userId, $blogId);
                 if ($stmt_unfollow->execute()) {
-                    // Decrementa il conteggio dei follower
+                    // decremento il numero dei follower
                     $queryDecrementFollower = "UPDATE blog SET followers_count = CASE WHEN followers_count > 0 THEN followers_count - 1 ELSE 0 END WHERE id_blog = ?";
                     $stmt_decrement = $conn->prepare($queryDecrementFollower);
                     $stmt_decrement->bind_param("i", $blogId);
                     $stmt_decrement->execute();
                     $stmt_decrement->close();
+
+                    // elimino la notifica di follow
+                    $queryDeleteNotifica = "DELETE FROM notifiche WHERE sender_id = ? AND contenuto_id = ? AND tipo = 'follow'";
+                    $stmt_delete_notifica = $conn->prepare($queryDeleteNotifica);
+                    $stmt_delete_notifica->bind_param("ii", $userId, $blogId);
+                    $stmt_delete_notifica->execute();
+                    $stmt_delete_notifica->close();
 
                     $stmt_unfollow->close();
                     header("Location: ../pubblico/view_blog.php?id_blog=$blogId");

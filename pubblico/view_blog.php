@@ -252,7 +252,7 @@ $conn->close();
     <div class="container mt-5">
         <h1>Questo è il blog: <?php echo htmlspecialchars(isset($blog['titolo_blog']) ? $blog['titolo_blog'] : ''); ?></h1>
         <p><?php echo htmlspecialchars(isset($blog['descrizione']) ? $blog['descrizione'] : ''); ?></p>
-        <p>Follower: <?php echo $follow_count; ?></p>
+        <h6>Follower: <?php echo $follow_count; ?></h6>
         <div class="form-group">
         <!-- Bottone per stampare il blog (visualizzato solo per utenti premium) -->
             <?php if ($_SESSION['premium'] == 1) : ?>
