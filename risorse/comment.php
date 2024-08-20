@@ -63,23 +63,34 @@ if ($action === 'insert' && $postId && !empty($comment)) {
         echo "Errore durante l'inserimento del commento: " . $stmt->error;
     }
     $stmt->close();
-} elseif ($action === 'update' && $id_comm && !empty($comment)) {
-    $updateCommentQuery = "UPDATE commento SET contenuto = ? WHERE id_comm = ? AND id_utente = ?";
-    $stmt = $conn->prepare($updateCommentQuery);
-    $stmt->bind_param("sii", $comment, $id_comm, $userId);
-    if ($stmt->execute()) {
-        header("Location: " . $referer); // referer serve per tornare alla pagina in cui si trova l'utente quando modifica il commento
-        exit;
-    } else {
-        echo "Errore durante l'aggiornamento del commento: " . $stmt->error;
-    }
-    $stmt->close();
+
 } elseif ($action === 'delete' && $id_comm) {
+    // Recupera il post associato al commento
+    $queryGetPostId = "SELECT id_post FROM commento WHERE id_comm = ? AND id_utente = ?";
+    $stmtGetPostId = $conn->prepare($queryGetPostId);
+    $stmtGetPostId->bind_param("ii", $id_comm, $userId);
+    $stmtGetPostId->execute();
+    $resultGetPostId = $stmtGetPostId->get_result();
+    if ($resultGetPostId->num_rows > 0) {
+        $post = $resultGetPostId->fetch_assoc();
+        $postId = $post['id_post'];
+
+        // Elimina la notifica associata
+        $queryDeleteNotifica = "DELETE FROM notifiche WHERE sender_id = ? AND tipo = 'comment' AND contenuto_id = ?";
+        $stmtDeleteNotifica = $conn->prepare($queryDeleteNotifica);
+        $stmtDeleteNotifica->bind_param("ii", $userId, $postId);
+        $stmtDeleteNotifica->execute();
+        $stmtDeleteNotifica->close();
+    }
+    $stmtGetPostId->close();
+
+    // Elimina il commento
     $deleteCommentQuery = "DELETE FROM commento WHERE id_comm = ? AND id_utente = ?";
     $stmt = $conn->prepare($deleteCommentQuery);
     $stmt->bind_param("ii", $id_comm, $userId);
+    
     if ($stmt->execute()) {
-        header("Location: " . $referer); // referer serve per tornare alla pagina in cui si trova l'utente quando  elimina il commento 
+        header("Location: " . $referer); // referer serve per tornare alla pagina in cui si trova l'utente quando elimina il commento
         exit;
     } else {
         echo "Errore durante l'eliminazione del commento: " . $stmt->error;

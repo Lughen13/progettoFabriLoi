@@ -99,5 +99,4 @@ if ($stmt_blog->execute()) {
     exit();
 }
 
-$conn->close();
 ?>

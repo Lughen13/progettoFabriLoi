@@ -19,20 +19,14 @@ $action = isset($_POST['action']) ? $_POST['action'] : '';
 
 if ($postId && ($action === 'like' || $action === 'unlike')) {
     if ($action === 'like') {
-        // metti mi Piace
+        // Metti mi Piace
         $query = "INSERT INTO likes (id_utente, id_post) VALUES (?, ?)";
-    } elseif ($action === 'unlike') {
-        // togli mi Piace
-        $query = "DELETE FROM likes WHERE id_utente = ? AND id_post = ?";
-    }
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ii", $userId, $postId);
+        $stmt->execute();
+        $stmt->close();
 
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ii", $userId, $postId);
-    $stmt->execute();
-    $stmt->close();
-
-    if ($action === 'like') {
-        // id del propreitario del post
+        // Id del proprietario del post
         $queryGetPostOwner = "SELECT id_autore FROM post WHERE id_post = ?";
         $stmtPostOwner = $conn->prepare($queryGetPostOwner);
         $stmtPostOwner->bind_param("i", $postId);
@@ -42,7 +36,7 @@ if ($postId && ($action === 'like' || $action === 'unlike')) {
             $postOwner = $resultPostOwner->fetch_assoc();
             $id_postOwner = $postOwner['id_autore'];
 
-            // aggiungo la notifica ala tabella 
+            // Aggiungi la notifica alla tabella
             $queryInsertNotifica = "INSERT INTO notifiche (user_id, sender_id, tipo, contenuto_id) VALUES (?, ?, 'like', ?)";
             $stmtInsertNotifica = $conn->prepare($queryInsertNotifica);
             $stmtInsertNotifica->bind_param("iii", $id_postOwner, $userId, $postId);
@@ -50,9 +44,36 @@ if ($postId && ($action === 'like' || $action === 'unlike')) {
             $stmtInsertNotifica->close();
         }
         $stmtPostOwner->close();
+    
+    } elseif ($action === 'unlike') {
+        // Id del proprietario del post (necessario per la rimozione della notifica)
+        $queryGetPostOwner = "SELECT id_autore FROM post WHERE id_post = ?";
+        $stmtPostOwner = $conn->prepare($queryGetPostOwner);
+        $stmtPostOwner->bind_param("i", $postId);
+        $stmtPostOwner->execute();
+        $resultPostOwner = $stmtPostOwner->get_result();
+        if ($resultPostOwner->num_rows > 0) {
+            $postOwner = $resultPostOwner->fetch_assoc();
+            $id_postOwner = $postOwner['id_autore'];
+
+            // Rimuovi la notifica dalla tabella
+            $queryDeleteNotifica = "DELETE FROM notifiche WHERE sender_id = ? AND tipo = 'like' AND contenuto_id = ?";
+            $stmtDeleteNotifica = $conn->prepare($queryDeleteNotifica);
+            $stmtDeleteNotifica->bind_param("ii", $userId, $postId); // Nota: usiamo solo $userId e $postId
+            $stmtDeleteNotifica->execute();
+            $stmtDeleteNotifica->close();
+        }
+        $stmtPostOwner->close();
+
+        // Rimuovi il like
+        $query = "DELETE FROM likes WHERE id_utente = ? AND id_post = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ii", $userId, $postId);
+        $stmt->execute();
+        $stmt->close();
     }
 
-    // numero di mi piace aggiornato
+    // Numero di mi piace aggiornato
     $queryCount = "SELECT COUNT(*) AS like_count FROM likes WHERE id_post = ?";
     $stmtCount = $conn->prepare($queryCount);
     $stmtCount->bind_param("i", $postId);
