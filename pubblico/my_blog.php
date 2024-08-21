@@ -290,7 +290,12 @@ while ($row = $resultLikes->fetch_assoc()) {
             margin: 5px;
             text-align: center;
         }
-
+        .form-area {
+            width: 100%;
+            height: 100px; 
+            resize: none; 
+            border: 1px solid #ccc; 
+        }
 
     </style>
 
@@ -445,6 +450,15 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                                 <?php endif; ?>
                                                                 <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
                                                                 <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
+
+
+                                                                <?php if ($comment['username'] == $_SESSION['username']) : ?>
+                                                                    <!-- Pulsante Modifica -->
+                                                                    <button class="btn btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
+                                                                            <i class="fas fa-pen" style="color: red;"></i> <!-- Icona della penna gialla -->
+                                                                        </button>
+                                                                
+                                                                <?php endif; ?>
                                                                 <!-- Aggiungi un'icona per eliminare il commento -->
                                                                 <a href="../pubblico/my_blog.php?action=delete_comment&id_comm=<?php echo $comment['id_comm']; ?>" class="ml-2 text-danger" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
                                                                     <i class="fas fa-times"></i>
@@ -454,19 +468,15 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                                 <?php echo htmlspecialchars($comment['contenuto']); ?>
                                                             </div>
                                                             
-                                                            <?php if ($comment['username'] == $_SESSION['username']) : ?>
-                                                <!-- Pulsante Modifica -->
-                                                <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
-                                               
-                                            <?php endif; ?>
-                                            <!-- Modifica commento -->
-                                            <div class="edit-comment-form d-none">
+                                              
+                                             <!-- Modifica commento -->
+                                             <div class="edit-comment-form d-none">
                                                 <form method="post" action="../risorse/comment.php">
                                                     <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
                                                     <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
                                                     <input type="hidden" name="action" value="update">
                                                     <div class="form-group">
-                                                        <textarea class="form-control" name="comment" id="edit-comment-textarea" rows="3"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
+                                                        <textarea class="form-area" name="comment" id="edit-comment-textarea" rows="3"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
                                                     </div>
                                                     <button type="submit" class="btn btn-primary btn-sm" id="save-edit-btn" disabled>Salva</button>
                                                     <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
