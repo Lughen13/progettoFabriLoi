@@ -103,7 +103,7 @@ if ($action === 'insert' && $postId && !empty($comment)) {
     $stmt = $conn->prepare($updateCommentQuery);
     $stmt->bind_param("sii", $comment, $id_comm, $userId);
     if ($stmt->execute()) {
-        header("Location: ../pubblico/view_blog.php?id_blog=$id_blog");
+        header("Location: " . $referer);
         exit;
     } else {
         echo "Errore durante l'aggiornamento del commento: " . $stmt->error;

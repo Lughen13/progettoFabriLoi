@@ -158,12 +158,9 @@ $conn->close();
         .comment-item strong {
             color: #1da1f2;
         }
-        
-        
         #notificationDropdown {
             position: relative;
         }
-
         #notificationCount {
             position: absolute;
             top: 0;
@@ -175,7 +172,6 @@ $conn->close();
             padding: 2px 6px;
             font-size: 12px;
         }
-
         .dropdown-menu {
             width: 400px; /* Larghezza del dropdown delle notifiche */
             padding: 0;
@@ -206,6 +202,12 @@ $conn->close();
             flex: 1 1 auto;
             margin: 5px;
             text-align: center;
+        }
+        .form-area {
+            width: 100%;
+            height: 100px; 
+            resize: none; 
+            border: 1px solid #ccc; 
         }
 
     </style>
@@ -315,22 +317,32 @@ $conn->close();
                                                 <?php endif; ?>
                                                 <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
                                                 <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
+
+                                                <!-- per fare in modo che i pulsanti siano in alto di fianco al datatime -->
+                                                <?php if ($comment['username'] == $_SESSION['username']) : ?>
+                                                <div class="comment-actions mt-2">
+                                                    <!-- Pulsante Modifica -->
+                                                    <button class="btn btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
+                                                        <i class="fas fa-pen" style="color: red;"></i> <!-- Icona della penna gialla -->
+                                                    </button>
+                                                    <!-- Pulsante Elimina -->
+                                                    <form method="post" action="../risorse/comment.php" class="d-inline">
+                                                        <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                        <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                        <input type="hidden" name="action" value="delete">
+                                                        <button type="submit" class="btn btn-sm" style="border: none; background: none;"onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
+                                                            <i class="fas fa-times" style="color: red;"></i> <!-- Icona della X rossa -->
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            <?php endif; ?>
                                             </div>
                                             
                                             <div class="comment-content mt-2">
                                                 <?php echo htmlspecialchars($comment['contenuto']); ?>
                                             </div>
-                                            <?php if ($comment['username'] == $_SESSION['username']) : ?>
-                                                <!-- Pulsante Modifica -->
-                                                <button class="btn btn-warning btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>">Modifica</button>
-                                                <!-- Pulsante Elimina -->
-                                                <form method="post" action="../risorse/comment.php" class="d-inline">
-                                                    <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
-                                                    <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                                                    <input type="hidden" name="action" value="delete">
-                                                    <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
-                                                </form>
-                                            <?php endif; ?>
+
+                                            
                                             <!-- Modifica commento -->
                                             <div class="edit-comment-form d-none">
                                                 <form method="post" action="../risorse/comment.php">
@@ -338,7 +350,7 @@ $conn->close();
                                                     <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
                                                     <input type="hidden" name="action" value="update">
                                                     <div class="form-group">
-                                                        <textarea class="form-control" name="comment" id="edit-comment-textarea" rows="3"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
+                                                        <textarea class="form-area" name="comment" id="edit-comment-textarea" rows="3"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
                                                     </div>
                                                     <button type="submit" class="btn btn-primary btn-sm" id="save-edit-btn" disabled>Salva</button>
                                                     <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
@@ -348,6 +360,7 @@ $conn->close();
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
+
 
                         <!-- Form per inserire un commento -->
                         <form method="post" action="../risorse/comment.php" class="mt-3">
