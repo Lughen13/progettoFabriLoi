@@ -70,40 +70,6 @@ if ($action == 'delete_post') {
     }
 }
 
-// Eliminazione del commento
-if ($action == 'delete_comment') {
-    $id_comm = $_GET['id_comm'];
-
-    // Recupero dell'ID del blog associato al commento
-    $getBlogIdQuery = "SELECT p.id_blog FROM commento c 
-                       INNER JOIN post p ON c.id_post = p.id_post
-                       WHERE c.id_comm = ?";
-    $stmt_blog = $conn->prepare($getBlogIdQuery);
-    $stmt_blog->bind_param("i", $id_comm);
-    $stmt_blog->execute();
-    $stmt_blog->bind_result($id_blog);
-    $stmt_blog->fetch();
-    $stmt_blog->close();
-
-    if (!$id_blog) {
-        echo "Errore: l'ID del blog non è stato recuperato correttamente.";
-        exit();
-    }
-
-    // Eliminazione effettiva del commento
-    $deleteCommentQuery = "DELETE FROM commento WHERE id_comm = ?";
-    $stmt = $conn->prepare($deleteCommentQuery);
-    $stmt->bind_param("i", $id_comm);
-    if ($stmt->execute()) {
-        // Redirect alla pagina del blog
-        header("Location: ../pubblico/my_blog.php?id_blog=$id_blog");
-        exit();
-    } else {
-        echo "Errore durante l'eliminazione del commento: " . $stmt->error;
-    }
-    $stmt->close();
-}
-
 $id_blog = isset($_GET['id_blog']) ? intval($_GET['id_blog']) : 0;
 
 // Recupero dei blog dell'utente
@@ -327,7 +293,6 @@ while ($row = $resultLikes->fetch_assoc()) {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-bell"></i> 
-                            <!-- <span class="badge badge-danger" id="notificationCount">3</span> Numero notifiche -->
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
                             <h6 class="dropdown-header">Notifiche recenti</h6>
@@ -340,7 +305,7 @@ while ($row = $resultLikes->fetch_assoc()) {
         </div>
     </nav>
     
-    <div class="my-4">
+    <iv class="my-4">
         <?php if (!empty($blogs)): ?>
             <?php foreach ($blogs as $blog): ?>
                 <div class="card">
@@ -357,7 +322,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                 <a href="../pubblico/my_blog.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
                             </div>
                             <!-- Post del blog -->
-                             <?php
+                            <?php
                             // recupero informazioni dei post (mi serve soprattutto per il recupero della sottocategoria)
                             $postsQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, s.nome_sottocat, u.username
                                         FROM post p
@@ -376,7 +341,6 @@ while ($row = $resultLikes->fetch_assoc()) {
                             
                             <?php if (!empty($posts)): ?>
                                 <div class="posts-container">
-                                    <!-- <h4 class="mt-3">I post di questo blog:</h4> -->
                                     <?php foreach ($posts as $post): ?>
                                         <div class="card mb-3">
                                             <div class="card-body">
@@ -451,55 +415,58 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                                 <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
                                                                 <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
 
-
                                                                 <?php if ($comment['username'] == $_SESSION['username']) : ?>
                                                                     <!-- Pulsante Modifica -->
                                                                     <button class="btn btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
-                                                                            <i class="fas fa-pen" style="color: red;"></i> <!-- Icona della penna gialla -->
-                                                                        </button>
-                                                                
+                                                                        <i class="fas fa-pen" style="color: red;"></i> <!-- Icona della penna gialla -->
+                                                                    </button>
                                                                 <?php endif; ?>
+
                                                                 <!-- Aggiungi un'icona per eliminare il commento -->
-                                                                <a href="../pubblico/my_blog.php?action=delete_comment&id_comm=<?php echo $comment['id_comm']; ?>" class="ml-2 text-danger" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
-                                                                    <i class="fas fa-times"></i>
-                                                                </a>
-                                                            </div>
-                                                            <div class="comment-content mt-2">
-                                                                <?php echo htmlspecialchars($comment['contenuto']); ?>
+                                                                <form method="post" action="../risorse/comment.php" class="d-inline">
+                                                                    <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                                    <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                                    <input type="hidden" name="action" value="delete">
+                                                                    <button type="submit" class="btn btn-sm" style="border: none; background: none;"onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
+                                                                        <i class="fas fa-times" style="color: red;"></i> <!-- Icona della X rossa -->
+                                                                    </button>
+                                                                </form>
                                                             </div>
                                                             
+                                                            <div class="comment-content mt-2">
+                                                                <?php echo htmlspecialchars($comment['contenuto']); ?>
+                                                            </div>    
                                               
-                                             <!-- Modifica commento -->
-                                             <div class="edit-comment-form d-none">
-                                                <form method="post" action="../risorse/comment.php">
-                                                    <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
-                                                    <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                                                    <input type="hidden" name="action" value="update">
-                                                    <div class="form-group">
-                                                        <textarea class="form-area" name="comment" id="edit-comment-textarea" rows="3"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary btn-sm" id="save-edit-btn" disabled>Salva</button>
-                                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
-                                                </form>
-                                            </div>
-
+                                                            <!-- Modifica commento -->
+                                                            <div class="edit-comment-form d-none">
+                                                                <form method="post" action="../risorse/comment.php">
+                                                                    <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
+                                                                    <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                                    <input type="hidden" name="action" value="update">
+                                                                    <div class="form-group">
+                                                                        <textarea class="form-area" name="comment" id="edit-comment-textarea" rows="3"><?php echo htmlspecialchars($comment['contenuto']); ?></textarea>
+                                                                    </div>
+                                                                    <button type="submit" class="btn btn-primary btn-sm" id="save-edit-btn" disabled>Salva</button>
+                                                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn">Annulla</button>
+                                                                </form>
+                                                            </div>
                                                         </div>
                                                     <?php endforeach; ?>
                                                 </div>
-                                            <?php else: ?>
-                                                <p class="mt-3">Nessun commento disponibile.</p>
+                                                <?php else: ?>
+                                            <p class="mt-3">Nessun commento disponibile.</p>
                                                 <?php endif; ?>
 
- <!-- Form per inserire un commento -->
- <form method="post" action="../risorse/comment.php" class="mt-3">
-                            <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
-                            <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
-                            <input type="hidden" name="action" value="insert">
-                            <div class="form-group">
-                                <textarea class="form-control comment-textarea" name="comment" placeholder="Inserisci il tuo commento"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary comment-submit-btn" disabled>Commenta</button>
-                        </form>
+                                                <!-- Form per inserire un commento -->
+                                                <form method="post" action="../risorse/comment.php" class="mt-3">
+                                                    <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
+                                                    <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
+                                                    <input type="hidden" name="action" value="insert">
+                                                    <div class="form-group">
+                                                        <textarea class="form-control comment-textarea" name="comment" placeholder="Inserisci il tuo commento"></textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary comment-submit-btn" disabled>Commenta</button>
+                                                </form>
 
                                                 <!-- Modale per la modifica del post -->
                                                 <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel_<?php echo $post['id_post']; ?>" aria-hidden="true">
@@ -551,11 +518,12 @@ while ($row = $resultLikes->fetch_assoc()) {
             <?php else: ?>
                 <p>Non hai ancora creato blog.</p>
             <?php endif; ?>
-        </div>
+        </iv>
 
         <div class="my-4">
-        <a href="../pubblico/create_post.php" class="btn btn-primary">Crea Post</a>
+            <a href="../pubblico/create_post.php" class="btn btn-primary">Crea Post</a>
         </div>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
