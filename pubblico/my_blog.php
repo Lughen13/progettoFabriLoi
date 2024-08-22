@@ -324,7 +324,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                             <!-- Post del blog -->
                             <?php
                             // recupero informazioni dei post (mi serve soprattutto per il recupero della sottocategoria)
-                            $postsQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, s.nome_sottocat, u.username
+                            $postsQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, p.likes_count, s.nome_sottocat, u.username
                                         FROM post p
                                         JOIN utente u ON u.id_utente = p.id_autore
                                         JOIN sottocat s ON p.id_sottocat = s.id_sottocat
@@ -347,6 +347,8 @@ while ($row = $resultLikes->fetch_assoc()) {
                                             <h4 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h4>
                                             <h6 class="card-text">Autore: <?php echo htmlspecialchars($post['username']) ?> </h6>
                                             <h6 class="card-text">Sottocategoria: <?php echo htmlspecialchars($post['nome_sottocat']); ?></h6>
+                                            <h6 class="card-text">Mi piace: <?php echo htmlspecialchars($post['likes_count']); ?></h6>
+
                                             <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
                                             
                                             <?php

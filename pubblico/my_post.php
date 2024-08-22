@@ -17,7 +17,7 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 $postId = isset($_GET['id_post']) ? (int) $_GET['id_post'] : 0;
 
-// Retrieve the post details from the database
+
 $queryPost = "SELECT p.*, s.nome_sottocat, u.username
               FROM post p
               JOIN utente u ON p.id_autore = u.id_utente
@@ -172,10 +172,11 @@ $post = $resultPost->fetch_assoc();
                         <h4 class="card-title"><?php echo htmlspecialchars($post['titolo_post']); ?></h4>
                         <h6 classe="card-text">Autore: <?php echo htmlspecialchars($post['username']) ?> </h6>
                         <h6 class="card-text">Sottocategoria: <?php echo htmlspecialchars($post['nome_sottocat']); ?></h6>
+                        <h6 class="card-text">Mi piace: <?php echo htmlspecialchars($post['likes_count']); ?></h6>
                         <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
                             
                         <?php
-                        // Decodifica le immagini dal formato JSON
+                        // Decodifica le immagini utilizzando json
                         $images = json_decode($post['img_post'], true);
                         if (is_array($images) && count($images) > 0): 
                         ?>   
