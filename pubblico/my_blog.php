@@ -315,13 +315,12 @@ while ($row = $resultLikes->fetch_assoc()) {
 
                         <p class="card-text"><?php echo $blog['descrizione']; ?></p>
                         <?php if (!empty($blog['img_logo'])): ?>
-                            <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog" width="200">
+                            <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog <?php echo htmlspecialchars($blog['titolo_blog']); ?> " width="200">
                             <?php endif; ?>
                             <div>
-                                <a href="../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Modifica Blog</a>
-                                <a href="../pubblico/my_blog.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
-                            </div>
-                            <!-- Post del blog -->
+                                <button class="btn btn-primary" onclick="window.location.href='../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>'">Modifica Blog</button>
+                                <button class="btn btn-danger" onclick="if(confirm('Sei sicuro di voler eliminare questo blog?')) { window.location.href='../pubblico/my_blog.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>'; }">Elimina Blog</button>                            </div>
+                            
                             <?php
                             // recupero informazioni dei post (mi serve soprattutto per il recupero della sottocategoria)
                             $postsQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, p.likes_count, s.nome_sottocat, u.username
@@ -358,14 +357,15 @@ while ($row = $resultLikes->fetch_assoc()) {
                                             ?>
                                                 <div class="post-images">
                                                     <?php foreach ($images as $image): ?>
-                                                        <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-fluid mb-2" alt="Immagine del Post" width="200">
+                                                        <img src="../photo_post/<?php echo htmlspecialchars($image); ?>" class="img-fluid mb-2" alt="Immagine del post '<?php echo htmlspecialchars($post['titolo_post']); ?>' di <?php echo htmlspecialchars($post['username']); ?>" 
+                                                        width="200">
                                                     <?php endforeach; ?>
                                                 </div>
                                             <?php endif; ?>
 
                                             <div>
                                                 <button class="btn btn-primary mr-2" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
-                                                <a href="../pubblico/my_blog.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')">Elimina Post</a>
+                                                <button class="btn btn-danger" onclick="if(confirm('Sei sicuro di voler eliminare questo post?')) { window.location.href='../pubblico/my_blog.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>'; }">Elimina Post</button>
 
                                             </div>
 
@@ -412,7 +412,9 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                         <div class="comment-item mb-3 p-3 rounded">
                                                             <div class="comment-header d-flex align-items-center">
                                                                 <?php if (!empty($comment['img_profilo'])): ?>
-                                                                    <img src="../uploads/<?php echo htmlspecialchars($comment['img_profilo']); ?>" class="rounded-circle mr-2" width="40" height="40" alt="Immagine profilo">
+                                                                    <img src="../uploads/<?php echo htmlspecialchars($comment['img_profilo']); ?>" class="rounded-circle mr-2" width="40" height="40" alt="Immagine del profilo di <?php echo htmlspecialchars($comment['username']); ?> che ha commentato il post '<?php echo htmlspecialchars($post['titolo_post']); ?>'">
+
+
                                                                 <?php endif; ?>
                                                                 <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
                                                                 <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
@@ -420,7 +422,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                                 <?php if ($comment['username'] == $_SESSION['username']) : ?>
                                                                     <!-- Pulsante Modifica -->
                                                                     <button class="btn btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
-                                                                        <i class="fas fa-pen" style="color: red;"></i> <!-- Icona della penna gialla -->
+                                                                        <i class="fas fa-pen" style="color: red;" alt="Tasto per modificare il commento"></i>
                                                                     </button>
                                                                 <?php endif; ?>
 
@@ -430,7 +432,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                                     <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
                                                                     <input type="hidden" name="action" value="delete">
                                                                     <button type="submit" class="btn btn-sm" style="border: none; background: none;"onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
-                                                                        <i class="fas fa-times" style="color: red;"></i> <!-- Icona della X rossa -->
+                                                                        <i class="fas fa-times" style="color: red;" alt="Tasto per eliminare il commento"></i>
                                                                     </button>
                                                                 </form>
                                                             </div>

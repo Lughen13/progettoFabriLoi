@@ -171,15 +171,15 @@ $stmt->close();
         }
 
         .dropdown-menu {
-            width: 400px; /* Larghezza del dropdown delle notifiche */
+            width: 400px; 
             padding: 0;
-            border: 2px solid #ddd; /* Bordo laterale */
-            border-radius: 10px; /* Angoli arrotondati */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); /* Ombra per il dropdown */
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); 
         }
 
         #notificationList {
-            max-height: 300px; /* Altezza massima del contenitore delle notifiche */
+            max-height: 300px; 
             overflow-y: auto;
             padding: 10px;
         }
@@ -188,7 +188,7 @@ $stmt->close();
             padding: 10px 10px;
             text-decoration: none;
             pointer-events: none;
-            border-top: 1px solid #ddd; /* Bordo superiore */
+            border-top: 1px solid #ddd; 
         }
         .category-container {
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -247,7 +247,7 @@ $stmt->close();
             <div class="col-md-4">
                 <h3>Informazioni Personali</h3>
                     <?php if (!empty($user['img_profilo'])) : ?>
-                        <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>?v=<?php echo time(); ?>" alt="Immagine del profilo" class="img-thumbnail mb-3">
+                        <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>?v=<?php echo time(); ?>" alt="Immagine del profilo di <?php echo htmlspecialchars($user['username']); ?>" class="img-thumbnail mb-3">
                         <?php endif; ?>
                     <form id="updateImgForm" action="my_profile.php" method="post" enctype="multipart/form-data">
                         <div class="form-group">
@@ -274,12 +274,7 @@ $stmt->close();
                 <div class="modal fade" id="editBioModal" tabindex="-1" role="dialog" aria-labelledby="editBioModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editBioModalLabel">Modifica Bio</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
+
                             <form id="editBioForm" action="my_profile.php" method="post">
                                 <div class="modal-body">
                                     <div class="form-group">
@@ -307,16 +302,17 @@ $stmt->close();
                             <p class="card-text"><?php echo htmlspecialchars($blog['descrizione']); ?></p>
                             <p class="card-text"><strong>Categoria:</strong> <?php echo htmlspecialchars($blog['nome_categoria']); ?></p>
                             <?php if (!empty($blog['img_logo'])) : ?>
-                                <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del blog" class="img-thumbnail mb-3">
+                                <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>"  alt="Logo del blog '<?php echo htmlspecialchars($blog['titolo_blog']); ?>'" class="img-thumbnail mb-3">
                             <?php endif; ?>
-                            <a href="../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Modifica Blog</a>
-                            <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#deleteBlogModal<?php echo $blog['id_blog']; ?>">Elimina</a>
-                            <a href="../pubblico/my_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-info">Visualizza</a>
+                            <button class="btn btn-primary" onclick="location.href='../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>'">Modifica Blog</button>
+                            <!-- Pulsante per aprire il modale di eliminazione -->
+                            <button class="btn btn-danger" data-toggle="modal" data-target="#deleteBlogModal<?php echo $blog['id_blog']; ?>">Elimina</button>
+                            <button class="btn btn-info" onclick="location.href='../pubblico/my_blog.php?id_blog=<?php echo $blog['id_blog']; ?>'">Visualizza</button>
                         </div>
                     </div>
                 
 
-                <!-- Modale di Eliminazione Blog -->
+                <!-- per eliminare il blog -->
                 <div class="modal fade" id="deleteBlogModal<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -329,21 +325,22 @@ $stmt->close();
                                 <p>Sei sicuro di voler eliminare il blog "<?php echo htmlspecialchars($blog['titolo_blog']); ?>"?</p>
                             </div>
                             <div class="modal-footer">
-                                <form action="my_profile.php" method="post">
-                                    <input type="hidden" name="blog_id" value="<?php echo $blog['id_blog']; ?>">
-                                    <a href="../pubblico/my_profile.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo blog?')">Elimina Blog</a>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                                </form>
+                            <form action="my_profile.php" method="get">
+                                <input type="hidden" name="action" value="delete_blog">
+                                <input type="hidden" name="id_blog" value="<?php echo $blog['id_blog']; ?>">
+                                <button type="submit" class="btn btn-danger">Elimina Blog</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                            </form>
                             </div>
                         </div>
                     </div>
                 </div>
             <?php endforeach; ?>
 
-            <div class="text-center">
-            <a href="../pubblico/create_blog.php" class="btn btn-success btn-lg mt-4">Crea Nuovo Blog</a>
-            <a href=" ../pubblico/create_post.php" class="btn btn-success btn-lg mt-4">Crea Nuovo Post</a>
-            </div>
+            <div class="text-center mt-4">
+        <button class="btn btn-success btn-lg" onclick="location.href='../pubblico/create_blog.php'">Crea Nuovo Blog</button>
+        <button class="btn btn-success btn-lg" onclick="location.href='../pubblico/create_post.php'">Crea Nuovo Post</button>
+    </div>
         </div>
     </div>
 </body>

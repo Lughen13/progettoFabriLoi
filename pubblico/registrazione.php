@@ -514,8 +514,8 @@ $conn->close();
                 </div>
             </div>
             <div class="form-group">
-                <input type="submit" value="Registrati">
-                <input type="reset" value="Reimposta">
+                <button type="submit" value="Registrati"> registati </button>
+                <button type="reset" value="Reimposta"> reimposta </button>
             </div>
         </form>
     </div>

@@ -96,34 +96,49 @@ body {
             margin-bottom: 15px;
             font-weight: bold;
         }
-    </style>
-    <script>
-        function validateForm() {
-            const title = document.getElementById('title').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const submitButton = document.getElementById('submit-button');
-            
-            if (title.length > 0 && description.length > 0) {
-                submitButton.disabled = false;
-            } else {
-                submitButton.disabled = true;
-            }
+        button {
+        background-color: #4CAF50; 
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 10px 0;
         }
+        button:disabled {
+            background-color: #ccc; 
+            cursor: not-allowed;
+        }
+        </style>
+        <script>
+            function validateForm() {
+                const title = document.getElementById('title').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const submitButton = document.getElementById('submit-button');
+                
+                if (title.length > 0 && description.length > 0) {
+                    submitButton.disabled = false;
+                } else {
+                    submitButton.disabled = true;
+                }
+            }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const titleField = document.getElementById('title');
-            const descriptionField = document.getElementById('description');
-            const submitButton = document.getElementById('submit-button');
+            document.addEventListener('DOMContentLoaded', function() {
+                const titleField = document.getElementById('title');
+                const descriptionField = document.getElementById('description');
+                const submitButton = document.getElementById('submit-button');
 
-            titleField.addEventListener('input', validateForm);
-            descriptionField.addEventListener('input', validateForm);
+                titleField.addEventListener('input', validateForm);
+                descriptionField.addEventListener('input', validateForm);
 
-            validateForm();
-        });
-    </script>
-</head>
-<body>
-        <h1>Crea un nuovo blog</h1>
+                validateForm();
+            });
+        </script>
+    </head>
+
+    <body>    
+    <h1>Crea un nuovo blog</h1>
 
     <form method="post" action="../risorse/process_create_blog.php" enctype="multipart/form-data">
         <?php if (!empty($error_msg)): ?>
@@ -138,13 +153,15 @@ body {
 
         <label for="category">Categoria:</label>
         <select name="category" id="category" required>
+        <option value="">Seleziona una sottocategoria</option>
+
             <?php while ($category = $categoriesResult->fetch_assoc()): ?>
                 <option value="<?php echo htmlspecialchars($category['id_categoria']); ?>"><?php echo htmlspecialchars($category['nome_categoria']); ?></option>
             <?php endwhile; ?>
         </select>
 
         <label for="logo">Logo del blog (opzionale):</label>
-        <input type="file" name="logo" id="logo">
+        <input type="file" name="logo" id="logo" >
 
         <label for="co_autore">Seleziona il co-autore (opzionale):</label>
         <select name="co_autore" id="co_autore">
@@ -154,8 +171,8 @@ body {
             <?php endwhile; ?>
         </select>
 
-        <input type="submit" value="Crea blog" id="submit-button" disabled>
-        <a href="../pubblico/home.php" class="button">Torna alla Home</a>
+        <button type="submit" id="submit-button" disabled>Crea blog</button>
+        <button type="button"onclick="location.href='../pubblico/my_profile.php'">Torna indietro</button>
     </form>
 </body>
 </html>

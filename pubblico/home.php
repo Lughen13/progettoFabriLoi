@@ -158,15 +158,15 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
         }
 
         .dropdown-menu {
-            width: 400px; /* Larghezza del dropdown delle notifiche */
+            width: 400px; 
             padding: 0;
-            border: 2px solid #ddd; /* Bordo laterale */
-            border-radius: 10px; /* Angoli arrotondati */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); /* Ombra per il dropdown */
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); 
         }
 
         #notificationList {
-            max-height: 300px; /* Altezza massima del contenitore delle notifiche */
+            max-height: 300px; 
             overflow-y: auto;
             padding: 10px;
         }
@@ -175,7 +175,7 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
             padding: 10px 10px;
             text-decoration: none;
             pointer-events: none;
-            border-top: 1px solid #ddd; /* Bordo superiore */
+            border-top: 1px solid #ddd; 
         }
         .category-container {
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -218,7 +218,6 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-bell"></i> 
-                            <!-- <span class="badge badge-danger" id="notificationCount">3</span> Numero notifiche -->
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
                             <h6 class="dropdown-header">Notifiche recenti</h6>
@@ -232,71 +231,72 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
     </nav>
 
  
-    <div class="container">
-        
-        <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
-        <!-- Sezione per le categorie con loghi -->
-        <div class="col-md-12">
-            <?php if ($isPremium) : ?>
-                <h2>A cosa sei <?php echo $interesse ?>?  </h2>
-                <div class="row category-container">
-                    <div class="col-md-1 category-card">
-                        <a href="../pubblico/search.php?categoria=Tecnologia">
-                            <div class="category-logo"><i class="fas fa-laptop-code"></i></div>
-                            <p>Tecnologia</p>
-                        </a>
-                    </div>
-                    <div class="col-md-1 category-card">
-                        <a href="../pubblico/search.php?categoria=Moda">
-                            <div class="category-logo"><i class="fas fa-tshirt"></i></div>
-                            <p>Moda</p>
-                        </a>
-                    </div>
-                    <div class="col-md-1 category-card">
-                        <a href="../pubblico/search.php?categoria=Tempo libero">
-                            <div class="category-logo"><i class="fas fa-theater-masks"></i></div>
-                            <p>Tempo libero</p>
-                        </a>
-                    </div>
-                    <div class="col-md-1 category-card">
-                        <a href="../pubblico/search.php?categoria=Viaggi">
-                            <div class="category-logo"><i class="fas fa-plane"></i></div>
-                            <p>Viaggi</p>
-                        </a>
-                    </div>
-                    <div class="col-md-1 category-card">
-                        <a href="../pubblico/search.php?categoria=Cucina">
-                            <div class="category-logo"><i class="fas fa-utensils"></i></div>
-                            <p>Cucina</p>
-                        </a>
-                    </div>
-                    <div class="col-md-1 category-card">
-                        <a href="../pubblico/search.php?categoria=Scienze">
-                            <div class="category-logo"><i class="fas fa-flask"></i></div>
-                            <p>Scienze</p>
-                        </a>
-                    </div>
-                    <div class="col-md-1 category-card">
-                        <a href="../pubblico/search.php?categoria=Recensioni">
-                            <div class="category-logo"><i class="fas fa-star"></i></div>
-                            <p>Recensioni</p>
-                        </a>
-                    </div>
-                    <div class="col-md-1 category-card">
-                        <a href="../pubblico/search.php?categoria=Arredamento">
-                            <div class="category-logo"><i class="fas fa-couch"></i></div>
-                            <p>Arredamento</p>
-                        </a>
-                    </div>
-                    <div class="col-md-1 category-card">
-                        <a href="../pubblico/search.php?categoria=Altro">
-                            <div class="category-logo"><i class="fas fa-ellipsis-h"></i></div>
-                            <p>Altro</p>
-                        </a>
-                    </div>
+    <d class="container">
+    <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
+    <!-- Sezione per le categorie con loghi -->
+    <div class="col-md-12">
+        <?php if ($isPremium) : ?>
+            <h2>A cosa sei <?php echo $interesse ?>? </h2>
+            <div class="row category-container">
+                <div class="col-md-1 category-card">
+                    <a href="../pubblico/search.php?categoria=Tecnologia" aria-label="Categoria Tecnologia">
+                        <div class="category-logo" role="img" aria-label="Icona di un computer portatile per la categoria tecnologia"><i class="fas fa-laptop-code"></i></div>
+                        <p>Tecnologia</p>
+                    </a>
                 </div>
-            <?php endif; ?>
-        </div>
+                <div class="col-md-1 category-card">
+                    <a href="../pubblico/search.php?categoria=Moda" aria-label="Categoria Moda">
+                        <div class="category-logo" role="img" aria-label="Icona di una maglietta per la categoria moda"><i class="fas fa-tshirt"></i></div>
+                        <p>Moda</p>
+                    </a>
+                </div>
+                <div class="col-md-1 category-card">
+                    <a href="../pubblico/search.php?categoria=Tempo libero" aria-label="Categoria Tempo libero">
+                        <div class="category-logo" role="img" aria-label="Icona di una maschera teatrale per la categoria tempo libero"><i class="fas fa-theater-masks"></i></div>
+                        <p>Tempo libero</p>
+                    </a>
+                </div>
+                <div class="col-md-1 category-card">
+                    <a href="../pubblico/search.php?categoria=Viaggi" aria-label="Categoria Viaggi">
+                        <div class="category-logo" role="img" aria-label="Icona di un aereo per la categoria viaggi"><i class="fas fa-plane"></i></div>
+                        <p>Viaggi</p>
+                    </a>
+                </div>
+                <div class="col-md-1 category-card">
+                    <a href="../pubblico/search.php?categoria=Cucina" aria-label="Categoria Cucina">
+                        <div class="category-logo" role="img" aria-label="Icona di posate per la categoria cucina"><i class="fas fa-utensils"></i></div>
+                        <p>Cucina</p>
+                    </a>
+                </div>
+                <div class="col-md-1 category-card">
+                    <a href="../pubblico/search.php?categoria=Scienze" aria-label="Categoria Scienze">
+                        <div class="category-logo" role="img" aria-label="Icona di un misurino scientifico per la categorie scienze"><i class="fas fa-flask"></i></div>
+                        <p>Scienze</p>
+                    </a>
+                </div>
+                <div class="col-md-1 category-card">
+                    <a href="../pubblico/search.php?categoria=Recensioni" aria-label="Categoria Recensioni">
+                        <div class="category-logo" role="img" aria-label="Icona di una stella per la categoria recensioni"><i class="fas fa-star"></i></div>
+                        <p>Recensioni</p>
+                    </a>
+                </div>
+                <div class="col-md-1 category-card">
+                    <a href="../pubblico/search.php?categoria=Arredamento" aria-label="Categoria Arredamento">
+                        <div class="category-logo" role="img" aria-label="Icona di un divano per la categoria arredamento"><i class="fas fa-couch"></i></div>
+                        <p>Arredamento</p>
+                    </a>
+                </div>
+                <div class="col-md-1 category-card">
+                    <a href="../pubblico/search.php?categoria=Altro" aria-label="Categoria Altro">
+                        <div class="category-logo" role="img" aria-label="Icona dei tre punti di sospensione per la categoria altro"><i class="fas fa-ellipsis-h"></i></div>
+                        <p>Altro</p>
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+
+
 
         <!-- i blog seguiti -->
         <div class="row">
@@ -307,13 +307,16 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                         <?php foreach ($favoriteBlogs as $favoriteBlog): ?>
                             <div class="col-md-4 mb-4">
                                 <div class="card">
-                                    <img src="../blog_logo/<?php echo htmlspecialchars($favoriteBlog['img_logo']); ?>" class="card-img-top" alt="Logo del Blog" >
+                                    <img src="../blog_logo/<?php echo htmlspecialchars($favoriteBlog['img_logo']); ?>" class="card-img-top"   alt="Logo del blog '<?php echo htmlspecialchars($favoriteBlog['titolo_blog']); ?>' di <?php echo htmlspecialchars($favoriteBlog['username']); ?>" >
                                     <div class="card-body">
                                         <h5 class="card-title"><?php echo htmlspecialchars($favoriteBlog['titolo_blog']); ?></h5>
                                         <p class="card-text">Proprietario: <?php echo htmlspecialchars($favoriteBlog['username']); ?></p>
                                         <p class="card-text">Categoria: <?php echo htmlspecialchars($favoriteBlog['nome_categoria']); ?></p>
                                         <p class="card-text"><?php echo htmlspecialchars($favoriteBlog['descrizione']); ?></p>
-                                        <a href="../pubblico/view_blog.php?id_blog=<?php echo $favoriteBlog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
+                                        <form action="../pubblico/view_blog.php" method="get" style="display: inline;">
+                                            <input type="hidden" name="id_blog" value="<?php echo $favoriteBlog['id_blog']; ?>">
+                                            <button type="submit" class="btn btn-primary">Visualizza Blog</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -330,13 +333,16 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                         <?php foreach ($blogs as $blog): ?>
                             <div class="col-md-4 mb-4">
                                 <div class="card">
-                                    <img src="../blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top" alt="Logo del Blog">
+                                    <img src="../blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top"  alt="Logo del blog '<?php echo htmlspecialchars($blog['titolo_blog']); ?>' di <?php echo htmlspecialchars($blog['username']); ?>">
                                     <div class="card-body">
                                         <h5 class="card-title"><?php echo htmlspecialchars($blog['titolo_blog']); ?></h5>
                                         <p class="card-text">Proprietario: <?php echo htmlspecialchars($blog['username']); ?></p>
                                         <p class="card-text">Categoria: <?php echo htmlspecialchars($blog['nome_categoria']); ?></p>
                                         <p class="card-text"><?php echo htmlspecialchars($blog['descrizione']); ?></p>
-                                        <a href="../pubblico/view_blog.php?id_blog=<?php echo $blog['id_blog']; ?>" class="btn btn-primary">Visualizza Blog</a>
+                                        <form action="../pubblico/view_blog.php" method="get" style="display: inline;">
+                                            <input type="hidden" name="id_blog" value="<?php echo $favoriteBlog['id_blog']; ?>">
+                                            <button type="submit" class="btn btn-primary">Visualizza Blog</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

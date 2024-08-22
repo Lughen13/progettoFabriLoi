@@ -18,7 +18,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 $title = $_POST['title'] ?? '';
 $description = $_POST['description'] ?? '';
 $category_id = $_POST['category'] ?? '';
-$style_id = $_POST['style'] ?? '';
 $co_autore_id = $_POST['co_autore'] ?? null; // Recupero l'id dell'utente che è stato selezionato come co-autore 
 $current_user_id = $_SESSION['id']; 
 
@@ -70,9 +69,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo']) && $_FILES['
 }
 
 // Inserisci il nuovo blog nel database
-$insert_blog_query = "INSERT INTO blog (data_blog, titolo_blog, descrizione, img_logo, id_categoria, id_stile, id_proprietario, followers_count) VALUES (NOW(), ?, ?, ?, ?, ?, ?, 0)";
+$insert_blog_query = "INSERT INTO blog (data_blog, titolo_blog, descrizione, img_logo, id_categoria, id_proprietario, followers_count) VALUES (NOW(), ?, ?, ?, ?, ?, 0)";
 $stmt_blog = $conn->prepare($insert_blog_query);
-$stmt_blog->bind_param("ssssii", $title, $description, $logoName, $category_id, $style_id, $current_user_id);
+$stmt_blog->bind_param("sssii", $title, $description, $logoName, $category_id, $current_user_id);
 
 if ($stmt_blog->execute()) {
     $blog_id = $stmt_blog->insert_id; // Recupera l'id del blog appena inserito
