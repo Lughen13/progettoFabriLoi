@@ -462,8 +462,6 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                         </div>
                                                     <?php endforeach; ?>
                                                 </div>
-                                                <?php else: ?>
-                                            <p class="mt-3">Nessun commento disponibile.</p>
                                                 <?php endif; ?>
 
                                                 <?php
