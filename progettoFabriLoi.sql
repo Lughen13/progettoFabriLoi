@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Ago 12, 2024 alle 19:45
+-- Creato il: Ago 23, 2024 alle 22:36
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -48,6 +48,21 @@ CREATE TABLE `categoria` (
   `id_categoria` int(20) NOT NULL,
   `nome_categoria` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dump dei dati per la tabella `categoria`
+--
+
+INSERT INTO `categoria` (`id_categoria`, `nome_categoria`) VALUES
+(1, 'Tecnologia'),
+(2, 'Moda'),
+(3, 'Tempo libero'),
+(4, 'Viaggi'),
+(5, 'Cucina'),
+(6, 'Scienze'),
+(7, 'Recensioni'),
+(8, 'Arredamento'),
+(9, 'Altro');
 
 -- --------------------------------------------------------
 
@@ -147,6 +162,7 @@ CREATE TABLE `notifiche` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
+
 --
 -- Struttura della tabella `post`
 --
@@ -176,7 +192,6 @@ CREATE TABLE `premium` (
   `data_scadenza` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
 -- --------------------------------------------------------
 
 --
@@ -189,6 +204,50 @@ CREATE TABLE `sottocat` (
   `nome_sottocat` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dump dei dati per la tabella `sottocat`
+--
+
+INSERT INTO `sottocat` (`id_sottocat`, `id_categoria`, `nome_sottocat`) VALUES
+(1, 1, 'Internet'),
+(2, 1, 'Hardware'),
+(3, 1, 'Software'),
+(4, 1, 'Altro'),
+(5, 2, 'Abbigliamento'),
+(6, 2, 'Accessori'),
+(7, 2, 'Altro'),
+(8, 3, 'Benessere'),
+(9, 3, 'Vacanze'),
+(10, 3, 'Sport'),
+(11, 3, 'Cinema'),
+(12, 3, 'Musica'),
+(13, 3, 'Televisione'),
+(14, 3, 'Libri'),
+(15, 3, 'Altro'),
+(16, 4, 'Destinazioni'),
+(17, 4, 'Trasporti'),
+(18, 4, 'Cultura'),
+(19, 4, 'Alloggi'),
+(20, 4, 'Altro'),
+(21, 5, 'Ricette'),
+(22, 5, 'Tecniche di cucina'),
+(23, 5, 'Attrezzi da cucina'),
+(24, 5, 'Altro'),
+(25, 6, 'Biologia'),
+(26, 6, 'Medicina'),
+(27, 6, 'Fisica'),
+(28, 6, 'Chimica'),
+(29, 6, 'Altro'),
+(30, 7, 'Auto'),
+(31, 7, 'Alberghi'),
+(32, 7, 'Ristoranti'),
+(33, 7, 'Veicoli'),
+(34, 7, 'Altro'),
+(35, 8, 'Interni'),
+(36, 8, 'Giardino'),
+(37, 8, 'Altro'),
+(38, 9, 'Altro');
+
 -- --------------------------------------------------------
 
 --
@@ -200,7 +259,7 @@ CREATE TABLE `utente` (
   `username` varchar(20) NOT NULL,
   `email` varchar(50) NOT NULL,
   `pw` varchar(40) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `img_profilo` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default.png',
+  `img_profilo` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default.png',
   `nome` varchar(20) NOT NULL,
   `cognome` varchar(20) NOT NULL,
   `genere` varchar(10) NOT NULL,
@@ -211,13 +270,17 @@ CREATE TABLE `utente` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Indici per le tabelle scaricate
+--
+
+--
 -- Indici per le tabelle `blog`
 --
 ALTER TABLE `blog`
   ADD PRIMARY KEY (`id_blog`),
   ADD UNIQUE KEY `titolo_blog` (`titolo_blog`,`id_proprietario`),
   ADD KEY `id_categoria` (`id_categoria`,`id_proprietario`),
-  ADD KEY `id_proprietario` (`id_proprietario`),
+  ADD KEY `id_proprietario` (`id_proprietario`);
 
 --
 -- Indici per le tabelle `categoria`
@@ -309,7 +372,7 @@ ALTER TABLE `blog`
 -- AUTO_INCREMENT per la tabella `categoria`
 --
 ALTER TABLE `categoria`
-  MODIFY `id_categoria` int(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_categoria` int(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT per la tabella `commento`
@@ -345,7 +408,7 @@ ALTER TABLE `post`
 -- AUTO_INCREMENT per la tabella `sottocat`
 --
 ALTER TABLE `sottocat`
-  MODIFY `id_sottocat` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_sottocat` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT per la tabella `utente`
