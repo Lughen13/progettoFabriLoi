@@ -41,6 +41,8 @@ if ($action === 'insert' && $postId && !empty($comment)) {
     $stmt = $conn->prepare($insertCommentQuery);
     $stmt->bind_param("sii", $comment, $userId, $postId);
     if ($stmt->execute()) {
+        $commentId = $stmt->insert_id;  
+
         $queryBlogOwner = "SELECT b.id_proprietario FROM post p JOIN blog b ON p.id_blog = b.id_blog WHERE p.id_post = ?";
         $stmt_blog_owner = $conn->prepare($queryBlogOwner);
         $stmt_blog_owner->bind_param("i", $postId);
@@ -50,14 +52,14 @@ if ($action === 'insert' && $postId && !empty($comment)) {
             $blogOwner = $result_blog_owner->fetch_assoc();
             $id_blogOwner = $blogOwner['id_proprietario'];
             if ($userId != $id_blogOwner) {
-                $queryInsertNotifica = "INSERT INTO notifiche (user_id, sender_id, tipo, contenuto_id) VALUES (?, ?, 'comment', ?)";
+                $queryInsertNotifica = "INSERT INTO notifiche (user_id, sender_id, tipo, contenuto_id, data) VALUES (?, ?, 'comment', ?, NOW())";
                 $stmt_insert_notifica = $conn->prepare($queryInsertNotifica);
                 $stmt_insert_notifica->bind_param("iii", $id_blogOwner, $userId, $postId);
                 $stmt_insert_notifica->execute();
             }
         }
         $stmt_blog_owner->close();
-        header("Location: " . $referer);   // referer serve per tornare alla pagina in cui si trova l'utente quando inserisce il commento 
+        header("Location: " . $referer);   
         exit;
     } else {
         echo "Errore durante l'inserimento del commento: " . $stmt->error;
@@ -65,35 +67,64 @@ if ($action === 'insert' && $postId && !empty($comment)) {
     $stmt->close();
 
 } elseif ($action === 'delete' && $id_comm) {
-    // Recupera il post associato al commento
-    $queryGetPostId = "SELECT id_post FROM commento WHERE id_comm = ? AND id_utente = ?";
-    $stmtGetPostId = $conn->prepare($queryGetPostId);
-    $stmtGetPostId->bind_param("ii", $id_comm, $userId);
-    $stmtGetPostId->execute();
-    $resultGetPostId = $stmtGetPostId->get_result();
-    if ($resultGetPostId->num_rows > 0) {
-        $post = $resultGetPostId->fetch_assoc();
-        $postId = $post['id_post'];
 
-        // Elimina la notifica associata
-        $queryDeleteNotifica = "DELETE FROM notifiche WHERE sender_id = ? AND tipo = 'comment' AND contenuto_id = ?";
-        $stmtDeleteNotifica = $conn->prepare($queryDeleteNotifica);
-        $stmtDeleteNotifica->bind_param("ii", $userId, $postId);
-        $stmtDeleteNotifica->execute();
-        $stmtDeleteNotifica->close();
+    // Ottenere i dettagli del commento per verificare il proprietario del post e la data del commento
+    $queryGetCommentDetails = "SELECT c.id_post, c.id_utente, p.id_blog, b.id_proprietario, c.data_comm 
+                               FROM commento c 
+                               JOIN post p ON c.id_post = p.id_post 
+                               JOIN blog b ON p.id_blog = b.id_blog 
+                               WHERE c.id_comm = ?";
+    $stmtGetCommentDetails = $conn->prepare($queryGetCommentDetails);
+    $stmtGetCommentDetails->bind_param("i", $id_comm);
+    $stmtGetCommentDetails->execute();
+    $resultGetCommentDetails = $stmtGetCommentDetails->get_result();
+
+    if ($resultGetCommentDetails->num_rows > 0) {
+        $commentDetails = $resultGetCommentDetails->fetch_assoc();
+        $postId = $commentDetails['id_post'];
+        $commentOwner = $commentDetails['id_utente'];
+        $commentDate = $commentDetails['data_comm'];
+        $blogOwner = $commentDetails['id_proprietario'];
+
+        // Permetti l'eliminazione se l'utente è il proprietario del commento o del post
+        if ($userId == $blogOwner || $userId == $commentOwner) {
+            // Eliminare la notifica corrispondente al commento
+            $queryDeleteNotifica = "DELETE FROM notifiche WHERE sender_id = ? AND contenuto_id = ? AND data = ?";
+            $stmtDeleteNotifica = $conn->prepare($queryDeleteNotifica);
+            $stmtDeleteNotifica->bind_param("iis", $commentOwner, $postId, $commentDate);
+            $stmtDeleteNotifica->execute();
+            $stmtDeleteNotifica->close();
+
+            // Eliminare il commento
+            $deleteCommentQuery = "DELETE FROM commento WHERE id_comm = ?";
+            $stmt = $conn->prepare($deleteCommentQuery);
+            $stmt->bind_param("i", $id_comm);
+
+            if ($stmt->execute()) {
+                header("Location: " . $referer);
+                exit;
+            } else {
+                echo "Errore durante l'eliminazione del commento: " . $stmt->error;
+            }
+            $stmt->close();
+        } else {
+            echo "Non sei autorizzato a eliminare questo commento.";
+        }
+    } else {
+        echo "Commento non trovato.";
     }
-    $stmtGetPostId->close();
+    $stmtGetCommentDetails->close();
 
-    // Elimina il commento
-    $deleteCommentQuery = "DELETE FROM commento WHERE id_comm = ? AND id_utente = ?";
-    $stmt = $conn->prepare($deleteCommentQuery);
-    $stmt->bind_param("ii", $id_comm, $userId);
-    
+
+}elseif ($action === 'update' && $id_comm && !empty($comment)) {
+    $updateCommentQuery = "UPDATE commento SET contenuto = ? WHERE id_comm = ? AND id_utente = ?";
+    $stmt = $conn->prepare($updateCommentQuery);
+    $stmt->bind_param("sii", $comment, $id_comm, $userId);
     if ($stmt->execute()) {
-        header("Location: " . $referer); // referer serve per tornare alla pagina in cui si trova l'utente quando elimina il commento
+        header("Location: " . $referer); 
         exit;
     } else {
-        echo "Errore durante l'eliminazione del commento: " . $stmt->error;
+        echo "Errore durante l'aggiornamento del commento: " . $stmt->error;
     }
     $stmt->close();
 } else {
@@ -101,3 +132,4 @@ if ($action === 'insert' && $postId && !empty($comment)) {
 }
 $conn->close();
 ?>
+

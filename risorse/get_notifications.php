@@ -40,10 +40,10 @@ LEFT JOIN post p ON (n.contenuto_id = p.id_post AND (n.tipo = 'comment' OR n.tip
 LEFT JOIN blog b ON (n.contenuto_id = b.id_blog AND n.tipo = 'follow')
 WHERE n.user_id = ?
 ORDER BY n.data DESC
+LIMIT 10
 ";
 
 if ($stmt = $conn->prepare($sql)) {
-    // Assumendo che l'ID utente sia passato come parametro
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -53,7 +53,6 @@ if ($stmt = $conn->prepare($sql)) {
         $notifications[] = $row;
     }
     
-    // Restituisce le notifiche come JSON
     echo json_encode($notifications);
     
     $stmt->close();

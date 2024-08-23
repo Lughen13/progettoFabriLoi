@@ -109,6 +109,21 @@ $maxImages = $isPremium ? 3 : 1;
         .standard-only {
             display: none; /* Nasconde il blocco per utenti standard */
         }
+
+        button {
+        background-color: #4CAF50; 
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 10px 0;
+        }
+        button:disabled {
+            background-color: #ccc; 
+            cursor: not-allowed;
+        }
     </style>
     <script>
         function validateForm() {
@@ -209,10 +224,9 @@ $maxImages = $isPremium ? 3 : 1;
                 <input type="file" name="immagini[]" id="image" accept="image/*">
             </div>
 
-            <input type="submit" value="Crea post" id="submit-button" disabled>
-            <a href="../pubblico/home.php" class="button">Torna alla Home</a>
+            <button type="submit" id="submit-button" disabled>Crea post</button>
+            <button type="button"onclick="location.href='../pubblico/my_profile.php'">Torna indietro</button>
     </form>
-        
 
 </body>
 </html>

@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin: 10px 0;
             font-weight: bold;
         }
-        input[type="text"], input[type="password"], input[type="submit"] {
+        input[type="text"], input[type="password"], button {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 10px 0;
@@ -126,7 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <span class="error"><?php echo $password_err; ?></span>
         </div>
         <div>
-            <input type="submit" value="Accedi">
+            <button type="submit">Accedi</button>
         </div>
         <p> Se non hai un account puoi <a href="../pubblico/registrazione.php"> registrarti qui</a>.</p>
     </form>
