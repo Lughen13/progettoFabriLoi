@@ -32,7 +32,8 @@ if ($action === 'insert' && $postId && !empty($comment)) {
         $stmt_count_comments->close();
 
         if ($num_comments_today >= 20) {
-            header("Location: " . $referer . "?error=limite_superato");
+            $_SESSION['comment_error'] = 'Hai superato il numero massimo di commenti giornalieri.';
+            header("Location: " . $referer);
             exit;
         }
     }
@@ -68,7 +69,6 @@ if ($action === 'insert' && $postId && !empty($comment)) {
 
 } elseif ($action === 'delete' && $id_comm) {
 
-    // Ottenere i dettagli del commento per verificare il proprietario del post e la data del commento
     $queryGetCommentDetails = "SELECT c.id_post, c.id_utente, p.id_blog, b.id_proprietario, c.data_comm 
                                FROM commento c 
                                JOIN post p ON c.id_post = p.id_post 
@@ -86,16 +86,13 @@ if ($action === 'insert' && $postId && !empty($comment)) {
         $commentDate = $commentDetails['data_comm'];
         $blogOwner = $commentDetails['id_proprietario'];
 
-        // Permetti l'eliminazione se l'utente è il proprietario del commento o del post
         if ($userId == $blogOwner || $userId == $commentOwner) {
-            // Eliminare la notifica corrispondente al commento
             $queryDeleteNotifica = "DELETE FROM notifiche WHERE sender_id = ? AND contenuto_id = ? AND data = ?";
             $stmtDeleteNotifica = $conn->prepare($queryDeleteNotifica);
             $stmtDeleteNotifica->bind_param("iis", $commentOwner, $postId, $commentDate);
             $stmtDeleteNotifica->execute();
             $stmtDeleteNotifica->close();
 
-            // Eliminare il commento
             $deleteCommentQuery = "DELETE FROM commento WHERE id_comm = ?";
             $stmt = $conn->prepare($deleteCommentQuery);
             $stmt->bind_param("i", $id_comm);
@@ -115,8 +112,7 @@ if ($action === 'insert' && $postId && !empty($comment)) {
     }
     $stmtGetCommentDetails->close();
 
-
-}elseif ($action === 'update' && $id_comm && !empty($comment)) {
+} elseif ($action === 'update' && $id_comm && !empty($comment)) {
     $updateCommentQuery = "UPDATE commento SET contenuto = ? WHERE id_comm = ? AND id_utente = ?";
     $stmt = $conn->prepare($updateCommentQuery);
     $stmt->bind_param("sii", $comment, $id_comm, $userId);
@@ -132,4 +128,3 @@ if ($action === 'insert' && $postId && !empty($comment)) {
 }
 $conn->close();
 ?>
-

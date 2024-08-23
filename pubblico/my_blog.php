@@ -178,7 +178,7 @@ while ($row = $resultLikes->fetch_assoc()) {
     
 
     <style>
-          .container {
+        .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
@@ -261,6 +261,11 @@ while ($row = $resultLikes->fetch_assoc()) {
             height: 100px; 
             resize: none; 
             border: 1px solid #ccc; 
+        }
+        .error-msg {
+            color: red;
+            margin-bottom: 15px;
+            font-weight: bold;
         }
 
     </style>
@@ -461,6 +466,13 @@ while ($row = $resultLikes->fetch_assoc()) {
                                             <p class="mt-3">Nessun commento disponibile.</p>
                                                 <?php endif; ?>
 
+                                                <?php
+                                                if (isset($_SESSION['comment_error'])) {
+                                                    echo '<div class="error-msg">' . htmlspecialchars($_SESSION['comment_error']) . '</div>';
+                                                    unset($_SESSION['comment_error']);
+                                                }
+                                                ?>
+
                                                 <!-- Form per inserire un commento -->
                                                 <form method="post" action="../risorse/comment.php" class="mt-3">
                                                     <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
@@ -498,7 +510,6 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                                         <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
                                                                         <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
                                                                         <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
-
                                                                     </div>
                                                                 </form>
                                                             </div>
@@ -587,10 +598,10 @@ $(document).ready(function() {
     function updateLikeButton(button, action, likeCount) {
         if (action === 'like') {
             button.data('action', 'unlike');
-            button.text('Togli Mi Piace (' + likeCount + ')');
+            button.text('Togli Mi Piace');
         } else {
             button.data('action', 'like');
-            button.text('Mi Piace (' + likeCount + ')');
+            button.text('Mi Piace');
         }
     }
 

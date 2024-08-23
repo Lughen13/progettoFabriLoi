@@ -113,6 +113,7 @@ if ($result_check_premium->num_rows > 0) {
     $_SESSION['premium'] = false;  // Ad esempio, considera l'utente non premium
 }
 
+
 $stmt_check_premium->close();
 
 $conn->close();
@@ -185,11 +186,14 @@ $conn->close();
             overflow-y: auto;
             padding: 10px;
         }
-        .error-message {
+        .error-msg {
             color: red;
             margin-bottom: 15px;
             font-weight: bold;
         }
+        
+
+
         
         .dropdown-item {
             padding: 10px 10px;
@@ -284,11 +288,7 @@ $conn->close();
         </div>
         <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del blog <?php echo htmlspecialchars($blog['titolo_blog']); ?>" width="300">
 
-            <?php if (isset($_GET['error']) && $_GET['error'] === 'limite_superato') : ?>
-                <div class="alert alert-danger" role="alert">
-                    Hai superato il limite massimo di commenti giornalieri consentiti (20).
-                </div>
-            <?php endif; ?>
+
             
             <!-- Visualizzazione dei post -->
             <?php if ($resultPosts->num_rows > 0): ?>
@@ -368,6 +368,13 @@ $conn->close();
                             <?php endif; ?>
 
 
+                        <?php
+                        if (isset($_SESSION['comment_error'])) {
+                            echo '<div class="error-msg">' . htmlspecialchars($_SESSION['comment_error']) . '</div>';
+                            unset($_SESSION['comment_error']);
+                        }
+                        ?>
+
                         <!-- Form per inserire un commento -->
                         <form method="post" action="../risorse/comment.php" class="mt-3">
                             <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
@@ -378,6 +385,7 @@ $conn->close();
                             </div>
                             <button type="submit" class="btn btn-primary comment-submit-btn" disabled>Commenta</button>
                         </form>
+                        
 
                         <!-- Gestione Mi Piace -->
                         <div class="mt-3">
@@ -424,10 +432,10 @@ $(document).ready(function() {
     function updateLikeButton(button, action, likeCount) {
         if (action === 'like') {
             button.data('action', 'unlike');
-            button.text('Togli Mi Piace (' + likeCount + ')');
+            button.text('Togli Mi Piace');
         } else {
             button.data('action', 'like');
-            button.text('Mi Piace (' + likeCount + ')');
+            button.text('Mi Piace');
         }
     }
 
@@ -553,6 +561,7 @@ $(document).ready(function() {
         fetchNotifications();
     });
 });
+
 </script>
 
 

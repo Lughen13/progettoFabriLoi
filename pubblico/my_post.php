@@ -121,7 +121,11 @@ $post = $resultPost->fetch_assoc();
             margin: 5px;
             text-align: center;
         }
-
+        .error-msg {
+            color: red;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
 
     </style>
 </head>
@@ -280,6 +284,13 @@ $post = $resultPost->fetch_assoc();
                         <p class="mt-3">Nessun commento disponibile.</p>
                         <?php endif; ?>
 
+
+                        <?php
+                        if (isset($_SESSION['comment_error'])) {
+                            echo '<div class="error-msg">' . htmlspecialchars($_SESSION['comment_error']) . '</div>';
+                            unset($_SESSION['comment_error']);
+                        }
+                        ?>
                         <!-- Form per inserire un commento -->
                         <form method="post" action="../risorse/comment.php" class="mt-3">
                             <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
@@ -291,7 +302,6 @@ $post = $resultPost->fetch_assoc();
                             <button type="submit" class="btn btn-primary comment-submit-btn" disabled>Commenta</button>
                         </form>
 
-                            
                             <!-- Modale per la modifica del post -->
                             <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel_<?php echo $post['id_post']; ?>" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -372,10 +382,10 @@ $(document).ready(function() {
     function updateLikeButton(button, action, likeCount) {
         if (action === 'like') {
             button.data('action', 'unlike');
-            button.text('Togli Mi Piace (' + likeCount + ')');
+            button.text('Togli Mi Piace');
         } else {
             button.data('action', 'like');
-            button.text('Mi Piace (' + likeCount + ')');
+            button.text('Mi Piace');
         }
     }
 
