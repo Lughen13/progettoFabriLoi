@@ -312,10 +312,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
     }
+
+    $imgprofilo = '../uploads/predefinita.jpeg';
+
         // se tutto è stato inserito correttamente si procede con l'inserimento dell'utente nella tabella del DB
         if (empty($nome_err) && empty($cognome_err) && empty($username_err) && empty($password_err) && empty($email_err) && empty($data_nascita_err) && empty($genere_err) && empty($numero_telefono_err) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
 
-            $sql = "INSERT INTO utente (username, email, pw, nome, cognome, genere, data_nascita, numero_telefono, premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO utente (username, email, pw, img_profilo, nome, cognome, genere, data_nascita, numero_telefono, premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
 
             // Binding dei parametri per la tabella utente
@@ -328,8 +331,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $param_data_nascita = $data_nascita;
             $param_numero_telefono = $numero_telefono;
             $param_premium = $premium;
+            $param_imgprofilo = $imgprofilo;
 
-            $stmt->bind_param("ssssssssi", $param_username, $param_email, $password_crypt, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
+            $stmt->bind_param("sssssssssi", $param_username, $param_email, $password_crypt, $param_imgprofilo, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
 
             if ($stmt->execute()) {
                 $ultimo_id = $stmt->insert_id;
@@ -400,9 +404,15 @@ $conn->close();
             font-weight: bold;
         }
 
-        .form-group input,
-        .form-group select {
+        .form-group input {
             width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-group select {
+            width: calc(100%);
             padding: 10px;
             border: 1px solid #cccccc;
             border-radius: 5px;
@@ -413,19 +423,17 @@ $conn->close();
             width: auto;
         }
 
-        .form-group input[type="submit"],
-        .form-group input[type="reset"] {
-            padding: 10px 20px;
+        button{
+            padding: 10px;
             background-color: #4CAF50;
             border: none;
             color: white;
+            border: 1px solid #cccccc;
             border-radius: 5px;
-            cursor: pointer;
-            margin-right: 10px;
+            width: calc(100%);
         }
 
-        .form-group input[type="submit"]:hover,
-        .form-group input[type="reset"]:hover {
+        button:hover {
             background-color: #45a049;
         }
 
@@ -514,8 +522,8 @@ $conn->close();
                 </div>
             </div>
             <div class="form-group">
-                <button type="submit" value="Registrati"> registati </button>
-                <button type="reset" value="Reimposta"> reimposta </button>
+                <button type="submit" value="Registrati"> Registrati </button>
+                <button type="reset" value="Reimposta"> Reimposta </button>
             </div>
         </form>
     </div>

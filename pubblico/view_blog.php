@@ -185,7 +185,12 @@ $conn->close();
             overflow-y: auto;
             padding: 10px;
         }
-
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
         .dropdown-item {
             padding: 10px 10px;
             text-decoration: none;
