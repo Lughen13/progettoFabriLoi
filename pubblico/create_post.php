@@ -51,7 +51,7 @@ $maxImages = $isPremium ? 3 : 1;
     <title>Crea un nuovo post</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
-        body {
+       body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
@@ -63,9 +63,6 @@ $maxImages = $isPremium ? 3 : 1;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            margin-bottom: 20px;
         }
         label {
             display: block;
@@ -81,15 +78,12 @@ $maxImages = $isPremium ? 3 : 1;
             border-radius: 4px;
             box-sizing: border-box;
         }
-        select {
-            appearance: auto;
-            -webkit-appearance: menulist;
-        }
         button {
             background-color: #4CAF50; 
             color: white;
             border: none;
             cursor: pointer;
+            margin: 10px 0;
         }
         button:hover {
             background-color: #45a049;

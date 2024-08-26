@@ -42,7 +42,7 @@ unset($_SESSION['error_msg']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crea un nuovo blog</title>
     <style>
-        body {
+                body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
@@ -53,10 +53,7 @@ unset($_SESSION['error_msg']);
             background-color: #f9f9f9;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         label {
             display: block;
@@ -72,15 +69,12 @@ unset($_SESSION['error_msg']);
             border-radius: 4px;
             box-sizing: border-box;
         }
-        select {
-            appearance: auto;
-            -webkit-appearance: menulist;
-        }
         button {
             background-color: #4CAF50; 
             color: white;
             border: none;
             cursor: pointer;
+            margin-top: 10px;
         }
         button:hover {
             background-color: #45a049;

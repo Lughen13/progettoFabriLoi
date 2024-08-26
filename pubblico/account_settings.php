@@ -251,7 +251,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
     
     <style>
-
         form {
             margin: 20px auto;
             background-color: #fff;
@@ -262,7 +261,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         form div {
             text-align: left;
             padding: 10px;
-
         }
 
         label {
@@ -271,7 +269,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-weight: bold;
         }
 
-        input[type=text], input[type=email], input[type=password], select {
+        input[type=text], input[type=email], input[type=password], select, input[type=date] {
             width: calc(100% - 170px);
             padding: 8px;
             font-size: 16px;
@@ -294,6 +292,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             font-size: 16px;
         }
+
         input[type=submit]:hover, button:hover {
             background-color: #45a049;
         }
@@ -311,14 +310,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 4px;
         }
 
-        #premiumInfo div {
-            margin-bottom: 10px;
-        }
-
-        #premiumInfo label {
-            width: 150px;
-        }
-
         button {
             margin-top: 10px;
             margin-bottom: 10px;
@@ -328,20 +319,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         button:hover {
             background-color: #0056b3;
         }
+
         body {
             background-color: #f8f9fa;
-        }
-
-        .card {
-            margin-bottom: 20px;
-        }
-
-        .navbar-brand {
-            font-weight: bold;
-        }
-
-        .form-group label {
-            font-weight: bold;
         }
 
         .container {
@@ -355,57 +335,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
-        
-        #notificationDropdown {
-            position: relative;
-        }
-
-        #notificationCount {
-            position: absolute;
-            top: 0;
-            right: 0;
-            transform: translate(50%, -50%);
-            background-color: red;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 12px;
-        }
-
-        .dropdown-menu {
-            width: 400px; /* Larghezza del dropdown delle notifiche */
-            padding: 0;
-            border: 2px solid #ddd; /* Bordo laterale */
-            border-radius: 10px; /* Angoli arrotondati */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); /* Ombra per il dropdown */
-        }
-
-        #notificationList {
-            max-height: 300px; /* Altezza massima del contenitore delle notifiche */
-            overflow-y: auto;
-            padding: 10px;
-        }
-
-        .dropdown-item {
-            padding: 10px 10px;
-            text-decoration: none;
-            pointer-events: none;
-            border-top: 1px solid #ddd; /* Bordo superiore */
-        }
-        .category-container {
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-            justify-items: center;
-            align-items: center;
-        }
-        .category-card {
-            flex: 1 1 auto;
-            margin: 5px;
-            text-align: center;
-        }
-
-        </style>
+    </style>
 </head>
  <body>
  <div class="container mt-4">
