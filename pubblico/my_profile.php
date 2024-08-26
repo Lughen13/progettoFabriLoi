@@ -18,6 +18,13 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 // Gestione dell'eliminazione del blog
 if ($action == 'delete_blog') {
     $id_blog = $_GET['id_blog'];
+    
+    // Prima eliminare le notifiche associate al blog e ai post del blog
+    $deleteNotificationsQuery = "DELETE FROM notifiche WHERE contenuto_id = ? OR contenuto_id IN (SELECT id_post FROM post WHERE id_blog = ?)";
+    $stmt = $conn->prepare($deleteNotificationsQuery);
+    $stmt->bind_param("ii", $id_blog, $id_blog);
+    $stmt->execute();
+    $stmt->close();
 
     // Prima eliminare i post associati al blog
     $deletePostsQuery = "DELETE FROM post WHERE id_blog = ?";

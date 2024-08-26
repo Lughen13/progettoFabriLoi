@@ -4,11 +4,10 @@ ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
 
-// Connessione al database
 require_once '../configurazione/conn.php';
+session_start();
 
 // Verifica se l'utente è autenticato
-session_start();
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: ../pubblico/login.php");
     exit();
@@ -21,7 +20,7 @@ if (!$categoriesResult) {
     die("Errore nella query delle categorie: " . $conn->error);
 }
 
-// Recupera tutti gli utenti tranne il proprietario corrente
+// Recupera tutti gli utenti tranne il proprietario corrente per poter creare la select del coautore
 $current_user_id = $_SESSION['id'];
 $usersQuery = "SELECT id_utente, username FROM utente WHERE id_utente != ?";
 $stmt = $conn->prepare($usersQuery);
@@ -32,7 +31,6 @@ if (!$usersResult) {
     die("Errore nella query degli utenti: " . $stmt->error);
 }
 
-// Recupera eventuali messaggi di errore dalla sessione
 $error_msg = $_SESSION['error_msg'] ?? '';
 unset($_SESSION['error_msg']);
 ?>
@@ -44,7 +42,7 @@ unset($_SESSION['error_msg']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crea un nuovo blog</title>
     <style>
-body {
+        body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
@@ -55,7 +53,7 @@ body {
             background-color: #f9f9f9;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
         }
         h1 {
             margin-bottom: 20px;
@@ -65,7 +63,7 @@ body {
             margin: 10px 0;
             font-weight: bold;
         }
-        input[type="text"], textarea, select, input[type="file"], input[type="submit"] {
+        input[type="text"], textarea, select, input[type="file"], button {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 10px 0;
@@ -78,17 +76,17 @@ body {
             appearance: auto;
             -webkit-appearance: menulist;
         }
-        input[type="submit"] {
-            background-color: #4CAF50;
+        button {
+            background-color: #4CAF50; 
             color: white;
             border: none;
             cursor: pointer;
         }
-        input[type="submit"]:hover {
+        button:hover {
             background-color: #45a049;
         }
-        input[type="submit"]:disabled {
-            background-color: #ccc;
+        button:disabled {
+            background-color: #ccc; 
             cursor: not-allowed;
         }
         .error-message {
@@ -96,48 +94,23 @@ body {
             margin-bottom: 15px;
             font-weight: bold;
         }
-        button {
-        background-color: #4CAF50; 
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin: 10px 0;
+    </style>
+    <script>
+        function validateForm() {
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            document.getElementById('submit-button').disabled = !(title && description);
         }
-        button:disabled {
-            background-color: #ccc; 
-            cursor: not-allowed;
-        }
-        </style>
-        <script>
-            function validateForm() {
-                const title = document.getElementById('title').value.trim();
-                const description = document.getElementById('description').value.trim();
-                const submitButton = document.getElementById('submit-button');
-                
-                if (title.length > 0 && description.length > 0) {
-                    submitButton.disabled = false;
-                } else {
-                    submitButton.disabled = true;
-                }
-            }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const titleField = document.getElementById('title');
-                const descriptionField = document.getElementById('description');
-                const submitButton = document.getElementById('submit-button');
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('title').addEventListener('input', validateForm);
+            document.getElementById('description').addEventListener('input', validateForm);
+            validateForm();
+        });
+    </script>
+</head>
 
-                titleField.addEventListener('input', validateForm);
-                descriptionField.addEventListener('input', validateForm);
-
-                validateForm();
-            });
-        </script>
-    </head>
-
-    <body>    
+<body>    
     <h1>Crea un nuovo blog</h1>
 
     <form method="post" action="../risorse/process_create_blog.php" enctype="multipart/form-data">
@@ -153,15 +126,14 @@ body {
 
         <label for="category">Categoria:</label>
         <select name="category" id="category" required>
-        <option value="">Seleziona una sottocategoria</option>
-
+            <option value="">Seleziona una sottocategoria</option>
             <?php while ($category = $categoriesResult->fetch_assoc()): ?>
                 <option value="<?php echo htmlspecialchars($category['id_categoria']); ?>"><?php echo htmlspecialchars($category['nome_categoria']); ?></option>
             <?php endwhile; ?>
         </select>
 
         <label for="logo">Logo del blog (opzionale):</label>
-        <input type="file" name="logo" id="logo" >
+        <input type="file" name="logo" id="logo">
 
         <label for="co_autore">Seleziona il co-autore (opzionale):</label>
         <select name="co_autore" id="co_autore">
@@ -172,7 +144,7 @@ body {
         </select>
 
         <button type="submit" id="submit-button" disabled>Crea blog</button>
-        <button type="button"onclick="location.href='../pubblico/my_profile.php'">Torna indietro</button>
+        <button type="button" onclick="location.href='../pubblico/my_profile.php'">Torna indietro</button>
     </form>
 </body>
 </html>

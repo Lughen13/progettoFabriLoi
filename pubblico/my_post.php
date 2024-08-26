@@ -29,6 +29,99 @@ $stmtPost->execute();
 $resultPost = $stmtPost->get_result();
 $post = $resultPost->fetch_assoc();
 
+  // Gestione dell'eliminazione del post
+if ($action == 'delete_post') {
+    $id_post = $_GET['id_post'];
+
+
+      // Elimina le notifiche associate al post
+      $deleteNotifiche = "DELETE FROM notifiche WHERE contenuto_id = ?";
+      $stmt = $conn->prepare($deleteNotifiche);
+      $stmt->bind_param("i", $postId);
+      $stmt->execute();
+      $stmt->close();
+
+      $deletePostQuery = "DELETE FROM post WHERE id_post = ?";
+      $stmt = $conn->prepare($deletePostQuery);
+      $stmt->bind_param("i", $postId);
+      if ($stmt->execute()) {
+          // Eliminazione del post eseguita con successo
+          header("Location: ../pubblico/home.php");
+          exit();
+      } else {
+          echo "Errore durante l'eliminazione del post: " . $stmt->error;
+      }
+      $stmt->close();
+
+}
+// Gestione dell'aggiornamento del post
+if ($action == 'edit_post') {
+    $postId = $_POST['post_id'];
+    $newTitle = $_POST['edit_post_title'];
+    $newDescription = $_POST['edit_post_description'];
+
+    // Caricamento delle immagini del post, se fornite
+    $newImgFileNames = [];
+
+    if (isset($_FILES['edit_post_img'])) {
+        $uploadedFiles = $_FILES['edit_post_img'];
+
+        foreach ($uploadedFiles['name'] as $key => $name) {
+            if ($uploadedFiles['size'][$key] > 0 && $uploadedFiles['error'][$key] == 0) {
+                $imgFileName = $uploadedFiles['name'][$key];
+                $imgTmpName = $uploadedFiles['tmp_name'][$key];
+                $imgSize = $uploadedFiles['size'][$key];
+                $imgError = $uploadedFiles['error'][$key];
+
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                $imgExtension = strtolower(pathinfo($imgFileName, PATHINFO_EXTENSION));
+
+                if (in_array($imgExtension, $allowedExtensions)) {
+                    $newImgFileName = 'post_' . uniqid('', true) . '.' . $imgExtension;
+                    $imgDestination = '../photo_post/' . $newImgFileName;
+
+                    if (move_uploaded_file($imgTmpName, $imgDestination)) {
+                        // Aggiungi il nome del file all'array
+                        $newImgFileNames[] = $newImgFileName;
+                    } else {
+                        echo "Errore durante il caricamento dell'immagine del post.";
+                    }
+                } else {
+                    echo "Formato dell'immagine del post non valido.";
+                }
+            }
+        }
+    }
+
+
+    // Aggiornamento dell'immagine del post nel database, se nuove immagini sono state caricate
+    if (!empty($newImgFileNames)) {
+        // Converti l'array in JSON per salvarlo nel database, se necessario
+        $newImgFileNamesJSON = json_encode($newImgFileNames);
+
+        $updatePostImgQuery = "UPDATE post SET img_post = ? WHERE id_post = ?";
+        $stmt = $conn->prepare($updatePostImgQuery);
+        $stmt->bind_param('si', $newImgFileNamesJSON, $postId);
+        if ($stmt->execute()) {
+            // Aggiornamento dell'immagine del post nel database eseguito con successo
+        } else {
+            echo "Errore durante l'aggiornamento dell'immagine del post: " . $stmt->error;
+        }
+        $stmt->close();
+    }
+
+    // Aggiornamento del resto delle informazioni del post
+    $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ? WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
+    $stmt = $conn->prepare($updatePostQuery);
+    $stmt->bind_param('sssi', $newTitle, $newDescription, $postId, $userId);
+    if ($stmt->execute()) {
+        echo "Post aggiornato con successo!";
+    } else {
+        echo "Errore durante l'aggiornamento del post: " . $stmt->error;
+    }
+    $stmt->close();
+    exit(); // Assicurati di terminare l'esecuzione dopo l'aggiornamento
+}
 
 ?>
 
@@ -191,8 +284,8 @@ $post = $resultPost->fetch_assoc();
                         <?php endif; ?>
                         <div>
                             <button class="btn btn-primary mr-2" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
-                            <button class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?')" onclick="window.location.href='../pubblico/my_post.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>'">Elimina Post</button>
-                        </div>  
+                            <button class="btn btn-danger" onclick="return confirm('Sei sicuro di voler eliminare questo post?') ? window.location.href='../pubblico/my_post.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>' : false;">Elimina Post</button>
+                            </div>  
                         <div class="mt-3">
                             <form class="like-form">
                                 <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
@@ -412,7 +505,12 @@ $(document).ready(function() {
         });
     });
 });
-
+$('.delete-post-btn').click(function() {
+            var postId = $(this).data('post-id');
+            if (confirm('Sei sicuro di voler eliminare questo post?')) {
+                window.location.href = '../pubblico/my_post.php?action=delete&id_post=' + postId;
+            }
+        });
 
 $('.comment-textarea').on('input', function() {
         var form = $(this).closest('form');

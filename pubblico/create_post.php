@@ -5,8 +5,9 @@ ini_set('log_errors', 1);
 ini_set('error_log', '/path/to/your/php_error.log');
 
 require_once '../configurazione/conn.php';
-
 session_start();
+
+// Verifica se l'utente è autenticato
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: ../pubblico/login.php");
     exit();
@@ -24,7 +25,7 @@ $stmt->fetch();
 $stmt->close();
 
 // Query per recuperare i blog dell'utente
-$blogsQuery = "SELECT b.id_blog, b.titolo_blog, b.id_categoria
+$blogsQuery = "SELECT b.id_blog, b.titolo_blog
                FROM blog b
                LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog
                WHERE b.id_proprietario = ? OR ca.id_utente = ?";
@@ -34,8 +35,8 @@ $stmt->execute();
 $blogsResult = $stmt->get_result();
 $stmt->close();
 
-// Recupera eventuali messaggi di errore da process_create_post.php
-$errorMsg = isset($_SESSION['error_msg']) ? $_SESSION['error_msg'] : '';
+// Recupera eventuali messaggi di errore
+$errorMsg = $_SESSION['error_msg'] ?? '';
 unset($_SESSION['error_msg']);
 
 // Determina il numero massimo di immagini consentite in base allo stato premium dell'utente
@@ -61,7 +62,7 @@ $maxImages = $isPremium ? 3 : 1;
             background-color: #f9f9f9;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         h1 {
             margin-bottom: 20px;
@@ -71,7 +72,7 @@ $maxImages = $isPremium ? 3 : 1;
             margin: 10px 0;
             font-weight: bold;
         }
-        input[type="text"], textarea, select, input[type="file"], input[type="submit"] {
+        input[type="text"], textarea, select, input[type="file"], button {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 10px 0;
@@ -84,118 +85,83 @@ $maxImages = $isPremium ? 3 : 1;
             appearance: auto;
             -webkit-appearance: menulist;
         }
-        input[type="submit"] {
-            background-color: #4CAF50;
+        button {
+            background-color: #4CAF50; 
             color: white;
             border: none;
             cursor: pointer;
         }
-        input[type="submit"]:hover {
+        button:hover {
             background-color: #45a049;
-        }
-        input[type="submit"]:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        .error {
-            color: red;
-        }
-        .success {
-            color: green;
-        }
-        .premium-only {
-            display: none; /* Nasconde il blocco per utenti premium */
-        }
-        .standard-only {
-            display: none; /* Nasconde il blocco per utenti standard */
-        }
-
-        button {
-        background-color: #4CAF50; 
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin: 10px 0;
         }
         button:disabled {
             background-color: #ccc; 
             cursor: not-allowed;
         }
+        .error {
+            color: red;
+        }
+        .premium-only, .standard-only {
+            display: none;
+        }
     </style>
     <script>
-        function validateForm() {
-            const blog = document.getElementById('blog').value.trim();
-            const title = document.getElementById('title').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const subcategory = document.getElementById('subcategory').value.trim();
-            const submitButton = document.getElementById('submit-button');
-            
-            if (blog.length > 0 && title.length > 0 && description.length > 0 && subcategory.length > 0) {
-                submitButton.disabled = false;
-            } else {
-                submitButton.disabled = true;
+        $(document).ready(function() {
+            const maxImages = <?php echo $maxImages; ?>;
+            const submitButton = $('#submit-button');
+
+            function validateForm() {
+                const blog = $('#blog').val().trim();
+                const title = $('#title').val().trim();
+                const description = $('#description').val().trim();
+                const subcategory = $('#subcategory').val().trim();
+
+                submitButton.prop('disabled', !(blog && title && description && subcategory));
             }
-        }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const blogField = document.getElementById('blog');
-            const titleField = document.getElementById('title');
-            const descriptionField = document.getElementById('description');
-            const subcategoryField = document.getElementById('subcategory');
-            const submitButton = document.getElementById('submit-button');
-
-            blogField.addEventListener('change', validateForm);
-            titleField.addEventListener('input', validateForm);
-            descriptionField.addEventListener('input', validateForm);
-            subcategoryField.addEventListener('change', validateForm);
-
+            $('#blog, #title, #description, #subcategory').on('input change', validateForm);
             validateForm();
 
-            // Mostra/nascondi i campi immagine in base allo stato premium dell'utente
-            const maxImages = <?php echo $maxImages; ?>;
             if (maxImages === 1) {
                 $('.standard-only').show();
             } else {
                 $('.premium-only').show();
             }
+
+            $('#blog').on('change', function() {
+                const blogId = $(this).val();
+                if (blogId) {
+                    $.ajax({
+                        url: '../risorse/get_subcategories_by_blog.php',
+                        type: 'POST',
+                        data: { id_blog: blogId },
+                        success: function(response) {
+                            $('#subcategory').html(response);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Errore AJAX: ' + status + ' - ' + error);
+                        }
+                    });
+                } else {
+                    $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
+                }
+            });
         });
-        $(document).ready(function() {
-        $('#blog').on('change', function() {
-            var blogId = $(this).val();
-            if (blogId) {
-                $.ajax({
-                    url: '../risorse/get_subcategories_by_blog.php',
-                    type: 'POST',
-                    data: {id_blog: blogId},
-                    success: function(response) {
-                        $('#subcategory').html(response);
-                    },
-                    error: function(xhr, status, error) {
-                        console.log('Errore AJAX: ' + status + ' - ' + error);
-                    }
-                });
-            } else {
-                $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
-            }
-        });
-    });
     </script>
 </head>
 <body>
     <h1>Crea un nuovo post</h1>
 
     <?php if ($errorMsg): ?>
-        <p class="error"><?php echo $errorMsg; ?></p>
+        <p class="error"><?php echo htmlspecialchars($errorMsg); ?></p>
     <?php endif; ?>
+
     <form method="post" action="../risorse/process_create_post.php" enctype="multipart/form-data">
         <label for="blog">Seleziona il blog:</label>
         <select name="id_blog" id="blog" required>
             <option value="">Seleziona un blog</option>
             <?php while ($blog = $blogsResult->fetch_assoc()): ?>
-                <option value="<?php echo $blog['id_blog']; ?>"><?php echo htmlspecialchars($blog['titolo_blog']); ?></option>
+                <option value="<?php echo htmlspecialchars($blog['id_blog']); ?>"><?php echo htmlspecialchars($blog['titolo_blog']); ?></option>
             <?php endwhile; ?>
         </select>
 
@@ -210,24 +176,22 @@ $maxImages = $isPremium ? 3 : 1;
             <option value="">Seleziona una sottocategoria</option>
         </select>
 
-            <div class="premium-only">
-                <label for="image1">Immagine 1:</label>
-                <input type="file" name="immagini[]" id="image1" accept="image/*">
-                <label for="image2">Immagine 2:</label>
-                <input type="file" name="immagini[]" id="image2" accept="image/*">
-                <label for="image3">Immagine 3:</label>
-                <input type="file" name="immagini[]" id="image3" accept="image/*">
-            </div>
+        <div class="premium-only">
+            <label for="image1">Immagine 1:</label>
+            <input type="file" name="immagini[]" id="image1" accept="image/*">
+            <label for="image2">Immagine 2:</label>
+            <input type="file" name="immagini[]" id="image2" accept="image/*">
+            <label for="image3">Immagine 3:</label>
+            <input type="file" name="immagini[]" id="image3" accept="image/*">
+        </div>
 
-            <div class="standard-only">
-                <label for="image1">Immagine:</label>
-                <input type="file" name="immagini[]" id="image" accept="image/*">
-            </div>
+        <div class="standard-only">
+            <label for="image">Immagine:</label>
+            <input type="file" name="immagini[]" id="image" accept="image/*">
+        </div>
 
-            <button type="submit" id="submit-button" disabled>Crea post</button>
-            <button type="button"onclick="location.href='../pubblico/my_profile.php'">Torna indietro</button>
+        <button type="submit" id="submit-button" disabled>Crea post</button>
+        <button type="button" onclick="location.href='../pubblico/my_profile.php'">Torna indietro</button>
     </form>
-
 </body>
 </html>
-
