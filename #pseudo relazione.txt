@@ -89,12 +89,12 @@ info tecniche
     <tr>
       <td>co_Autore</td>
       <td>Si</td>
-      <td>No</td>
+      <td>si</td>
     </tr>
     <tr>
       <td>POST</td>
       <td>illimitati</td>
-      <td>solo 1 per ogni blog</td>
+      <td>solo 3 in totale</td>
     </tr>
     <tr>
         <td>foto </td>
@@ -104,18 +104,14 @@ info tecniche
       <tr>
         <td> COMMENTI </td>
         <td> illimitati</td>
-        <td> max 20 </td>
+        <td> max 20 al giorno</td>
       </tr> 
       <tr>
         <td>PDF/STAMP dei blog</td>
         <td>SI</td>
         <td>NO</td>
       </tr> 
-      <tr>
-        <td>STILE</td>
-        <td>lo sceglie</td>
-        <td>default</td>
-      </tr>
+
       <tr>
         <td>ricerca</td>
         <td>uguale </td>

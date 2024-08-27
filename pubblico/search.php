@@ -134,11 +134,6 @@ if (isset($_GET['query'])) {
         </div>
     </main>
 
-    <!-- Piede di pagina -->
-    <footer class="text-center mt-4 mb-4">
-        <p>&copy; <?php echo date('Y'); ?> ToteBlog. Tutti I diritti riservati.</p>
-    </footer>
-
     <!-- Bootstrap JS e script necessari -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
