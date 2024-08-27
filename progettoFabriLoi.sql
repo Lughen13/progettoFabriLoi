@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Ago 23, 2024 alle 22:36
+-- Creato il: Ago 28, 2024 alle 00:08
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -73,7 +73,7 @@ INSERT INTO `categoria` (`id_categoria`, `nome_categoria`) VALUES
 CREATE TABLE `commento` (
   `id_comm` int(10) NOT NULL,
   `data_comm` datetime NOT NULL,
-  `contenuto` varchar(300) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `contenuto` text CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `id_utente` int(10) NOT NULL,
   `id_post` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -170,9 +170,9 @@ CREATE TABLE `notifiche` (
 CREATE TABLE `post` (
   `id_post` int(10) NOT NULL,
   `data_post` datetime NOT NULL,
-  `titolo_post` varchar(100) NOT NULL,
-  `descrizione_post` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `img_post` text CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT 'default.png',
+  `titolo_post` varchar(50) NOT NULL,
+  `descrizione_post` text CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `img_post` varchar(150) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '''default.png''',
   `id_autore` int(10) NOT NULL,
   `id_sottocat` int(10) NOT NULL,
   `id_blog` int(10) NOT NULL,
@@ -268,6 +268,13 @@ CREATE TABLE `utente` (
   `numero_telefono` varchar(10) DEFAULT NULL,
   `premium` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dump dei dati per la tabella `utente`
+--
+
+INSERT INTO `utente` (`id_utente`, `username`, `email`, `pw`, `img_profilo`, `nome`, `cognome`, `genere`, `data_nascita`, `bio`, `numero_telefono`, `premium`) VALUES
+(4, 'federicafabri', 'federicafabri11@gmail.com', '2ca1d3d0120e71f15986e69fb7e30dc9', '../uploads/predefinita.jpeg', 'federica', 'fabri', 'Femmina', '2002-10-02', NULL, '3407348310', 0);
 
 --
 -- Indici per le tabelle scaricate
