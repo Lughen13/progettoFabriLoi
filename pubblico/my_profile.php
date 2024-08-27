@@ -236,7 +236,6 @@ $stmt->close();
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-bell"></i> 
-                            <!-- <span class="badge badge-danger" id="notificationCount">3</span> Numero notifiche -->
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
                             <h6 class="dropdown-header">Notifiche recenti</h6>

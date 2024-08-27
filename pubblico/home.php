@@ -15,7 +15,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 // Recupera l'id dell'utente dalla sessione
 $userId = $_SESSION['id'];
 
-// recupero genere e username dell'utente per gestire il benvenuto-
+// recupero genere e username dell'utente per gestire il benvenuto
 $query = "SELECT genere, username, premium FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $userId);
@@ -45,13 +45,13 @@ function interesse($genere){
     } elseif ($genere === 'Altro') {
         return 'interessat*';
     } else {
-        return 'interessat*'; // Restituisce "Benvenut*" come valore predefinito
+        return 'interessat*'; // Restituisce "interessat*" come valore predefinito
     }
 }
 $saluto = Saluta($genere);
 $interesse = interesse($genere);
 
-// recupero i blog preferiti dall'utente per mostrarli con priorità
+// recupero i blog preferiti dall'utente per mostrarli con priorità rispetto ai non seguiti
 $queryFavoriteBlogs = "SELECT b.id_blog, b.titolo_blog, b.descrizione, b.img_logo, u.username, c.nome_categoria
                        FROM follow f
                        INNER JOIN blog b ON f.id_blog = b.id_blog
@@ -85,12 +85,11 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Recupera le notifiche da utenti diversi dall'utente loggato
+// recupera le notifiche da utenti diversi dall'utente loggato
 $query = "SELECT sender_id, user_id tipo, contenuto_id, data
           FROM notifiche
           WHERE sender_id != ?
           ORDER BY data DESC";
-
 
 ?>
 
@@ -232,7 +231,7 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
     
         <div class="container">
             <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
-            <!-- Sezione per le categorie con loghi -->
+            <!-- sezione, solo per gli utetni premium, che serve per "velocizzare" la ricerca di blog e post, sempre con metodo search ma tramite categorie  -->
             <div class="col-md-12">
                 <?php if ($isPremium) : ?>
                     <h2>A cosa sei <?php echo $interesse ?>? </h2>
@@ -294,8 +293,7 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                     </div>
                 <?php endif; ?>
             
-
-                <!-- i blog seguiti e non seguiti-->
+                <!-- restituzione dei blog, prima seguiti e poi non seguiti-->
                 <div class="row">
                     <div class="col-md-12">
                         <h2>I tuoi blog preferiti</h2>

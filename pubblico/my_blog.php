@@ -19,19 +19,19 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 if ($action == 'delete_blog') {
     $id_blog = $_GET['id_blog'];
 
-    // Prima eliminare le notifiche associate al blog e ai post del blog
+    // alimina le notifiche associate al blog e ai post del blog
     $deleteNotificationsQuery = "DELETE FROM notifiche WHERE contenuto_id = ? OR contenuto_id IN (SELECT id_post FROM post WHERE id_blog = ?)";
     $stmt = $conn->prepare($deleteNotificationsQuery);
     $stmt->bind_param("ii", $id_blog, $id_blog);
     $stmt->execute();
     $stmt->close();
-    // Prima eliminare i post associati al blog
+    //  elimina i post associati al blog
     $deletePostsQuery = "DELETE FROM post WHERE id_blog = ?";
     $stmt = $conn->prepare($deletePostsQuery);
     $stmt->bind_param("i", $id_blog);
     $stmt->execute();
     $stmt->close();
-    // Ora eliminare il blog
+    // Ora elimina definitivamente il blog
     $deleteBlogQuery = "DELETE FROM blog WHERE id_blog = ? AND id_proprietario = ?";
     $stmt = $conn->prepare($deleteBlogQuery);
     $stmt->bind_param("ii", $id_blog, $userId);
@@ -44,11 +44,11 @@ if ($action == 'delete_blog') {
     $stmt->close();
 }
 
-// Gestione dell'eliminazione del post
+// eliminazione del post
 if ($action == 'delete_post') {
     $id_post = $_GET['id_post'];
 
-    // Recupera l'ID del blog a cui appartiene il post
+    // recupero l'ID del blog a cui appartiene il post
     $getBlogIdQuery = "SELECT id_blog FROM post WHERE id_post = ?";
     $stmt = $conn->prepare($getBlogIdQuery);
     $stmt->bind_param("i", $id_post);
@@ -58,7 +58,7 @@ if ($action == 'delete_post') {
     $stmt->close();
 
     if ($id_blog) {
-        // Elimina le notifiche associate al post
+        // elimina le notifiche associate al post
         $deleteNotifiche = "DELETE FROM notifiche WHERE contenuto_id = ?";
         $stmt = $conn->prepare($deleteNotifiche);
         $stmt->bind_param("i", $id_post);
@@ -82,7 +82,7 @@ if ($action == 'delete_post') {
 
 $id_blog = isset($_GET['id_blog']) ? intval($_GET['id_blog']) : 0;
 
-// Recupero dei blog dell'utente
+// recupero dei blog dell'utente
 $blogsQuery = "SELECT id_blog, titolo_blog, descrizione, img_logo FROM blog WHERE id_blog = ? AND id_proprietario = ?";
 $stmt = $conn->prepare($blogsQuery);
 $stmt->bind_param("ii", $id_blog, $userId);
@@ -91,7 +91,7 @@ $result = $stmt->get_result();
 $blogs = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Recupera il conteggio dei follower per questo blog
+// recupero del conteggio dei follower per il blog specifico
 $queryFollowCount = "SELECT COUNT(*) AS followers_count FROM follow WHERE id_blog = ?";
 $stmt_follow_count = $conn->prepare($queryFollowCount);
 $stmt_follow_count->bind_param("i", $id_blog);
@@ -100,13 +100,13 @@ $result_follow_count = $stmt_follow_count->get_result();
 $follow_count = $result_follow_count->fetch_assoc()['followers_count'];
 $stmt_follow_count->close();
 
-// Gestione dell'aggiornamento del post
+// funzione per l'aggiornamento del post
 if ($action == 'edit_post') {
     $postId = $_POST['post_id'];
     $newTitle = $_POST['edit_post_title'];
     $newDescription = $_POST['edit_post_description'];
 
-    // Caricamento delle immagini del post, se fornite
+    // cricamento delle immagini del post, se fornite
     $newImgFileNames = [];
 
     if (isset($_FILES['edit_post_img'])) {
@@ -139,7 +139,7 @@ if ($action == 'edit_post') {
         }
     }
 
-    // Aggiornamento dell'immagine del post nel database, se nuove immagini sono state caricate
+    // aggiornamento dell'immagine del post nel database, se nuove immagini sono state caricate
     if (!empty($newImgFileNames)) {
         $newImgFileNamesJSON = json_encode($newImgFileNames);
         $updatePostImgQuery = "UPDATE post SET img_post = ? WHERE id_post = ?";
@@ -152,7 +152,7 @@ if ($action == 'edit_post') {
         $stmt->close();
     }
 
-    // Aggiornamento del resto delle informazioni del post
+    // aggiornamento del resto delle informazioni del post
     $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ? WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
     $stmt = $conn->prepare($updatePostQuery);
     $stmt->bind_param('sssi', $newTitle, $newDescription, $postId, $userId);
@@ -363,7 +363,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                     <input type="hidden" class="post-id" value="<?php echo $post['id_post']; ?>">
                                                     <input type="hidden" class="id-blog" value="<?php echo $id_blog; ?>">
                                                     <?php
-                                                    $likeAction = 'like'; // Default to 'like' if user has not liked the post yet
+                                                    $likeAction = 'like'; 
                                                     if ($_SESSION['loggedin'] === true) {
                                                         include '../configurazione/conn.php';
                                                         $likeQuery = "SELECT * FROM likes WHERE id_post = ? AND id_utente = ?";
@@ -381,7 +381,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                 </form>
                                                 </div>
 
-                                                <!-- Recupero dei commenti per questo post -->
+                                                <!-- Recupero dei commenti per il post specifico -->
                                                 <?php
                                                 $commentsQuery = "SELECT c.id_comm, c.contenuto, c.data_comm, u.username, u.img_profilo
                                                                 FROM commento c
@@ -409,13 +409,13 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                                     <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
 
                                                                     <?php if ($comment['username'] == $_SESSION['username']) : ?>
-                                                                        <!-- Pulsante Modifica -->
+                                                                        <!-- icona della Modifica -->
                                                                         <button class="btn btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
                                                                             <i class="fas fa-pen" style="color: red;" alt="Tasto per modificare il commento"></i>
                                                                         </button>
                                                                     <?php endif; ?>
 
-                                                                    <!-- Aggiungi un'icona per eliminare il commento -->
+                                                                    <!-- icona per eliminare il commento -->
                                                                     <form method="post" action="../risorse/comment.php" class="d-inline">
                                                                         <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
                                                                         <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
@@ -430,7 +430,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                                     <?php echo htmlspecialchars($comment['contenuto']); ?>
                                                                 </div>    
                                                 
-                                                                <!-- Modifica commento -->
+                                                                <!-- modale per la modifica commento -->
                                                                 <div class="edit-comment-form d-none">
                                                                     <form method="post" action="../risorse/comment.php">
                                                                         <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
@@ -455,7 +455,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                     }
                                                     ?>
 
-                                                    <!-- Form per inserire un commento -->
+                                                    <!-- form per inserire un commento -->
                                                     <form method="post" action="../risorse/comment.php" class="mt-3">
                                                         <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
                                                         <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
@@ -466,7 +466,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                         <button type="submit" class="btn btn-primary comment-submit-btn" disabled>Commenta</button>
                                                     </form>
 
-                                                    <!-- Modale per la modifica del post -->
+                                                    <!-- modale per la modifica del post -->
                                                     <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel_<?php echo $post['id_post']; ?>" aria-hidden="true">
                                                         <div class="modal-dialog" role="document">
                                                             <div class="modal-content">
@@ -576,7 +576,7 @@ while ($row = $resultLikes->fetch_assoc()) {
         }
 
         $(document).ready(function() {
-            // Funzione per aggiornare il testo del pulsante Mi Piace
+            // funzione per aggiornare il testo dentro al pulsante Mi Piace
             function updateLikeButton(button, action, likeCount) {
                 if (action === 'like') {
                     button.data('action', 'unlike');
@@ -586,8 +586,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                     button.text('Mi Piace');
                 }
             }
-
-            // Gestione del clic sul pulsante Mi Piace
+            // gestione del clic sul pulsante Mi Piace
             $('.like-btn').click(function() {
                 var button = $(this);
                 var postId = button.closest('.like-form').find('.post-id').val();
@@ -601,7 +600,7 @@ while ($row = $resultLikes->fetch_assoc()) {
                         action: action
                     },
                     success: function(likeCount) {
-                        // Aggiorna il testo del pulsante e il conteggio dei Mi Piace dinamicamente
+                        // aggiornamento del testo del pulsante 
                         updateLikeButton(button, action, likeCount);
                     },
                     error: function(xhr, status, error) {
@@ -630,7 +629,6 @@ while ($row = $resultLikes->fetch_assoc()) {
                 var editForm = commentItem.find('.edit-comment-form');
                 var commentContent = commentItem.find('.comment-content');
 
-                // Nascondi il contenuto attuale del commento e mostra il modulo di modifica
                 commentContent.addClass('d-none');
                 editForm.removeClass('d-none');
             });
@@ -640,7 +638,6 @@ while ($row = $resultLikes->fetch_assoc()) {
                 var editForm = commentItem.find('.edit-comment-form');
                 var commentContent = commentItem.find('.comment-content');
 
-                // Mostra il contenuto attuale del commento e nascondi il modulo di modifica
                 commentContent.removeClass('d-none');
                 editForm.addClass('d-none');
             });

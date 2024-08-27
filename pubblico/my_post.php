@@ -12,7 +12,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-$userId = $_SESSION['id'];  // ID dell'utente autenticato
+$userId = $_SESSION['id'];  
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 $postId = isset($_GET['id_post']) ? (int) $_GET['id_post'] : 0;
@@ -29,12 +29,10 @@ $stmtPost->execute();
 $resultPost = $stmtPost->get_result();
 $post = $resultPost->fetch_assoc();
 
-  // Gestione dell'eliminazione del post
+  // funzione per l'eliminazione del post
 if ($action == 'delete_post') {
     $id_post = $_GET['id_post'];
-
-
-      // Elimina le notifiche associate al post
+      // elimina le notifiche associate al post
       $deleteNotifiche = "DELETE FROM notifiche WHERE contenuto_id = ?";
       $stmt = $conn->prepare($deleteNotifiche);
       $stmt->bind_param("i", $postId);
@@ -45,7 +43,6 @@ if ($action == 'delete_post') {
       $stmt = $conn->prepare($deletePostQuery);
       $stmt->bind_param("i", $postId);
       if ($stmt->execute()) {
-          // Eliminazione del post eseguita con successo
           header("Location: ../pubblico/home.php");
           exit();
       } else {
@@ -54,13 +51,13 @@ if ($action == 'delete_post') {
       $stmt->close();
 
 }
-// Gestione dell'aggiornamento del post
+// funzione per l'aggiornamento del post
 if ($action == 'edit_post') {
     $postId = $_POST['post_id'];
     $newTitle = $_POST['edit_post_title'];
     $newDescription = $_POST['edit_post_description'];
 
-    // Caricamento delle immagini del post, se fornite
+    // caricamento delle immagini del post, se fornite
     $newImgFileNames = [];
 
     if (isset($_FILES['edit_post_img'])) {
@@ -93,24 +90,21 @@ if ($action == 'edit_post') {
         }
     }
 
-
-    // Aggiornamento dell'immagine del post nel database, se nuove immagini sono state caricate
+    // aggiornamento dell'immagine del post nel database, se nuove immagini sono state caricate
     if (!empty($newImgFileNames)) {
-        // Converti l'array in JSON per salvarlo nel database, se necessario
         $newImgFileNamesJSON = json_encode($newImgFileNames);
 
         $updatePostImgQuery = "UPDATE post SET img_post = ? WHERE id_post = ?";
         $stmt = $conn->prepare($updatePostImgQuery);
         $stmt->bind_param('si', $newImgFileNamesJSON, $postId);
         if ($stmt->execute()) {
-            // Aggiornamento dell'immagine del post nel database eseguito con successo
         } else {
             echo "Errore durante l'aggiornamento dell'immagine del post: " . $stmt->error;
         }
         $stmt->close();
     }
 
-    // Aggiornamento del resto delle informazioni del post
+    // aggiornamento del resto delle informazioni del post
     $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ? WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
     $stmt = $conn->prepare($updatePostQuery);
     $stmt->bind_param('sssi', $newTitle, $newDescription, $postId, $userId);
@@ -120,7 +114,7 @@ if ($action == 'edit_post') {
         echo "Errore durante l'aggiornamento del post: " . $stmt->error;
     }
     $stmt->close();
-    exit(); // Assicurati di terminare l'esecuzione dopo l'aggiornamento
+    exit(); 
 }
 
 ?>
@@ -259,7 +253,7 @@ if ($action == 'edit_post') {
         </div>
     </nav>
 
-    
+
     <div class="my-4">
         <div class="posts-container">
             <?php if ($post): ?>
@@ -309,7 +303,7 @@ if ($action == 'edit_post') {
                             </form>
                         </div>
 
-                        <!-- Recupero dei commenti per questo post -->
+                        <!-- Recupero dei commenti per il post specifico -->
                         <?php
                         $commentsQuery = "SELECT c.id_comm, c.contenuto, c.data_comm, u.username, u.img_profilo
                         FROM commento c
@@ -335,13 +329,13 @@ if ($action == 'edit_post') {
                                             <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
                                                                 
                                             <?php if ($comment['username'] == $_SESSION['username']) : ?>
-                                                <!-- Pulsante Modifica -->
+                                                <!-- icona per la modifica -->
                                                 <button class="btn btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
                                                     <i class="fas fa-pen" style="color: red;" alt="Tasto per modificare il commento"></i> 
                                                 </button>
                                             <?php endif; ?>
 
-                                            <!-- Aggiungi un'icona per eliminare il commento -->
+                                            <!-- icona per eliminare il commento -->
                                             <form method="post" action="../risorse/comment.php" class="d-inline">
                                                 <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
                                                 <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
@@ -356,7 +350,7 @@ if ($action == 'edit_post') {
                                             <?php echo htmlspecialchars($comment['contenuto']); ?>
                                         </div>            
                                                             
-                                        <!-- Modifica commento -->
+                                        <!-- modale per la modifica del commento -->
                                         <div class="edit-comment-form d-none">
                                             <form method="post" action="../risorse/comment.php">
                                                 <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
@@ -384,7 +378,7 @@ if ($action == 'edit_post') {
                             unset($_SESSION['comment_error']);
                         }
                         ?>
-                        <!-- Form per inserire un commento -->
+                        <!-- form per inserire un commento -->
                         <form method="post" action="../risorse/comment.php" class="mt-3">
                             <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
                             <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
@@ -395,7 +389,7 @@ if ($action == 'edit_post') {
                             <button type="submit" class="btn btn-primary comment-submit-btn" disabled>Commenta</button>
                         </form>
 
-                            <!-- Modale per la modifica del post -->
+                            <!-- modale per la modifica del post -->
                             <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel_<?php echo $post['id_post']; ?>" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
@@ -471,7 +465,6 @@ if ($action == 'edit_post') {
    
 
 $(document).ready(function() {
-    // Funzione per aggiornare il testo del pulsante Mi Piace
     function updateLikeButton(button, action, likeCount) {
         if (action === 'like') {
             button.data('action', 'unlike');
@@ -482,7 +475,6 @@ $(document).ready(function() {
         }
     }
 
-    // Gestione del clic sul pulsante Mi Piace
     $('.like-btn').click(function() {
         var button = $(this);
         var postId = button.closest('.like-form').find('.post-id').val();
@@ -496,7 +488,6 @@ $(document).ready(function() {
                 action: action
             },
             success: function(likeCount) {
-                // Aggiorna il testo del pulsante e il conteggio dei Mi Piace dinamicamente
                 updateLikeButton(button, action, likeCount);
             },
             error: function(xhr, status, error) {
@@ -530,7 +521,6 @@ $('.comment-textarea').on('input', function() {
         var editForm = commentItem.find('.edit-comment-form');
         var commentContent = commentItem.find('.comment-content');
 
-        // Nascondi il contenuto attuale del commento e mostra il modulo di modifica
         commentContent.addClass('d-none');
         editForm.removeClass('d-none');
     });
@@ -540,7 +530,6 @@ $('.comment-textarea').on('input', function() {
         var editForm = commentItem.find('.edit-comment-form');
         var commentContent = commentItem.find('.comment-content');
 
-        // Mostra il contenuto attuale del commento e nascondi il modulo di modifica
         commentContent.removeClass('d-none');
         editForm.addClass('d-none');
     });
@@ -565,7 +554,6 @@ $('.comment-textarea').on('input', function() {
             submitButton.prop('disabled', false);
         }
     });
-
 
     $(document).ready(function() {
     function fetchNotifications() {

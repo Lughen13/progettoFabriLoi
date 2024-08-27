@@ -24,14 +24,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt_check->close();
 
         if ($action == 'follow' && !$isFollowing) {
-            // aggiungo il follow alla tabella 
+            // aggiungo il follow alla tabella del db
             $queryFollow = "INSERT INTO follow (id_utente, id_blog, data_follow) VALUES (?, ?, NOW())";
             $stmt_follow = $conn->prepare($queryFollow);
             if ($stmt_follow) {
                 $stmt_follow->bind_param("ii", $userId, $blogId);
                 if ($stmt_follow->execute()) {
 
-                    // recupero il proprietario del blog 
+                    // recupero il proprietario del blog a cui è stato messo il follow
                     $queryGetBlogOwner = "SELECT id_proprietario FROM blog WHERE id_blog = ?";
                     $stmtBlogOwner = $conn->prepare($queryGetBlogOwner);
                     $stmtBlogOwner->bind_param("i", $blogId);
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                     $stmtBlogOwner->close();
 
-                    // incremento il numero di follower 
+                    // incremento counter di follower 
                     $queryIncrementFollower = "UPDATE blog SET followers_count = + 1 WHERE id_blog = ?";
                     $stmt_increment = $conn->prepare($queryIncrementFollower);
                     $stmt_increment->bind_param("i", $blogId);
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 echo "Errore nella preparazione della query: " . $conn->error;
             }
         } elseif ($action == 'unfollow' && $isFollowing) {
-            // rimuovo il follow dalla tabella
+            // con l'azione di unfollow rimuovo il follow dalla tabella
             $queryUnfollow = "DELETE FROM follow WHERE id_utente = ? AND id_blog = ?";
             $stmt_unfollow = $conn->prepare($queryUnfollow);
             if ($stmt_unfollow) {

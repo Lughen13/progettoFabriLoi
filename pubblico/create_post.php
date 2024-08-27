@@ -15,7 +15,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
 $userId = $_SESSION['id'];
 
-// Query per determinare se l'utente è premium
+// query che determina che l'utente sia premium 
 $premiumQuery = "SELECT premium FROM utente WHERE id_utente = ?";
 $stmt = $conn->prepare($premiumQuery);
 $stmt->bind_param("i", $userId);
@@ -24,7 +24,7 @@ $stmt->bind_result($isPremium);
 $stmt->fetch();
 $stmt->close();
 
-// Query per recuperare i blog dell'utente
+// recupero i blog dell'utente
 $blogsQuery = "SELECT b.id_blog, b.titolo_blog
                FROM blog b
                LEFT JOIN co_autore ca ON b.id_blog = ca.id_blog
@@ -35,7 +35,6 @@ $stmt->execute();
 $blogsResult = $stmt->get_result();
 $stmt->close();
 
-// Recupera eventuali messaggi di errore
 $errorMsg = $_SESSION['error_msg'] ?? '';
 unset($_SESSION['error_msg']);
 

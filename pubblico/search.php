@@ -72,7 +72,6 @@ if (isset($_GET['query'])) {
     </style>
 </head>
 <body>
-    <!-- Menu di navigazione -->
     <div class="container mt-4">
         <h1>ToteBlog</h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
@@ -93,7 +92,6 @@ if (isset($_GET['query'])) {
             </div>
         </nav>
 
-    <!-- Contenuto principale -->
     <main class="py-4">
         <div class="container">
             <?php if (!empty($searchQuery) && isset($blogResult) && $blogResult->num_rows > 0): ?>

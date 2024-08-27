@@ -1,6 +1,6 @@
 <?php
 require_once '../configurazione/conn.php';
-// array che definisce una serie di categorie e sottocategorie di default
+// array che definisce una serie di categorie e sottocategorie 
 $categories = [
     'Tecnologia' => ['Internet', 'Hardware', 'Software','Altro'],
     'Moda' => ['Abbigliamento', 'Accessori','Altro'],
@@ -14,12 +14,11 @@ $categories = [
     
 ];
 
-
 // funzione che utilizzo per inserire categorie e sottocategorie nelle apposite tabella
 function inserisci_cat_sottocat($conn, $categories) {       
 
     foreach ($categories as $categoryName => $subcategories) {
-        // Verifica se la categoria esiste già nella tabella categoria
+        // verifico se la categoria esiste già nella tabella categoria
         $sql = "SELECT id_categoria FROM categoria WHERE nome_categoria = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param('s', $categoryName);
@@ -38,7 +37,6 @@ function inserisci_cat_sottocat($conn, $categories) {
             $row = $result->fetch_assoc();
             $categoryId = $row['id_categoria'];
         }
-
         // stessa verifica ed inserimento fatto precedentemente ma per le sottocategorie
         foreach ($subcategories as $subcategoryName) {
             $sql = "SELECT id_sottocat FROM sottocat WHERE nome_sottocat = ? AND id_categoria = ?";
@@ -52,9 +50,9 @@ function inserisci_cat_sottocat($conn, $categories) {
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param('si', $subcategoryName, $categoryId);
                 $stmt->execute();
-                $stmt->close(); // chiudere lo statement
+                $stmt->close(); 
             } else {
-                $stmt->close(); // chiudere lo statement
+                $stmt->close(); 
             }
         }
     }

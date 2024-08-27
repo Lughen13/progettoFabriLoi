@@ -29,7 +29,6 @@ $passwordError = $emailError = $intestatario_err = $carta_err = $data_scadenza_e
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['delete_user']) && $_POST['delete_user'] == '1') {
-          // Verifica la password
           $oldPassword = $_POST['old_password'];
           $hashedPassword = $user['pw'];
   
@@ -63,15 +62,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   $stmt->execute();
                   $stmt->close();
   
-                  // Commit della transazione
                   $conn->commit();
   
-                  // Distruggi la sessione e reindirizza alla pagina di login
                   session_destroy();
                   header("Location: ../pubblico/login.php");
                   exit();
               } catch (Exception $e) {
-                  // Rollback della transazione in caso di errore
                   $conn->rollback();
                   $passwordError = "Errore durante l'eliminazione dell'account. Per favore riprova.";
               }
@@ -111,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (isset($_POST['email']) && !empty($_POST['email'])) {
                 $email = $_POST['email'];
             
-                // Check if the email ends with .it, .com, or .alice
+                // controlla che l'email termini in .alice, .com o .it
                 if (!preg_match('/\.(it|com|alice)$/', $email)) {
                     $emailError = "L'email deve terminare con .it, .com o .alice.";
                 } else {
@@ -179,7 +175,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if (empty(trim($_POST["data_scadenza"]))) {
                     $data_scadenza_err = "Inserisci la data di scadenza della carta.";
                 } else {
-                    $data_scadenza = trim($_POST["data_scadenza"]); // Ensure $data_scadenza is assigned
+                    $data_scadenza = trim($_POST["data_scadenza"]); 
                     $data_scadenza_obj = DateTime::createFromFormat('Y-m-d', $data_scadenza);
 
                     if (!$data_scadenza_obj || $data_scadenza_obj->format('Y-m-d') != $data_scadenza) {
@@ -257,18 +253,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-
         form div {
             text-align: left;
             padding: 10px;
         }
-
         label {
             display: inline-block;
             width: 150px;
             font-weight: bold;
         }
-
         input[type=text], input[type=email], input[type=password], select, input[type=date] {
             width: calc(100% - 170px);
             padding: 8px;
@@ -277,12 +270,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 4px;
             box-sizing: border-box;
         }
-
         input[type=checkbox] {
             margin-left: 5px;
             transform: scale(1.5);
         }
-
         input[type=submit], button {
             background-color: #4CAF50;
             color: white;
@@ -292,15 +283,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             font-size: 16px;
         }
-
         input[type=submit]:hover, button:hover {
             background-color: #45a049;
         }
-
         .error {
             color: red;
         }
-
         #premiumInfo {
             display: <?php echo ($user['premium'] == 1) ? 'block' : 'none'; ?>;
             margin-top: 10px;
@@ -309,28 +297,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-
         button {
             margin-top: 10px;
             margin-bottom: 10px;
             background-color: #007bff;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
         body {
             background-color: #f8f9fa;
         }
-
         .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         .navbar {
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

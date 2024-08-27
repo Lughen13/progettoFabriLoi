@@ -17,7 +17,7 @@ $postId = isset($_POST['post_id']) ? intval($_POST['post_id']) : null;
 $comment = isset($_POST['comment']) ? trim($_POST['comment']) : '';
 $id_comm = isset($_POST['id_comm']) ? intval($_POST['id_comm']) : null;
 $id_blog = isset($_POST['id_blog']) ? intval($_POST['id_blog']) : null;
-$referer = $_SERVER['HTTP_REFERER'];  // Ottieni l'URL della pagina precedente
+$referer = $_SERVER['HTTP_REFERER'];  
 
 $premium_status = $_SESSION['premium'] ?? false;
 

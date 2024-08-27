@@ -43,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         $stmt->close();
     } else if ($type == 'password') {
-        // Verifica se la password è valida (effettua un confronto basato su hash)
         $username = $_POST['username'];
         $sql = "SELECT password FROM utente WHERE username = ?";
         $stmt = $conn->prepare($sql);
@@ -66,7 +65,7 @@ echo json_encode($response);
 ?>
 <script>
 $(document).ready(function() {
-    // Mostra/Nascondi campi premium
+    // mostra/nascondi campi premium
     $('#premium').change(function() {
         if ($(this).is(':checked')) {
             $('#premium-fields').show();
@@ -75,12 +74,11 @@ $(document).ready(function() {
         }
     });
 
-    // Funzione per mostrare gli errori
     function showError(elementId, message) {
         $('#' + elementId + '-error').text(message);
     }
 
-    // Verifica username
+    // verifico username
     $('#username').on('input', function() {
         var username = $(this).val();
         if (username.length > 0) {
@@ -99,7 +97,7 @@ $(document).ready(function() {
         }
     });
 
-    // Verifica email
+    // verifico email
     $('#email').on('input', function() {
         var email = $(this).val();
         if (email.length > 0) {
@@ -118,7 +116,7 @@ $(document).ready(function() {
         }
     });
 
-    // Verifica password
+    // verifico password
     $('#password').on('input', function() {
         var password = $(this).val();
         var regex = /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
@@ -133,7 +131,7 @@ $(document).ready(function() {
         }
     });
 
-    // Convalida password di conferma
+    // convalido password di conferma
     $('#confirm_password').on('input', function() {
         var confirmPassword = $(this).val();
         var password = $('#password').val();

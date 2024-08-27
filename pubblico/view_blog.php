@@ -174,15 +174,14 @@ $conn->close();
             font-size: 12px;
         }
         .dropdown-menu {
-            width: 400px; /* Larghezza del dropdown delle notifiche */
+            width: 400px; 
             padding: 0;
-            border: 2px solid #ddd; /* Bordo laterale */
-            border-radius: 10px; /* Angoli arrotondati */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); /* Ombra per il dropdown */
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); 
         }
-
         #notificationList {
-            max-height: 300px; /* Altezza massima del contenitore delle notifiche */
+            max-height: 300px; 
             overflow-y: auto;
             padding: 10px;
         }
@@ -191,15 +190,12 @@ $conn->close();
             margin-bottom: 15px;
             font-weight: bold;
         }
-        
-
-
-        
+               
         .dropdown-item {
             padding: 10px 10px;
             text-decoration: none;
-            pointer-events: none;
-            border-top: 1px solid #ddd; /* Bordo superiore */
+            pointer-events: none; 
+            border-top: 1px solid #ddd; 
         }
         .category-container {
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -247,7 +243,6 @@ $conn->close();
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-bell"></i> 
-                            <!-- <span class="badge badge-danger" id="notificationCount">3</span> Numero notifiche -->
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
                             <h6 class="dropdown-header">Notifiche recenti</h6>

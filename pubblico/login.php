@@ -6,27 +6,26 @@ ini_set('error_log', '/path/to/your/php_error.log');
 // Connessione al database
 require_once '../configurazione/conn.php';
 
-// Inizializzazione delle variabili
+// inizializzo le variabili delle variabili
 $username = $password = "";
 $username_err = $password_err = $login_err = "";
 
 session_start();
 
-// Elaborazione dei dati del modulo quando viene inviato
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Validazione username
+    // valido username
     $username = trim($_POST["username"]);
     if (empty($username)) {
         $username_err = "Inserisci un username.";
     }
 
-    // Validazione password
+    // valido password
     $password = trim($_POST["password"]);
     if (empty($password)) {
         $password_err = "Inserisci una password.";
     }
 
-    // Verifica delle credenziali
+    // verifica delle credenziali d'accesso
     if (empty($username_err) && empty($password_err)) {
         $sql = "SELECT id_utente, username, pw FROM utente WHERE username = ?";
         $stmt = $conn->prepare($sql);
@@ -42,7 +41,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION["loggedin"] = true;
                     $_SESSION["id"] = $id;
                     $_SESSION["username"] = $username;
-                    // $_SESSION['genere'] = $db_genere; // Not sure where $db_genere comes from
                     header("location: ../pubblico/home.php");
                 } else {
                     $login_err = "Username o password non validi.";
