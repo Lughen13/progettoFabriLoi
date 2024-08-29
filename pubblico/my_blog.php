@@ -171,7 +171,14 @@ $resultLikes = $conn->query($queryLikes);
 while ($row = $resultLikes->fetch_assoc()) {
     $likeCounts[$row['id_post']] = $row['like_count'];
 }
-
+$premiumQuery = "SELECT premium FROM utente WHERE id_utente = ?";
+$stmt = $conn->prepare($premiumQuery);
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$stmt->bind_result($isPremium);
+$stmt->fetch();
+$stmt->close();
+$maxImages = $isPremium ? 3 : 1;
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -254,6 +261,12 @@ while ($row = $resultLikes->fetch_assoc()) {
         margin-bottom: 15px;
         font-weight: bold;
     }
+    label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
 </style>
 </head>
 
@@ -482,16 +495,33 @@ while ($row = $resultLikes->fetch_assoc()) {
                                                                         <div class="form-group">
                                                                             <label for="edit_post_title_<?php echo $post['id_post']; ?>">Nuovo titolo</label>
                                                                             <input type="text" name="edit_post_title" id="edit_post_title_<?php echo $post['id_post']; ?>" class="form-control" value="<?php echo htmlspecialchars($post['titolo_post']); ?>">
+                                                                            <span id="title-error-<?php echo $post['id_post']; ?>" class="text-danger d-none">Il titolo non può superare i 50 caratteri.</span>
                                                                         </div>
                                                                         <div class="form-group">
                                                                             <label for="edit_post_description_<?php echo $post['id_post']; ?>">Nuova descrizione</label>
                                                                             <textarea name="edit_post_description" id="edit_post_description_<?php echo $post['id_post']; ?>" class="form-control"><?php echo htmlspecialchars($post['descrizione_post']); ?></textarea>
                                                                         </div>
+
                                                                         <div class="form-group">
-                                                                            <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuove immagini</label>
-                                                                            <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
-                                                                            <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
-                                                                            <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
+                                                                            <?php if ($isPremium): ?>
+                                                                                <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuove immagini</label>
+                                                                                    <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
+                                                                                    <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
+                                                                                    <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
+
+                                                                            <?php else: ?>
+                                                                                <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuova immagine</label>
+                                                                                    <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
+                                                                                
+
+                                                                            <?php endif; ?>
+                                                                            <?php if (!empty($post['img_post'])): ?>
+                                                                                <div class="mt-2">
+                                                                                    <?php foreach (json_decode($post['img_post']) as $imgFileName): ?>
+                                                                                        <img src="../photo_post/<?php echo htmlspecialchars($imgFileName); ?>" alt="Immagine attuale" class="mr-2" style="max-width: 100px;">
+                                                                                    <?php endforeach; ?>
+                                                                                </div>
+                                                                            <?php endif; ?>
                                                                         </div>
                                                                     </form>
                                                                 </div>
@@ -527,6 +557,55 @@ while ($row = $resultLikes->fetch_assoc()) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+$(document).ready(function() {
+    // Funzione per controllare il formato delle immagini
+    function validateImageInput(postId) {
+        var fileInput = $('#edit_post_img_' + postId)[0];
+        var validFormats = ['image/jpeg', 'image/png'];
+        var isValid = true;
+
+        if (fileInput.files.length > 0) {
+            for (var i = 0; i < fileInput.files.length; i++) {
+                if (!validFormats.includes(fileInput.files[i].type)) {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            if (!isValid) {
+                alert('Formato immagine non valido. Seleziona un file JPG, JPEG, PNG o GIF. ');
+                fileInput.value = ''; // Clear the file input
+            }
+        }
+    }
+
+    // Aggiungi il listener per il campo di input delle immagini
+    $('input[type="file"]').on('change', function() {
+        var postId = $(this).attr('id').split('_')[3];
+        validateImageInput(postId);
+    });
+
+
+    // Funzione per controllare la lunghezza del titolo
+    function validateTitleInput(postId) {
+        var titleInput = $('#edit_post_title_' + postId);
+        var errorSpan = $('#title-error-' + postId);
+        var titleValue = titleInput.val();
+        
+        if (titleValue.length > 50) {
+            titleInput.val(titleValue.substring(0, 50)); 
+            errorSpan.removeClass('d-none'); 
+        } else {
+            errorSpan.addClass('d-none'); 
+        }
+    }
+
+    // Aggiungi il listener per il campo di input del titolo
+    $('input[name="edit_post_title"]').on('input', function() {
+        var postId = $(this).attr('id').split('_')[3];
+        validateTitleInput(postId);
+    });
+})
         function showEditBlogModal(blogId) {
             $('#editBlogModal_' + blogId).modal('show');
         }

@@ -162,17 +162,20 @@ unset($_SESSION['error_msg']);
         <textarea name="description" id="description" required></textarea>
 
         <label for="category">Categoria:</label>
+        <p>Non potrai più cambiarla</p>
         <select name="category" id="category" required>
-            <option value="">Seleziona una sottocategoria</option>
+            <option value="">Seleziona una categoria</option>
             <?php while ($category = $categoriesResult->fetch_assoc()): ?>
                 <option value="<?php echo htmlspecialchars($category['id_categoria']); ?>"><?php echo htmlspecialchars($category['nome_categoria']); ?></option>
             <?php endwhile; ?>
         </select>
 
         <label for="logo">Logo del blog (opzionale):</label>
+        <p>Il logo deve essere un file JPG, JPEG, PNG o GIF.</p>
         <input type="file" name="logo" id="logo">
 
         <label for="co_autore">Seleziona il co-autore (opzionale):</label>
+        <p>Se vuoi che qualcuno ti aiuti a gestire il blog, seleziona il suo nome dalla lista, ricorda che potrà fare post.</p>
         <select name="co_autore" id="co_autore">
             <option value="">Nessun co-autore</option>
             <?php while ($user = $usersResult->fetch_assoc()): ?>

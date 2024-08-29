@@ -159,7 +159,24 @@ $maxImages = $isPremium ? 3 : 1;
             });
         });
         
+        document.addEventListener('DOMContentLoaded', function() {
+            const allowedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+            const imageInputs = document.querySelectorAll('input[type="file"][name="immagini[]"]');
 
+            function validateImageFormat(input) {
+                const file = input.files[0];
+                if (file && !allowedFormats.includes(file.type)) {
+                    alert('Formato non valido per ' + input.id + '. Seleziona un file JPG, JPEG, PNG o GIF.');
+                    input.value = ''; // Resetta l'input
+                }
+            }
+
+            imageInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    validateImageFormat(this);
+                });
+            });
+        });
         
     </script>
 
@@ -187,22 +204,24 @@ $maxImages = $isPremium ? 3 : 1;
         <textarea name="description" id="description" required></textarea>
 
         <label for="subcategory">Sottocategoria:</label>
+        <p>Non potrai più cambiarla.</p>
         <select name="subcategory" id="subcategory" required>
             <option value="">Seleziona una sottocategoria</option>
         </select>
 
         <div class="premium-only">
             <label for="image1">Immagine 1:</label>
-            <input type="file" name="immagini[]" id="image1" accept="image/*">
+            <input type="file" name="immagini[]" id="Immagine 1" accept="image/*">
             <label for="image2">Immagine 2:</label>
-            <input type="file" name="immagini[]" id="image2" accept="image/*">
+            <input type="file" name="immagini[]" id="Immagine 2" accept="image/*">
             <label for="image3">Immagine 3:</label>
-            <input type="file" name="immagini[]" id="image3" accept="image/*">
+            <input type="file" name="immagini[]" id="Immagine 3" accept="image/*">
         </div>
 
         <div class="standard-only">
             <label for="image">Immagine:</label>
-            <input type="file" name="immagini[]" id="image" accept="image/*">
+            <p>Per avere la possibilità di inserire fino a tre immagini, dovresti passare ad un profilo premium</p>
+            <input type="file" name="immagini[]" id="Immagine" accept="image/*">
         </div>
 
         <div id="error-message" class="error"></div>

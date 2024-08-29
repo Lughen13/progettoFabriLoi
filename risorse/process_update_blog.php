@@ -19,9 +19,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 $blog = $result->fetch_assoc();
 
-// Recupera le categorie
-$categorieQuery = "SELECT id_categoria, nome_categoria FROM categoria";
-$categorieResult = $conn->query($categorieQuery);
 
 // Recupera gli utenti per il coautore
 $utentiQuery = "SELECT id_utente, username FROM utente WHERE id_utente != ?";
@@ -34,7 +31,6 @@ $utentiResult = $stmtUtenti->get_result();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titoloBlog = $_POST['edit_titolo_blog'];
     $descrizione = $_POST['edit_descrizione'];
-    $categoriaId = $_POST['edit_categoria'];
     $coautoreId = !empty($_POST['edit_coautore']) ? $_POST['edit_coautore'] : null;
 
     // Gestione dell'upload del logo
@@ -63,9 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     // Aggiorna il blog nel database
-    $updateBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ?, id_categoria = ?, img_logo = ? WHERE id_blog = ? AND id_proprietario = ?";
+    $updateBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ?, img_logo = ? WHERE id_blog = ? AND id_proprietario = ?";
     $stmtUpdate = $conn->prepare($updateBlogQuery);
-    $stmtUpdate->bind_param("ssssii", $titoloBlog, $descrizione, $categoriaId, $logoName, $blogId, $userId);
+    $stmtUpdate->bind_param("ssssii", $titoloBlog, $descrizione, $logoName, $blogId, $userId);
     
 
     if ($stmtUpdate->execute()) {
@@ -103,11 +99,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Modifica Blog</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
+<style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        input[type="text"], textarea, select, input[type="file"], button {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50; 
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #ccc; 
+            cursor: not-allowed;
+        }
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+    </style>
+
+</style>
 <body>
     <div class="container mt-5">
+       
+        <form action="process_update_blog.php?id=<?php echo $blogId; ?>" method="post" enctype="multipart/form-data">
+        <form action="process_update_blog.php?id=<?php echo $blogId; ?>" method="post" enctype="multipart/form-data">
         <h2>Modifica Blog</h2>
-        <form action="process_update_blog.php?id=<?php echo $blogId; ?>" method="post" enctype="multipart/form-data">
-        <form action="process_update_blog.php?id=<?php echo $blogId; ?>" method="post" enctype="multipart/form-data">
             <input type="hidden" name="source" value="<?php echo htmlspecialchars($source); ?>">    
         <div class="form-group">
                 <label for="edit_titolo_blog">Titolo Blog</label>
@@ -119,16 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="edit_descrizione">Descrizione</label>
                 <textarea class="form-control" id="edit_descrizione" name="edit_descrizione" rows="3" required><?php echo htmlspecialchars($blog['descrizione']); ?></textarea>
             </div>
-            <div class="form-group">
-                <label for="edit_categoria">Categoria</label>
-                <select class="form-control" id="edit_categoria" name="edit_categoria" required>
-                    <?php while ($categoria = $categorieResult->fetch_assoc()): ?>
-                        <option value="<?php echo $categoria['id_categoria']; ?>" <?php if ($blog['id_categoria'] == $categoria['id_categoria']) echo 'selected'; ?>>
-                            <?php echo htmlspecialchars($categoria['nome_categoria']); ?>
-                        </option>
-                    <?php endwhile; ?>
-                </select>
-            </div>
+
             <div class="form-group">
                 <label for="edit_coautore">Coautore</label>
                 <select class="form-control" id="edit_coautore" name="edit_coautore">
