@@ -427,13 +427,13 @@ $maxImages = $isPremium ? 3 : 1;
                                                 </div>
                                                 <div class="form-group">
                                                     <?php if ($isPremium): ?>
-                                                        <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuove immagini</label>
+                                                        <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuove foto</label>
                                                             <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
                                                             <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
                                                             <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
 
                                                     <?php else: ?>
-                                                        <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuova immagine</label>
+                                                        <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuova foto</label>
                                                             <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
                                                                                 
                                                     <?php endif; ?>
@@ -482,7 +482,7 @@ $(document).ready(function() {
             }
 
             if (!isValid) {
-                alert('Formato immagine non valido. Seleziona un file JPG, JPEG, PNG o GIF. ');
+                alert('Formato foto non valido. Seleziona un file JPG, JPEG, PNG o GIF. ');
                 fileInput.value = ''; // Clear the file input
             }
         }

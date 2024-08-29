@@ -210,17 +210,17 @@ $maxImages = $isPremium ? 3 : 1;
         </select>
 
         <div class="premium-only">
-            <label for="image1">Immagine 1:</label>
+            <label for="Immagine 1">Foto 1:</label>
             <input type="file" name="immagini[]" id="Immagine 1" accept="image/*">
-            <label for="image2">Immagine 2:</label>
+            <label for="Immagine 2">Foto 2:</label>
             <input type="file" name="immagini[]" id="Immagine 2" accept="image/*">
-            <label for="image3">Immagine 3:</label>
+            <label for="Immagine 3">Foto 3:</label>
             <input type="file" name="immagini[]" id="Immagine 3" accept="image/*">
         </div>
 
         <div class="standard-only">
-            <label for="image">Immagine:</label>
-            <p>Per avere la possibilità di inserire fino a tre immagini, dovresti passare ad un profilo premium</p>
+            <label for="Immagine">Foto:</label>
+            <p>Per avere la possibilità di inserire fino a tre foto, dovresti passare ad un profilo premium</p>
             <input type="file" name="immagini[]" id="Immagine" accept="image/*">
         </div>
 

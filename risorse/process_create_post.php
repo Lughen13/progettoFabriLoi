@@ -66,10 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagini'])) {
             if (move_uploaded_file($fileTmpName, $fileDestination)) {
                 $photos[] = $newFileName;
             } else {
-                echo "Errore durante il caricamento dell'immagine $fileName.";
+                echo "Errore durante il caricamento della foto $fileName.";
             }
         } else {
-            echo "Formato dell'immagine $fileName non valido o errore durante il caricamento. Codice errore: $fileError";
+            echo "Formato della foto $fileName non valido o errore durante il caricamento. Codice errore: $fileError";
         }
     }
 }

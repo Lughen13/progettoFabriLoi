@@ -46,7 +46,7 @@ if (!$isPremium && $blogCount >= 1) {
     exit();
 }
 
-$logoName = 'default.png'; // Nome predefinito per l'immagine del logo
+$logoName = 'default.png'; 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
     $logoFile = $_FILES['logo'];
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo']) && $_FILES['
         $logoDestination = '../blog_logo/' . $logoName;
 
         if (!move_uploaded_file($logoTmpName, $logoDestination)) {
-            $logoName = 'default.png'; // In caso di errore, usa l'immagine predefinita
+            $logoName = 'default.png'; 
         }
     }
 }
