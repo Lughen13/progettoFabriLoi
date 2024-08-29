@@ -32,7 +32,7 @@ if ($action === 'insert' && $postId && !empty($comment)) {
         $stmt_count_comments->close();
 
         if ($num_comments_today >= 20) {
-            $_SESSION['comment_error'] = 'Hai superato il numero massimo di commenti giornalieri.';
+            $_SESSION['comment_error'] = 'Hai superato il numero massimo di commenti giornalieri, per poterne fare di più passa a premium.';
             header("Location: " . $referer);
             exit;
         }

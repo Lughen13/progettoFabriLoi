@@ -89,6 +89,7 @@ unset($_SESSION['error_msg']);
             font-weight: bold;
         }
     </style>
+
     <script>
         function validateForm() {
             const title = document.getElementById('title').value.trim();
@@ -102,6 +103,48 @@ unset($_SESSION['error_msg']);
             validateForm();
         });
     </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.querySelector('input[name="title"]');
+            const errorMsg = document.createElement('p');
+            errorMsg.style.color = 'red';
+            titleInput.parentNode.insertBefore(errorMsg, titleInput.nextSibling);
+
+            titleInput.addEventListener('input', function() {
+                if (titleInput.value.length > 50) {
+                    titleInput.value = titleInput.value.substring(0, 50);
+                    errorMsg.textContent = 'Il titolo non può superare i 50 caratteri.';
+                } else {
+                    errorMsg.textContent = '';
+                }
+            });
+        });
+    </script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoInput = document.getElementById('logo');
+        const form = document.querySelector('form');
+        const allowedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+
+        logoInput.addEventListener('change', function() {
+            const file = logoInput.files[0];
+            if (file && !allowedFormats.includes(file.type)) {
+                alert('Formato non valido. Seleziona un file JPG, JPEG, PNG o GIF.');
+                logoInput.value = ''; 
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            const file = logoInput.files[0];
+            if (file && !allowedFormats.includes(file.type)) {
+                e.preventDefault();
+                alert('Formato non valido. Seleziona un file JPG, JPEG, PNG o GIF.');
+            }
+        });
+    });
+</script>
 </head>
 
 <body>    

@@ -141,6 +141,27 @@ $maxImages = $isPremium ? 3 : 1;
             });
         });
     </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.querySelector('input[name="title"]');
+            const errorMsg = document.createElement('p');
+            errorMsg.style.color = 'red';
+            titleInput.parentNode.insertBefore(errorMsg, titleInput.nextSibling);
+
+            titleInput.addEventListener('input', function() {
+                if (titleInput.value.length > 50) {
+                    titleInput.value = titleInput.value.substring(0, 50);
+                    errorMsg.textContent = 'Il titolo non può superare i 50 caratteri.';
+                } else {
+                    errorMsg.textContent = '';
+                }
+            });
+        });
+
+        
+    </script>
+
 </head>
 <body>
     <h1>Crea un nuovo post</h1>
@@ -182,6 +203,9 @@ $maxImages = $isPremium ? 3 : 1;
             <label for="image">Immagine:</label>
             <input type="file" name="immagini[]" id="image" accept="image/*">
         </div>
+
+        <!-- Contenitore per i messaggi di errore -->
+        <div id="error-message" class="error"></div>
 
         <button type="submit" id="submit-button" disabled>Crea post</button>
         <button type="button" onclick="location.href='../pubblico/my_profile.php'">Torna indietro</button>
