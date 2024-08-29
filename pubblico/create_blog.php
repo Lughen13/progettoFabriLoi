@@ -13,7 +13,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-// recuper le categorie dal tb
+// recupera le categorie 
 $categoriesQuery = "SELECT id_categoria, nome_categoria FROM categoria";
 $categoriesResult = $conn->query($categoriesQuery);
 if (!$categoriesResult) {

@@ -44,7 +44,7 @@ if (!$isPremium && $postCount >= 1) {
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagini']) && !empty($_FILES['immagini']['name'][0])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagini'])) {
     $files = $_FILES['immagini'];
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
@@ -69,10 +69,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagini']) && !empt
                 echo "Errore durante il caricamento dell'immagine $fileName.";
             }
         } else {
-            echo "Formato dell'immagine $fileName non valido o errore durante il caricamento.";
+            echo "Formato dell'immagine $fileName non valido o errore durante il caricamento. Codice errore: $fileError";
         }
     }
 }
+
 
 $photosJson = json_encode($photos);
 

@@ -158,6 +158,7 @@ $maxImages = $isPremium ? 3 : 1;
                 }
             });
         });
+        
 
         
     </script>
@@ -204,7 +205,6 @@ $maxImages = $isPremium ? 3 : 1;
             <input type="file" name="immagini[]" id="image" accept="image/*">
         </div>
 
-        <!-- Contenitore per i messaggi di errore -->
         <div id="error-message" class="error"></div>
 
         <button type="submit" id="submit-button" disabled>Crea post</button>
