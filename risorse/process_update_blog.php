@@ -38,12 +38,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $coautoreId = !empty($_POST['edit_coautore']) ? $_POST['edit_coautore'] : null;
 
     // Gestione dell'upload del logo
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
     $logoName = $blog['img_logo']; // Mantieni il logo esistente come default
-    if (isset($_FILES['edit_logo']) && $_FILES['edit_logo']['error'] == 0) {
-        $logoName = 'blog_logo_' . $blogId . '.' . pathinfo($_FILES['edit_logo']['name'], PATHINFO_EXTENSION);
-        $logoPath = '../blog_logo/' . $logoName;
-        move_uploaded_file($_FILES['edit_logo']['tmp_name'], $logoPath);
+
+    if (isset($_FILES['edit_logo']) && $_FILES['edit_logo']['error'] === UPLOAD_ERR_OK) {
+        $logoFile = $_FILES['edit_logo'];
+        $logoTmpName = $logoFile['tmp_name'];
+        $logoFileName = $logoFile['name'];
+        $logoError = $logoFile['error'];
+
+        $logoExtension = strtolower(pathinfo($logoFileName, PATHINFO_EXTENSION));
+
+        if (in_array($logoExtension, $allowedExtensions) && $logoError === 0) {
+            $logoName = 'blog_logo_' . $blogId . '.' . $logoExtension; // Nuovo nome del file del logo
+            $logoPath = '../blog_logo/' . $logoName;
+
+            if (!move_uploaded_file($logoTmpName, $logoPath)) {
+                $logoName = $blog['img_logo']; // Usa il logo esistente se il caricamento fallisce
+            }
+        } else {
+            $error = 'Formato non valido. Seleziona un file JPG, JPEG, PNG o GIF.';
+        }
     }
+
 
     // Aggiorna il blog nel database
     $updateBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ?, id_categoria = ?, img_logo = ? WHERE id_blog = ? AND id_proprietario = ?";
@@ -95,6 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="form-group">
                 <label for="edit_titolo_blog">Titolo Blog</label>
                 <input type="text" class="form-control" id="edit_titolo_blog" name="edit_titolo_blog" value="<?php echo htmlspecialchars($blog['titolo_blog']); ?>" required>
+                <p id="error_titolo_blog" ></p> 
+
             </div>
             <div class="form-group">
                 <label for="edit_descrizione">Descrizione</label>
@@ -128,11 +147,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if (!empty($blog['img_logo'])): ?>
                     <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo attuale" class="mt-2" style="max-width: 200px;">
                 <?php endif; ?>
+                <?php if (isset($error)): ?>
+                    <p class="text-danger"><?php echo htmlspecialchars($error); ?></p>
+                <?php endif; ?>
             </div>
             <button type="submit" class="btn btn-primary">Salva modifiche</button>
         </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.getElementById('edit_titolo_blog');
+            const errorMsg = document.getElementById('error_titolo_blog');
+            errorMsg.style.color = 'red';
+            const form = document.querySelector('form');
+
+            titleInput.addEventListener('input', function() {
+                if (titleInput.value.length > 50) {
+                    titleInput.value = titleInput.value.substring(0, 50);
+                    errorMsg.textContent = 'Il titolo non può superare i 50 caratteri.';
+
+                } else {
+                    errorMsg.textContent = '';
+                }
+            });
+
+      
+            const logoInput = document.getElementById('edit_logo');
+            const allowedFormats = ['image/jpeg', 'image/png', 'image/gif'];
+
+            logoInput.addEventListener('change', function() {
+                const file = logoInput.files[0];
+                if (file && !allowedFormats.includes(file.type)) {
+                    alert('Formato non valido. Seleziona un file JPG, JPEG, PNG o GIF.');
+                    logoInput.value = ''; 
+                }
+            });
+
+            form.addEventListener('submit', function(e) {
+                const file = logoInput.files[0];
+                if (file && !allowedFormats.includes(file.type)) {
+                    e.preventDefault();
+                    alert('Formato non valido. Seleziona un file JPG, JPEG, PNG o GIF.');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
