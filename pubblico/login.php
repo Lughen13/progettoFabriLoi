@@ -122,7 +122,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <img src="../blog_logo/logo.png" alt="Logo ToteBlog" style="max-width: 25%; height: auto;">
     </h1>
     <h2>Login</h2>
-    <p>Per favore inserisci le tue credenziali per accedere alla Home.</p>
+    <p>Inserisci le tue credenziali per accedere alla Home.</p>
     <?php if (!empty($login_err)) { ?>
         <div class="error"><?php echo $login_err; ?></div>
     <?php } ?>
