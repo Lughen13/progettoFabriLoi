@@ -18,7 +18,7 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 // Gestione dell'eliminazione del blog
 if ($action == 'delete_blog') {
     $id_blog = $_GET['id_blog'];
-    
+
     // Prima eliminare le notifiche associate al blog e ai post del blog
     $deleteNotificationsQuery = "DELETE FROM notifiche WHERE contenuto_id = ? OR contenuto_id IN (SELECT id_post FROM post WHERE id_blog = ?)";
     $stmt = $conn->prepare($deleteNotificationsQuery);
@@ -160,7 +160,7 @@ $stmt->close();
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        
+
         #notificationDropdown {
             position: relative;
         }
@@ -178,15 +178,15 @@ $stmt->close();
         }
 
         .dropdown-menu {
-            width: 400px; 
+            width: 400px;
             padding: 0;
-            border: 2px solid #ddd; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); 
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0);
         }
 
         #notificationList {
-            max-height: 300px; 
+            max-height: 300px;
             overflow-y: auto;
             padding: 10px;
         }
@@ -195,87 +195,91 @@ $stmt->close();
             padding: 10px 10px;
             text-decoration: none;
             pointer-events: none;
-            border-top: 1px solid #ddd; 
+            border-top: 1px solid #ddd;
         }
+
         .category-container {
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 10px;
             justify-items: center;
             align-items: center;
         }
+
         .category-card {
             flex: 1 1 auto;
             margin: 5px;
             text-align: center;
         }
-
     </style>
 </head>
+
 <body>
     <div class="container mt-4">
-        <h1>ToteBlog</h1>
+        <h1>
+            <img src="../blog_logo/logo.png" alt="Logo ToteBlog" style="max-width: 25%; height: auto;">
+        </h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
-                <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-                <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
-            </ul>
-            
-            <div class="d-flex align-items-right">
-                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-                </form>
-
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-bell"></i> 
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
-                            <h6 class="dropdown-header">Notifiche recenti</h6>
-                            <div id="notificationList">
-                            </div>
-                        </div>
-                    </li>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
                 </ul>
+
+                <div class="d-flex align-items-right">
+                    <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                        <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+                    </form>
+
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bell"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
+                                <h6 class="dropdown-header">Notifiche recenti</h6>
+                                <div id="notificationList">
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
 
         <div class="row">
             <div class="col-md-4">
                 <h3>Informazioni Personali</h3>
-                    <?php if (!empty($user['img_profilo'])) : ?>
-                        <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>?v=<?php echo time(); ?>" alt="Immagine del profilo di <?php echo htmlspecialchars($user['username']); ?>" class="img-thumbnail mb-3">
-                        <?php endif; ?>
-                    <form id="updateImgForm" action="my_profile.php" method="post" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="img_profilo">Carica nuova immagine profilo</label>
-                            <input type="file" class="form-control-file" id="img_profilo" name="img_profilo" accept=".jpg, .jpeg, .png, .gif">
-                        </div>
-                        <button type="submit" class="btn btn-primary" id="btnUpdateImg" disabled>Aggiorna Immagine</button>
-                    </form>
-
-                    <p><strong>Username:</strong> <?php echo htmlspecialchars($user['username']); ?></p>
-                    <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-                    <p><strong>Nome:</strong> <?php echo htmlspecialchars($user['nome']); ?></p>
-                    <p><strong>Cognome:</strong> <?php echo htmlspecialchars($user['cognome']); ?></p>
-                    <p><strong>Data di Nascita:</strong> <?php echo htmlspecialchars($user['data_nascita']); ?></p>
-                    <p><strong>Genere:</strong> <?php echo htmlspecialchars($user['genere']); ?></p>
-                    <p><strong>Numero di Telefono:</strong> <?php echo htmlspecialchars($user['numero_telefono']); ?></p>
+                <?php if (!empty($user['img_profilo'])) : ?>
+                    <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>?v=<?php echo time(); ?>" alt="Immagine del profilo di <?php echo htmlspecialchars($user['username']); ?>" class="img-thumbnail mb-3">
+                <?php endif; ?>
+                <form id="updateImgForm" action="my_profile.php" method="post" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="bio">Bio:</label>
-                        <p id="currentBio"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></p>
+                        <label for="img_profilo">Carica nuova immagine profilo</label>
+                        <input type="file" class="form-control-file" id="img_profilo" name="img_profilo" accept=".jpg, .jpeg, .png, .gif">
                     </div>
-                    
-                    <!-- bottone per aprire il modale di modifica della bio  -->
+                    <button type="submit" class="btn btn-primary" id="btnUpdateImg" disabled>Aggiorna Immagine</button>
+                </form>
+
+                <p><strong>Username:</strong> <?php echo htmlspecialchars($user['username']); ?></p>
+                <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
+                <p><strong>Nome:</strong> <?php echo htmlspecialchars($user['nome']); ?></p>
+                <p><strong>Cognome:</strong> <?php echo htmlspecialchars($user['cognome']); ?></p>
+                <p><strong>Data di Nascita:</strong> <?php echo htmlspecialchars($user['data_nascita']); ?></p>
+                <p><strong>Genere:</strong> <?php echo htmlspecialchars($user['genere']); ?></p>
+                <p><strong>Numero di Telefono:</strong> <?php echo htmlspecialchars($user['numero_telefono']); ?></p>
+                <div class="form-group">
+                    <label for="bio">Bio:</label>
+                    <p id="currentBio"><?php echo htmlspecialchars($user['bio'] ?? ''); ?></p>
+                </div>
+
+                <!-- bottone per aprire il modale di modifica della bio  -->
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editBioModal">Modifica Bio</button>
                 <div class="modal fade" id="editBioModal" tabindex="-1" role="dialog" aria-labelledby="editBioModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -308,7 +312,7 @@ $stmt->close();
                             <p class="card-text"><?php echo htmlspecialchars($blog['descrizione']); ?></p>
                             <p class="card-text"><strong>Categoria:</strong> <?php echo htmlspecialchars($blog['nome_categoria']); ?></p>
                             <?php if (!empty($blog['img_logo'])) : ?>
-                                <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>"  alt="Logo del blog '<?php echo htmlspecialchars($blog['titolo_blog']); ?>'" class="img-thumbnail mb-3">
+                                <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del blog '<?php echo htmlspecialchars($blog['titolo_blog']); ?>'" class="img-thumbnail mb-3">
                             <?php endif; ?>
                             <button class="btn btn-primary" onclick="location.href='../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>'">Modifica Blog</button>
                             <!-- Pulsante per aprire il modale di eliminazione -->
@@ -316,39 +320,39 @@ $stmt->close();
                             <button class="btn btn-info" onclick="location.href='../pubblico/my_blog.php?id_blog=<?php echo $blog['id_blog']; ?>'">Visualizza</button>
                         </div>
                     </div>
-                
 
-                <!-- per eliminare il blog -->
-                <div class="modal fade" id="deleteBlogModal<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>">Elimina Blog</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times; </button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Sei sicuro di voler eliminare il blog "<?php echo htmlspecialchars($blog['titolo_blog']); ?>"?</p>
-                            </div>
-                            <div class="modal-footer">
-                            <form action="my_profile.php" method="get">
-                                <input type="hidden" name="action" value="delete_blog">
-                                <input type="hidden" name="id_blog" value="<?php echo $blog['id_blog']; ?>">
-                                <button type="submit" class="btn btn-danger">Elimina Blog</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                            </form>
+
+                    <!-- per eliminare il blog -->
+                    <div class="modal fade" id="deleteBlogModal<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteBlogModalLabel<?php echo $blog['id_blog']; ?>">Elimina Blog</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times; </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Sei sicuro di voler eliminare il blog "<?php echo htmlspecialchars($blog['titolo_blog']); ?>"?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <form action="my_profile.php" method="get">
+                                        <input type="hidden" name="action" value="delete_blog">
+                                        <input type="hidden" name="id_blog" value="<?php echo $blog['id_blog']; ?>">
+                                        <button type="submit" class="btn btn-danger">Elimina Blog</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
 
-            <div class="text-center mt-4">
-        <button class="btn btn-success btn-lg" onclick="location.href='../pubblico/create_blog.php'">Crea Nuovo Blog</button>
-        <button class="btn btn-success btn-lg" onclick="location.href='../pubblico/create_post.php'">Crea Nuovo Post</button>
-    </div>
+                <div class="text-center mt-4">
+                    <button class="btn btn-success btn-lg" onclick="location.href='../pubblico/create_blog.php'">Crea Nuovo Blog</button>
+                    <button class="btn btn-success btn-lg" onclick="location.href='../pubblico/create_post.php'">Crea Nuovo Post</button>
+                </div>
+            </div>
         </div>
-    </div>
 </body>
 
 
@@ -379,7 +383,7 @@ $stmt->close();
         });
     });
 </script>
-<script> 
+<script>
     $(document).ready(function() {
         $('#bioForm').on('submit', function(e) {
             e.preventDefault();
@@ -404,7 +408,7 @@ $stmt->close();
         });
     });
 </script>
-<script> 
+<script>
     $(document).ready(function() {
         var originalBio = "<?php echo htmlspecialchars($user['bio'] ?? ''); ?>";
 
@@ -430,56 +434,54 @@ $stmt->close();
             }
         });
     });
-
 </script>
 
 <script>
     $(document).ready(function() {
-    function fetchNotifications() {
-        $.ajax({
-            url: '../risorse/get_notifications.php',
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                var notificationList = $('#notificationList');
-                notificationList.empty();
+        function fetchNotifications() {
+            $.ajax({
+                url: '../risorse/get_notifications.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    var notificationList = $('#notificationList');
+                    notificationList.empty();
 
-                if (data.length === 0) {
-                    notificationList.append('<a class="dropdown-item">Non ci sono notifiche.</a>');
-                } else {
-                    data.forEach(function(notification) {
-                        var listItem = '<a class="dropdown-item">';
-                        listItem += '<strong>' + notification.sender_username + '</strong> ';
-                        if (notification.tipo === 'comment') {
-                            listItem += 'ha commentato il tuo post: ';
-                            listItem += '<a href="my_post.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
-                        } else if (notification.tipo === 'like') {
-                            listItem += 'ha messo mi piace al tuo post: ';
-                            listItem += '<a href="my_post.php?id_post=' +  notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
-                        } else if (notification.tipo === 'follow') {
-                            listItem += 'ha iniziato a seguirti nel blog: ';
-                            listItem += '<a href="my_blog.php?id_blog=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
-                        } else {
-                            listItem += 'ha eseguito un\'azione.';
-                        }
-                        listItem += '<br><small>' + notification.data + '</small>';
-                        listItem += '</a>';
-                        notificationList.append(listItem);
-                    });
+                    if (data.length === 0) {
+                        notificationList.append('<a class="dropdown-item">Non ci sono notifiche.</a>');
+                    } else {
+                        data.forEach(function(notification) {
+                            var listItem = '<a class="dropdown-item">';
+                            listItem += '<strong>' + notification.sender_username + '</strong> ';
+                            if (notification.tipo === 'comment') {
+                                listItem += 'ha commentato il tuo post: ';
+                                listItem += '<a href="my_post.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                            } else if (notification.tipo === 'like') {
+                                listItem += 'ha messo mi piace al tuo post: ';
+                                listItem += '<a href="my_post.php?id_post=' + notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                            } else if (notification.tipo === 'follow') {
+                                listItem += 'ha iniziato a seguirti nel blog: ';
+                                listItem += '<a href="my_blog.php?id_blog=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                            } else {
+                                listItem += 'ha eseguito un\'azione.';
+                            }
+                            listItem += '<br><small>' + notification.data + '</small>';
+                            listItem += '</a>';
+                            notificationList.append(listItem);
+                        });
+                    }
+                },
+                error: function() {
+                    $('#notificationList').append('<a class="dropdown-item text-danger">Errore nel caricamento delle notifiche.</a>');
                 }
-            },
-            error: function() {
-                $('#notificationList').append('<a class="dropdown-item text-danger">Errore nel caricamento delle notifiche.</a>');
-            }
+            });
+        }
+
+        // Carica le notifiche all'apertura del dropdown
+        $('#notificationDropdown').on('click', function() {
+            fetchNotifications();
         });
-    }
-
-    // Carica le notifiche all'apertura del dropdown
-    $('#notificationDropdown').on('click', function() {
-        fetchNotifications();
     });
-});
-
 </script>
-</html>
 
+</html>

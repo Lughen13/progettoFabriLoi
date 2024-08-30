@@ -29,49 +29,49 @@ $passwordError = $emailError = $intestatario_err = $carta_err = $data_scadenza_e
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['delete_user']) && $_POST['delete_user'] == '1') {
-          $oldPassword = $_POST['old_password'];
-          $hashedPassword = $user['pw'];
-  
-          if (empty($oldPassword)) {
-              $passwordError = "Inserisci la tua password per eliminare l'account.";
-          } elseif (md5($oldPassword) !== $hashedPassword) {
-              $passwordError = "La password non è corretta.";
-          } else {
-              // Inizia una transazione
-              $conn->begin_transaction();
-  
-              try {
-                  // Elimina record correlati in altre tabelle
-                  $deleteCoAutoreQuery = "DELETE FROM co_autore WHERE id_utente = ?";
-                  $stmt = $conn->prepare($deleteCoAutoreQuery);
-                  $stmt->bind_param("i", $userId);
-                  $stmt->execute();
-                  $stmt->close();
-  
-                  // Elimina record dalla tabella premium
-                  $deletePremiumQuery = "DELETE FROM premium WHERE id_utente = ?";
-                  $stmt = $conn->prepare($deletePremiumQuery);
-                  $stmt->bind_param("i", $userId);
-                  $stmt->execute();
-                  $stmt->close();
-  
-                  // Elimina l'utente dalla tabella utente
-                  $deleteUserQuery = "DELETE FROM utente WHERE id_utente = ?";
-                  $stmt = $conn->prepare($deleteUserQuery);
-                  $stmt->bind_param("i", $userId);
-                  $stmt->execute();
-                  $stmt->close();
-  
-                  $conn->commit();
-  
-                  session_destroy();
-                  header("Location: ../pubblico/login.php");
-                  exit();
-              } catch (Exception $e) {
-                  $conn->rollback();
-                  $passwordError = "Errore durante l'eliminazione dell'account. Per favore riprova.";
-              }
-          }
+        $oldPassword = $_POST['old_password'];
+        $hashedPassword = $user['pw'];
+
+        if (empty($oldPassword)) {
+            $passwordError = "Inserisci la tua password per eliminare l'account.";
+        } elseif (md5($oldPassword) !== $hashedPassword) {
+            $passwordError = "La password non è corretta.";
+        } else {
+            // Inizia una transazione
+            $conn->begin_transaction();
+
+            try {
+                // Elimina record correlati in altre tabelle
+                $deleteCoAutoreQuery = "DELETE FROM co_autore WHERE id_utente = ?";
+                $stmt = $conn->prepare($deleteCoAutoreQuery);
+                $stmt->bind_param("i", $userId);
+                $stmt->execute();
+                $stmt->close();
+
+                // Elimina record dalla tabella premium
+                $deletePremiumQuery = "DELETE FROM premium WHERE id_utente = ?";
+                $stmt = $conn->prepare($deletePremiumQuery);
+                $stmt->bind_param("i", $userId);
+                $stmt->execute();
+                $stmt->close();
+
+                // Elimina l'utente dalla tabella utente
+                $deleteUserQuery = "DELETE FROM utente WHERE id_utente = ?";
+                $stmt = $conn->prepare($deleteUserQuery);
+                $stmt->bind_param("i", $userId);
+                $stmt->execute();
+                $stmt->close();
+
+                $conn->commit();
+
+                session_destroy();
+                header("Location: ../pubblico/login.php");
+                exit();
+            } catch (Exception $e) {
+                $conn->rollback();
+                $passwordError = "Errore durante l'eliminazione dell'account. Per favore riprova.";
+            }
+        }
     } else {
         // Codice per salvare le modifiche all'account
         $oldPassword = $_POST['old_password'];
@@ -106,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             if (isset($_POST['email']) && !empty($_POST['email'])) {
                 $email = $_POST['email'];
-            
+
                 // controlla che l'email termini in .alice, .com o .it
                 if (!preg_match('/\.(it|com|alice)$/', $email)) {
                     $emailError = "L'email deve terminare con .it, .com o .alice.";
@@ -116,17 +116,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt->bind_param("si", $email, $userId);
                     $stmt->execute();
                     $stmt->store_result();
-            
+
                     if ($stmt->num_rows > 0) {
                         $emailError = "L'email inserita è già utilizzata da un altro utente.";
                     } else {
                         $updateFields[] = "email = '$email'";
                     }
-            
+
                     $stmt->close();
                 }
             }
-            
+
             $data_nascita = $_POST['data_nascita'];
             if (empty($data_nascita)) {
                 $data_nascita_err = "Inserisci la tua data di nascita.";
@@ -175,7 +175,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if (empty(trim($_POST["data_scadenza"]))) {
                     $data_scadenza_err = "Inserisci la data di scadenza della carta.";
                 } else {
-                    $data_scadenza = trim($_POST["data_scadenza"]); 
+                    $data_scadenza = trim($_POST["data_scadenza"]);
                     $data_scadenza_obj = DateTime::createFromFormat('Y-m-d', $data_scadenza);
 
                     if (!$data_scadenza_obj || $data_scadenza_obj->format('Y-m-d') != $data_scadenza) {
@@ -210,7 +210,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $stmt->close();
                         }
                     }
-                   // $stmt->close();
+                    // $stmt->close();
                 }
             } elseif (isset($user['premium']) && $user['premium'] == 1) {
                 $deleteCardQuery = "DELETE FROM premium WHERE id_utente = ?";
@@ -220,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->close();
             }
 
-            if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)&& empty($data_nascita_err)) {
+            if (empty($passwordError) && empty($emailError) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err) && empty($data_nascita_err)) {
                 if (!empty($updateFields)) {
                     $updateQuery = "UPDATE utente SET " . implode(", ", $updateFields) . " WHERE id_utente = ?";
                     $stmt = $conn->prepare($updateQuery);
@@ -240,12 +240,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="it">
-<head> 
-<meta charset="UTF-8">
+
+<head>
+    <meta charset="UTF-8">
     <title>Impostazioni account</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
     <style>
         form {
             margin: 20px auto;
@@ -253,16 +254,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
+
         form div {
             text-align: left;
             padding: 10px;
         }
+
         label {
             display: inline-block;
             width: 150px;
             font-weight: bold;
         }
-        input[type=text], input[type=email], input[type=password], select, input[type=date] {
+
+        input[type=text],
+        input[type=email],
+        input[type=password],
+        select,
+        input[type=date] {
             width: calc(100% - 170px);
             padding: 8px;
             font-size: 16px;
@@ -270,11 +278,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 4px;
             box-sizing: border-box;
         }
+
         input[type=checkbox] {
             margin-left: 5px;
             transform: scale(1.5);
         }
-        input[type=submit], button {
+
+        input[type=submit],
+        button {
             background-color: #4CAF50;
             color: white;
             padding: 12px 20px;
@@ -283,12 +294,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             font-size: 16px;
         }
-        input[type=submit]:hover, button:hover {
+
+        input[type=submit]:hover,
+        button:hover {
             background-color: #45a049;
         }
+
         .error {
             color: red;
         }
+
         #premiumInfo {
             display: <?php echo ($user['premium'] == 1) ? 'block' : 'none'; ?>;
             margin-top: 10px;
@@ -297,137 +312,144 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
         button {
             margin-top: 10px;
             margin-bottom: 10px;
             background-color: #007bff;
         }
+
         button:hover {
             background-color: #0056b3;
         }
+
         body {
             background-color: #f8f9fa;
         }
+
         .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .navbar {
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
- <body>
- <div class="container mt-4">
-        <h1>ToteBlog</h1>
+
+<body>
+    <div class="container mt-4">
+        <h1>
+            <img src="../blog_logo/logo.png" alt="Logo ToteBlog" style="max-width: 25%; height: auto;">
+        </h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
-                <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
-                <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
-            </ul>
-            
-            <div class="d-flex align-items-right">
-                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-                </form>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/home.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/my_profile.php">Il mio profilo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
+                </ul>
+
+                <div class="d-flex align-items-right">
+                    <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                        <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+                    </form>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <h1>Impostazioni Account</h1>
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-        <?php if (!empty($passwordError)): ?>
-            <p class="error"><?php echo $passwordError; ?></p>
-        <?php endif; ?>
-        
-        <div>
-            <label for="password">Nuova Password:</label>
-            <input type="password" id="password" name="password">
-        </div>
-        <div>
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" value="<?php echo $user['nome']; ?>">
-        </div>
-        <div>
-            <label for="cognome">Cognome:</label>
-            <input type="text" id="cognome" name="cognome" value="<?php echo $user['cognome']; ?>">
-        </div>
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="<?php echo $user['email']; ?>">
-            <span class="error"><?php echo $emailError; ?></span>
-        </div>
-        <div>
-            <label for="data_nascita">Data di Nascita:</label>
-            <input type="date" id="data_nascita" name="data_nascita" value="<?php echo $user['data_nascita']; ?>">
-            <span class="error"><?php echo $data_nascita_err;?></span>
+        <h1>Impostazioni Account</h1>
+        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+            <?php if (!empty($passwordError)): ?>
+                <p class="error"><?php echo $passwordError; ?></p>
+            <?php endif; ?>
 
-        </div>
-        <div>
-            <label for="genere">Genere:</label>
-            <select id="genere" name="genere">
-                <option value="">Seleziona il tuo genere</option>
-                <option value="Maschio" <?php if($user['genere'] == "Maschio") echo "selected"; ?>>Maschio</option>
-                <option value="Femmina" <?php if($user['genere'] == "Femmina") echo "selected"; ?>>Femmina</option>
-                <option value="Altro" <?php if($user['genere'] == "Altro") echo "selected"; ?>>Altro</option>
-            </select>
-        </div>
-        <div>
-            <label for="numero_telefono">Numero di Telefono:</label>
-            <input type="text" id="numero_telefono" name="numero_telefono" value="<?php echo $user['numero_telefono']; ?>"> 
-        </div>
-        <div>
-            <label for="premium">Premium:</label>
-            <input type="checkbox" id="premium" name="premium" value="1" <?php if ($user['premium'] == 1) echo 'checked'; ?>>
-        </div>
-        <div id="premiumInfo">
-            <p>Intestatario, data di scadenza e numero di carta vanno inseriti tutti e tre anche solo per la modifica</p>
             <div>
-                <label for="intestatario">Intestatario:</label>
-                <input type="text" id="intestatario" name="intestatario" value="<?php echo $user['intestatario']; ?>">
-                <span class="error"><?php echo $intestatario_err; ?></span>
+                <label for="password">Nuova Password:</label>
+                <input type="password" id="password" name="password">
             </div>
             <div>
-                <label for="carta">Numero di Carta:</label>
-                <input type="text" id="carta" name="carta" value="<?php echo $user['numero_carta']; ?>">
-                <span class="error"><?php echo $carta_err; ?></span>
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" value="<?php echo $user['nome']; ?>">
             </div>
             <div>
-                <label for="data_scadenza">Data di Scadenza:</label>
-                <input type="date" id="data_scadenza" name="data_scadenza" value="<?php echo $user['data_scadenza']; ?>">
-                <span class="error"><?php echo $data_scadenza_err; ?></span>
+                <label for="cognome">Cognome:</label>
+                <input type="text" id="cognome" name="cognome" value="<?php echo $user['cognome']; ?>">
             </div>
-        </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="<?php echo $user['email']; ?>">
+                <span class="error"><?php echo $emailError; ?></span>
+            </div>
+            <div>
+                <label for="data_nascita">Data di Nascita:</label>
+                <input type="date" id="data_nascita" name="data_nascita" value="<?php echo $user['data_nascita']; ?>">
+                <span class="error"><?php echo $data_nascita_err; ?></span>
 
-        <div>
-            <label for="old_password">Per salvare le modifiche, inserisci la password:</label>
-            <input type="password" id="old_password" name="old_password" required>  
-            <p>  In caso tu avessi cambiato password, inserisci la vecchia password</p>
-        </div>
+            </div>
+            <div>
+                <label for="genere">Genere:</label>
+                <select id="genere" name="genere">
+                    <option value="">Seleziona il tuo genere</option>
+                    <option value="Maschio" <?php if ($user['genere'] == "Maschio") echo "selected"; ?>>Maschio</option>
+                    <option value="Femmina" <?php if ($user['genere'] == "Femmina") echo "selected"; ?>>Femmina</option>
+                    <option value="Altro" <?php if ($user['genere'] == "Altro") echo "selected"; ?>>Altro</option>
+                </select>
+            </div>
+            <div>
+                <label for="numero_telefono">Numero di Telefono:</label>
+                <input type="text" id="numero_telefono" name="numero_telefono" value="<?php echo $user['numero_telefono']; ?>">
+            </div>
+            <div>
+                <label for="premium">Premium:</label>
+                <input type="checkbox" id="premium" name="premium" value="1" <?php if ($user['premium'] == 1) echo 'checked'; ?>>
+            </div>
+            <div id="premiumInfo">
+                <p>Intestatario, data di scadenza e numero di carta vanno inseriti tutti e tre anche solo per la modifica</p>
+                <div>
+                    <label for="intestatario">Intestatario:</label>
+                    <input type="text" id="intestatario" name="intestatario" value="<?php echo $user['intestatario']; ?>">
+                    <span class="error"><?php echo $intestatario_err; ?></span>
+                </div>
+                <div>
+                    <label for="carta">Numero di Carta:</label>
+                    <input type="text" id="carta" name="carta" value="<?php echo $user['numero_carta']; ?>">
+                    <span class="error"><?php echo $carta_err; ?></span>
+                </div>
+                <div>
+                    <label for="data_scadenza">Data di Scadenza:</label>
+                    <input type="date" id="data_scadenza" name="data_scadenza" value="<?php echo $user['data_scadenza']; ?>">
+                    <span class="error"><?php echo $data_scadenza_err; ?></span>
+                </div>
+            </div>
 
-        <button type="submit" name="save_changes" value="1">Salva Modifiche</button>
-        <button type="submit" name="delete_user" value="1" style="background-color: red;">Elimina Utente</button>
-    </form>
-    
-    <button onclick="window.location.href='../pubblico/home.php'">Torna alla Home</button>
+            <div>
+                <label for="old_password">Per salvare le modifiche, inserisci la password:</label>
+                <input type="password" id="old_password" name="old_password" required>
+                <p> In caso tu avessi cambiato password, inserisci la vecchia password</p>
+            </div>
+
+            <button type="submit" name="save_changes" value="1">Salva Modifiche</button>
+            <button type="submit" name="delete_user" value="1" style="background-color: red;">Elimina Utente</button>
+        </form>
+
+        <button onclick="window.location.href='../pubblico/home.php'">Torna alla Home</button>
 
 
-    <script>
-        document.getElementById('premium').addEventListener('change', function () {
-            document.getElementById('premiumInfo').style.display = this.checked ? 'block' : 'none';
-        });
-
-
-    </script>
+        <script>
+            document.getElementById('premium').addEventListener('change', function() {
+                document.getElementById('premiumInfo').style.display = this.checked ? 'block' : 'none';
+            });
+        </script>
 </body>
+
 </html>

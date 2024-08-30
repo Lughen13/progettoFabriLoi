@@ -315,54 +315,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $imgprofilo = '../uploads/predefinita.jpeg';
 
-        // se tutto è stato inserito correttamente si procede con l'inserimento dell'utente nella tabella del DB
-        if (empty($nome_err) && empty($cognome_err) && empty($username_err) && empty($password_err) && empty($email_err) && empty($data_nascita_err) && empty($genere_err) && empty($numero_telefono_err) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
+    // se tutto è stato inserito correttamente si procede con l'inserimento dell'utente nella tabella del DB
+    if (empty($nome_err) && empty($cognome_err) && empty($username_err) && empty($password_err) && empty($email_err) && empty($data_nascita_err) && empty($genere_err) && empty($numero_telefono_err) && empty($intestatario_err) && empty($carta_err) && empty($data_scadenza_err)) {
 
-            $sql = "INSERT INTO utente (username, email, pw, img_profilo, nome, cognome, genere, data_nascita, numero_telefono, premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
+        $sql = "INSERT INTO utente (username, email, pw, img_profilo, nome, cognome, genere, data_nascita, numero_telefono, premium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
 
-            // Binding dei parametri per la tabella utente
-            $param_username = $username;
-            $param_email = $email;
-            $password_crypt = md5($password);
-            $param_nome = $nome;
-            $param_cognome = $cognome;
-            $param_genere = $genere;
-            $param_data_nascita = $data_nascita;
-            $param_numero_telefono = $numero_telefono;
-            $param_premium = $premium;
-            $param_imgprofilo = $imgprofilo;
+        // Binding dei parametri per la tabella utente
+        $param_username = $username;
+        $param_email = $email;
+        $password_crypt = md5($password);
+        $param_nome = $nome;
+        $param_cognome = $cognome;
+        $param_genere = $genere;
+        $param_data_nascita = $data_nascita;
+        $param_numero_telefono = $numero_telefono;
+        $param_premium = $premium;
+        $param_imgprofilo = $imgprofilo;
 
-            $stmt->bind_param("sssssssssi", $param_username, $param_email, $password_crypt, $param_imgprofilo, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
+        $stmt->bind_param("sssssssssi", $param_username, $param_email, $password_crypt, $param_imgprofilo, $param_nome, $param_cognome, $param_genere, $param_data_nascita, $param_numero_telefono, $param_premium);
 
-            if ($stmt->execute()) {
-                $ultimo_id = $stmt->insert_id;
+        if ($stmt->execute()) {
+            $ultimo_id = $stmt->insert_id;
 
-                if ($premium == 1) {
-                    // Preparazione dell'istruzione SQL per l'inserimento nella tabella premium
-                    $sql_premium = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
-                    $stmt_premium = $conn->prepare($sql_premium);
+            if ($premium == 1) {
+                // Preparazione dell'istruzione SQL per l'inserimento nella tabella premium
+                $sql_premium = "INSERT INTO premium (id_utente, intestatario, numero_carta, data_scadenza) VALUES (?, ?, ?, ?)";
+                $stmt_premium = $conn->prepare($sql_premium);
 
-                    // Binding dei parametri per la tabella premium
-                    $param_intestatario = $intestatario;
-                    $param_carta = $carta;
-                    $param_data_scadenza = $data_scadenza;
+                // Binding dei parametri per la tabella premium
+                $param_intestatario = $intestatario;
+                $param_carta = $carta;
+                $param_data_scadenza = $data_scadenza;
 
-                    $stmt_premium->bind_param("isss", $ultimo_id, $param_intestatario, $param_carta, $param_data_scadenza);
-                    $stmt_premium->execute();
-                    $stmt_premium->close();
-                }
-
-                // Inserimento riuscito
-                header("location: ../pubblico/login.php");
-                exit();
-            } else {
-                echo "Errore durante l'inserimento dei dati dell'utente: " . $stmt->error;
+                $stmt_premium->bind_param("isss", $ultimo_id, $param_intestatario, $param_carta, $param_data_scadenza);
+                $stmt_premium->execute();
+                $stmt_premium->close();
             }
 
-            $stmt->close();
+            // Inserimento riuscito
+            header("location: ../pubblico/login.php");
+            exit();
+        } else {
+            echo "Errore durante l'inserimento dei dati dell'utente: " . $stmt->error;
         }
+
+        $stmt->close();
     }
+}
 
 
 $conn->close();
@@ -379,6 +379,7 @@ $conn->close();
             background-color: #f0f0f0;
             text-align: center;
         }
+
         .container {
             width: 50%;
             margin: auto;
@@ -387,18 +388,22 @@ $conn->close();
             border-radius: 10px;
             box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
         }
+
         .container h2 {
             color: #333333;
         }
+
         .form-group {
             margin-bottom: 20px;
             text-align: left;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
+
         .form-group input {
             width: calc(100% - 20px);
             padding: 10px;
@@ -406,6 +411,7 @@ $conn->close();
             border-radius: 5px;
             font-size: 16px;
         }
+
         .form-group select {
             width: calc(100%);
             padding: 10px;
@@ -413,10 +419,12 @@ $conn->close();
             border-radius: 5px;
             font-size: 16px;
         }
+
         .form-group input[type="checkbox"] {
             width: auto;
         }
-        button{
+
+        button {
             padding: 10px;
             background-color: #4CAF50;
             border: none;
@@ -425,9 +433,11 @@ $conn->close();
             border-radius: 5px;
             width: calc(100%);
         }
+
         button:hover {
             background-color: #45a049;
         }
+
         .error {
             color: red;
             font-size: 14px;
@@ -438,6 +448,9 @@ $conn->close();
 
 <body>
     <div class="container mt-4">
+        <h1>
+            <img src="../blog_logo/logo.png" alt="Logo ToteBlog" style="max-width: 25%; height: auto;">
+        </h1>
         <h2>Registrazione</h2>
         <p>Compila i seguenti campi per registrarti</p>
         <form id="registration-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">

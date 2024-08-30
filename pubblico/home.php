@@ -26,7 +26,8 @@ $genere = $row['genere'];
 $username = $row['username'];
 $isPremium = $row['premium'];
 $stmt->close();
-function Saluta($genere) {
+function Saluta($genere)
+{
     if ($genere === 'Maschio') {
         return 'Benvenuto';
     } elseif ($genere === 'Femmina') {
@@ -37,7 +38,8 @@ function Saluta($genere) {
         return 'Benvenut*'; // Restituisce "Benvenut*" come valore predefinito
     }
 }
-function interesse($genere){
+function interesse($genere)
+{
     if ($genere === 'Maschio') {
         return 'interessato';
     } elseif ($genere === 'Femmina') {
@@ -96,48 +98,58 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        .error {color: red;}
+        .error {
+            color: red;
+        }
+
         .card {
             margin-bottom: 20px;
         }
+
         .comment-container {
             padding: 10px;
             background-color: #f9f9f9;
             margin-bottom: 10px;
         }
+
         .comment-actions {
             margin-top: 10px;
         }
+
         .sidebar {
             position: absolute;
             top: 20px;
             right: 20px;
             width: 300px;
         }
+
         .category-logo {
             font-size: 50px;
             color: #333;
         }
+
         .category-card {
             text-align: center;
             margin-bottom: 15px;
         }
+
         .container {
             background-color: #fff;
             padding: 10px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .navbar {
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         #notificationDropdown {
@@ -157,15 +169,15 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
         }
 
         .dropdown-menu {
-            width: 400px; 
+            width: 400px;
             padding: 0;
-            border: 2px solid #ddd; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0); 
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0);
         }
 
         #notificationList {
-            max-height: 300px; 
+            max-height: 300px;
             overflow-y: auto;
             padding: 10px;
         }
@@ -174,26 +186,29 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
             padding: 10px 10px;
             text-decoration: none;
             pointer-events: none;
-            border-top: 1px solid #ddd; 
+            border-top: 1px solid #ddd;
         }
+
         .category-container {
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 10px;
             justify-items: center;
             align-items: center;
         }
+
         .category-card {
             flex: 1 1 auto;
             margin: 5px;
             text-align: center;
         }
-
     </style>
 </head>
 
 <body>
     <div class="container mt-4">
-        <h1>ToteBlog</h1>
+        <h1>
+            <img src="../blog_logo/logo.png" alt="Logo ToteBlog" style="max-width: 25%; height: auto;">
+        </h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -205,7 +220,7 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                     <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
                     <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
                 </ul>
-                
+
                 <div class="d-flex align-items-right">
                     <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
                         <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
@@ -215,7 +230,7 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell"></i> 
+                                <i class="fas fa-bell"></i>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationDropdown">
                                 <h6 class="dropdown-header">Notifiche recenti</h6>
@@ -228,7 +243,7 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
             </div>
         </nav>
 
-    
+
         <div class="container">
             <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
             <!-- sezione, solo per gli utetni premium, che serve per "velocizzare" la ricerca di blog e post, sempre con metodo search ma tramite categorie  -->
@@ -292,7 +307,7 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                         </div>
                     </div>
                 <?php endif; ?>
-            
+
                 <!-- restituzione dei blog, prima seguiti e poi non seguiti-->
                 <div class="row">
                     <div class="col-md-12">
@@ -302,7 +317,7 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                                 <?php foreach ($favoriteBlogs as $favoriteBlog): ?>
                                     <div class="col-md-4 mb-4">
                                         <div class="card">
-                                            <img src="../blog_logo/<?php echo htmlspecialchars($favoriteBlog['img_logo']); ?>" class="card-img-top"   alt="Logo del blog '<?php echo htmlspecialchars($favoriteBlog['titolo_blog']); ?>' di <?php echo htmlspecialchars($favoriteBlog['username']); ?>" >
+                                            <img src="../blog_logo/<?php echo htmlspecialchars($favoriteBlog['img_logo']); ?>" class="card-img-top" alt="Logo del blog '<?php echo htmlspecialchars($favoriteBlog['titolo_blog']); ?>' di <?php echo htmlspecialchars($favoriteBlog['username']); ?>">
                                             <div class="card-body">
                                                 <h5 class="card-title"><?php echo htmlspecialchars($favoriteBlog['titolo_blog']); ?></h5>
                                                 <p class="card-text">Proprietario: <?php echo htmlspecialchars($favoriteBlog['username']); ?></p>
@@ -320,14 +335,14 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                         <?php else: ?>
                             <p>Non stai seguendo nessun blog.</p>
                         <?php endif; ?>
-                        
+
                         <h2>Blog a cui potresti dare un'occhiata</h2>
                         <?php if (!empty($blogs)): ?>
                             <div class="row">
                                 <?php foreach ($blogs as $blog): ?>
                                     <div class="col-md-4 mb-4">
                                         <div class="card">
-                                            <img src="../blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top"  alt="Logo del blog '<?php echo htmlspecialchars($blog['titolo_blog']); ?>' di <?php echo htmlspecialchars($blog['username']); ?>">
+                                            <img src="../blog_logo/<?php echo $blog['img_logo']; ?>" class="card-img-top" alt="Logo del blog '<?php echo htmlspecialchars($blog['titolo_blog']); ?>' di <?php echo htmlspecialchars($blog['username']); ?>">
                                             <div class="card-body">
                                                 <h5 class="card-title"><?php echo htmlspecialchars($blog['titolo_blog']); ?></h5>
                                                 <p class="card-text">Proprietario: <?php echo htmlspecialchars($blog['username']); ?></p>
@@ -356,52 +371,52 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 
     <script>
-    $(document).ready(function() {
-        function fetchNotifications() {
-            $.ajax({
-                url: '../risorse/get_notifications.php',
-                method: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    var notificationList = $('#notificationList');
-                    notificationList.empty();
+        $(document).ready(function() {
+            function fetchNotifications() {
+                $.ajax({
+                    url: '../risorse/get_notifications.php',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        var notificationList = $('#notificationList');
+                        notificationList.empty();
 
-                    if (data.length === 0) {
-                        notificationList.append('<a class="dropdown-item">Non ci sono notifiche.</a>');
-                    } else {
-                        data.forEach(function(notification) {
-                            var listItem = '<a class="dropdown-item">';
-                            listItem += '<strong>' + notification.sender_username + '</strong> ';
-                            if (notification.tipo === 'comment') {
-                                listItem += 'ha commentato il tuo post: ';
-                                listItem += '<a href="my_post.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
-                            } else if (notification.tipo === 'like') {
-                                listItem += 'ha messo mi piace al tuo post: ';
-                                listItem += '<a href="my_post.php?id_post=' +  notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
-                            } else if (notification.tipo === 'follow') {
-                                listItem += 'ha iniziato a seguirti nel blog: ';
-                                listItem += '<a href="my_blog.php?id_blog=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
-                            } else {
-                                listItem += 'ha eseguito un\'azione.';
-                            }
-                            listItem += '<br><small>' + notification.data + '</small>';
-                            listItem += '</a>';
-                            notificationList.append(listItem);
-                        });
+                        if (data.length === 0) {
+                            notificationList.append('<a class="dropdown-item">Non ci sono notifiche.</a>');
+                        } else {
+                            data.forEach(function(notification) {
+                                var listItem = '<a class="dropdown-item">';
+                                listItem += '<strong>' + notification.sender_username + '</strong> ';
+                                if (notification.tipo === 'comment') {
+                                    listItem += 'ha commentato il tuo post: ';
+                                    listItem += '<a href="my_post.php?id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                                } else if (notification.tipo === 'like') {
+                                    listItem += 'ha messo mi piace al tuo post: ';
+                                    listItem += '<a href="my_post.php?id_post=' + notification.id_blog + '&id_post=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                                } else if (notification.tipo === 'follow') {
+                                    listItem += 'ha iniziato a seguirti nel blog: ';
+                                    listItem += '<a href="my_blog.php?id_blog=' + notification.contenuto_id + '">' + notification.contenuto_titolo + '</a>';
+                                } else {
+                                    listItem += 'ha eseguito un\'azione.';
+                                }
+                                listItem += '<br><small>' + notification.data + '</small>';
+                                listItem += '</a>';
+                                notificationList.append(listItem);
+                            });
+                        }
+                    },
+                    error: function() {
+                        $('#notificationList').append('<a class="dropdown-item text-danger">Errore nel caricamento delle notifiche.</a>');
                     }
-                },
-                error: function() {
-                    $('#notificationList').append('<a class="dropdown-item text-danger">Errore nel caricamento delle notifiche.</a>');
-                }
+                });
+            }
+
+            // Carica le notifiche all'apertura del dropdown
+            $('#notificationDropdown').on('click', function() {
+                fetchNotifications();
             });
-        }
-
-        // Carica le notifiche all'apertura del dropdown
-        $('#notificationDropdown').on('click', function() {
-            fetchNotifications();
         });
-    });
-
     </script>
 </body>
+
 </html>

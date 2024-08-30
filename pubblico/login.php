@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_result($id, $username, $hashed_password);
             if ($stmt->fetch()) {
                 $password_hash = md5($password);
-                if ($password_hash === $hashed_password){
+                if ($password_hash === $hashed_password) {
                     $_SESSION["loggedin"] = true;
                     $_SESSION["id"] = $id;
                     $_SESSION["username"] = $username;
@@ -59,6 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
@@ -68,23 +69,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
             margin: 20px;
         }
+
         h2 {
             margin-bottom: 10px;
         }
+
         form {
             max-width: 300px;
             margin: 0 auto;
             background-color: #f9f9f9;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
         }
+
         label {
             display: block;
             margin: 10px 0;
             font-weight: bold;
         }
-        input[type="text"], input[type="password"], button {
+
+        input[type="text"],
+        input[type="password"],
+        button {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 10px 0;
@@ -93,20 +100,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 4px;
             box-sizing: border-box;
         }
+
         .error {
             color: red;
             margin-bottom: 10px;
         }
+
         a {
             text-decoration: none;
             color: #007bff;
         }
+
         a:hover {
             text-decoration: underline;
         }
     </style>
 </head>
+
 <body>
+    <h1>
+        <img src="../blog_logo/logo.png" alt="Logo ToteBlog" style="max-width: 25%; height: auto;">
+    </h1>
     <h2>Login</h2>
     <p>Per favore inserisci le tue credenziali per accedere alla Home.</p>
     <?php if (!empty($login_err)) { ?>
@@ -129,4 +143,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <p> Se non hai un account puoi <a href="../pubblico/registrazione.php"> registrarti qui</a>.</p>
     </form>
 </body>
+
 </html>
