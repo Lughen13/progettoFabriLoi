@@ -70,7 +70,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
         }
         form {
-            max-width: 300px;
+   max-width: 300px;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
         }
         input[type="text"],  input[type="password"], 
         button {
