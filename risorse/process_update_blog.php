@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Aggiorna il blog nel database
     $updateBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ?, img_logo = ? WHERE id_blog = ? AND id_proprietario = ?";
     $stmtUpdate = $conn->prepare($updateBlogQuery);
-    $stmtUpdate->bind_param("ssssii", $titoloBlog, $descrizione, $logoName, $blogId, $userId);
+    $stmtUpdate->bind_param("sssii", $titoloBlog, $descrizione, $logoName, $blogId, $userId);
     
 
     if ($stmtUpdate->execute()) {

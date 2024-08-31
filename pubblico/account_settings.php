@@ -246,31 +246,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Impostazioni account</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="../risorse/stile.css">
 
     <style>
         form {
             margin: 20px auto;
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
-
         form div {
             text-align: left;
             padding: 10px;
         }
-
-        label {
-            display: inline-block;
-            width: 150px;
-            font-weight: bold;
-        }
-
-        input[type=text],
-        input[type=email],
-        input[type=password],
-        select,
-        input[type=date] {
+        input[type=text], input[type=email], input[type=password], input[type=date],
+        select {
             width: calc(100% - 170px);
             padding: 8px;
             font-size: 16px;
@@ -283,9 +271,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-left: 5px;
             transform: scale(1.5);
         }
-
-        input[type=submit],
-        button {
+        input[type=submit], button {
             background-color: #4CAF50;
             color: white;
             padding: 12px 20px;
@@ -294,19 +280,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             font-size: 16px;
         }
-
-        input[type=submit]:hover,
-        button:hover {
+        input[type=submit]:hover, button:hover {
             background-color: #45a049;
         }
-
-        .error {
-            color: red;
-        }
-
         #premiumInfo {
             display: <?php echo ($user['premium'] == 1) ? 'block' : 'none'; ?>;
-            margin-top: 10px;
+            margin: 10px;
             padding: 10px;
             background-color: #f9f9f9;
             border: 1px solid #ccc;
@@ -314,29 +293,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         button {
-            margin-top: 10px;
+            margin: 10px;
             margin-bottom: 10px;
             background-color: #007bff;
         }
 
         button:hover {
             background-color: #0056b3;
-        }
-
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar {
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -444,7 +407,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <button onclick="window.location.href='../pubblico/home.php'">Torna alla Home</button>
 
-
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script>
             document.getElementById('premium').addEventListener('change', function() {
                 document.getElementById('premiumInfo').style.display = this.checked ? 'block' : 'none';

@@ -63,54 +63,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <link rel="stylesheet" href="../risorse/stile.css">
     <style>
+
         body {
-            font-family: Arial, sans-serif;
             text-align: center;
-            margin: 20px;
         }
-
-        h2 {
-            margin-bottom: 10px;
-        }
-
         form {
             max-width: 300px;
-            margin: 0 auto;
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
         }
-
-        label {
-            display: block;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        input[type="password"],
+        input[type="text"],  input[type="password"], 
         button {
             width: calc(100% - 22px);
-            padding: 10px;
+            padding: 8px;
             margin: 10px 0;
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
         }
-
-        .error {
-            color: red;
-            margin-bottom: 10px;
-        }
-
         a {
             text-decoration: none;
             color: #007bff;
         }
-
         a:hover {
             text-decoration: underline;
         }

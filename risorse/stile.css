@@ -1,0 +1,129 @@
+.container {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+
+.navbar {
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+ 
+.error {
+    color: red;
+}
+.error-msg {
+    color: red;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+.error {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+.card-title {
+    color: #1da1f2;
+}
+
+.card-text {
+    color: #333;
+}
+
+#notificationDropdown {
+    position: relative;
+}
+
+#notificationCount {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(50%, -50%);
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+
+.dropdown-menu {
+    width: 400px;
+    padding: 0;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0);
+}
+#notificationList {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+}
+.dropdown-item {
+    padding: 10px 10px;
+    text-decoration: none;
+    pointer-events: none;
+    border-top: 1px solid #ddd;
+}
+.category-container {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    justify-items: center;
+    align-items: center;
+}
+.category-card {
+    flex: 1 1 auto;
+    margin: 5px;
+    text-align: center;
+}
+label {
+    display: inline-block;
+    width: 150px;
+    font-weight: bold;
+}
+.comment-item {
+    background-color: #f0f0f0;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.form-area {
+    width: 100%;
+    height: 100px;
+    resize: none;
+    border: 1px solid #ccc;
+}
+.list-group-item {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.comment-container {
+    padding: 10px;
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+}
+.comment-actions {
+    margin-top: 10px;
+}
+.category-logo {
+    font-size: 50px;
+    color: #333;
+}
+.category-card {
+    text-align: center;
+    margin-bottom: 15px;
+}

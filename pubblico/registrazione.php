@@ -373,37 +373,26 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <title>Registrazione</title>
+        <link rel="stylesheet" href="../risorse/stile.css">
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
             text-align: center;
         }
 
         .container {
             width: 50%;
             margin: auto;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
         }
-
-        .container h2 {
-            color: #333333;
-        }
-
         .form-group {
             margin-bottom: 20px;
             text-align: left;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
-
         .form-group input {
             width: calc(100% - 20px);
             padding: 10px;
@@ -411,7 +400,6 @@ $conn->close();
             border-radius: 5px;
             font-size: 16px;
         }
-
         .form-group select {
             width: calc(100%);
             padding: 10px;
@@ -419,30 +407,23 @@ $conn->close();
             border-radius: 5px;
             font-size: 16px;
         }
-
         .form-group input[type="checkbox"] {
             width: auto;
         }
-
         button {
-            padding: 10px;
-            background-color: #4CAF50;
-            border: none;
-            color: white;
-            border: 1px solid #cccccc;
-            border-radius: 5px;
-            width: calc(100%);
-        }
+        padding: 10px;
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        border: 1px solid #cccccc;
+        border-radius: 5px;
+        width: calc(100%);
+    }
 
-        button:hover {
-            background-color: #45a049;
-        }
+    button:hover {
+        background-color: #45a049;
+    }
 
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-top: 5px;
-        }
     </style>
 </head>
 

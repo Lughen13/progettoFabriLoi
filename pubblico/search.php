@@ -58,22 +58,13 @@ if (isset($_GET['query'])) {
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> 
-    <style> 
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .navbar {
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-    </style>
+    <link rel="stylesheet" href="../risorse/stile.css">
 </head>
 <body>
     <div class="container mt-4">
-        <h1>ToteBlog</h1>
+    <h1>
+            <img src="../blog_logo/logo.png" alt="Logo ToteBlog" style="max-width: 25%; height: auto;">
+        </h1>
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -85,10 +76,13 @@ if (isset($_GET['query'])) {
                     <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
                     <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
                 </ul>
-                <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
-                    <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post" value="<?php echo htmlspecialchars($searchQuery); ?>">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
-                </form>
+
+                <div class="d-flex align-items-right">
+                    <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
+                        <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
+                    </form>
+                </div>
             </div>
         </nav>
 
@@ -134,9 +128,9 @@ if (isset($_GET['query'])) {
         </div>
     </main>
 
-    <!-- Bootstrap JS e script necessari -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+   
 </body>
 </html>

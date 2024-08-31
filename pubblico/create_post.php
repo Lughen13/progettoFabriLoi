@@ -51,9 +51,7 @@ $maxImages = $isPremium ? 3 : 1;
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
        body {
-            font-family: Arial, sans-serif;
             text-align: center;
-            margin: 20px;
         }
         form {
             max-width: 600px;
@@ -63,12 +61,9 @@ $maxImages = $isPremium ? 3 : 1;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        label {
-            display: block;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-        input[type="text"], textarea, select, input[type="file"], button {
+       
+        input[type="text"], input[type="file"], 
+        button, textarea, select {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 10px 0;
@@ -82,7 +77,6 @@ $maxImages = $isPremium ? 3 : 1;
             color: white;
             border: none;
             cursor: pointer;
-            margin: 10px 0;
         }
         button:hover {
             background-color: #45a049;
@@ -90,9 +84,6 @@ $maxImages = $isPremium ? 3 : 1;
         button:disabled {
             background-color: #ccc; 
             cursor: not-allowed;
-        }
-        .error {
-            color: red;
         }
         .premium-only, .standard-only {
             display: none;

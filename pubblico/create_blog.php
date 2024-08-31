@@ -43,9 +43,7 @@ unset($_SESSION['error_msg']);
     <title>Crea un nuovo blog</title>
     <style>
                 body {
-            font-family: Arial, sans-serif;
             text-align: center;
-            margin: 20px;
         }
         form {
             max-width: 600px;
@@ -55,12 +53,9 @@ unset($_SESSION['error_msg']);
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        label {
-            display: block;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-        input[type="text"], textarea, select, input[type="file"], button {
+       
+        input[type="text"], input[type="file"], 
+        button, textarea, select {
             width: calc(100% - 22px);
             padding: 10px;
             margin: 10px 0;
@@ -83,11 +78,7 @@ unset($_SESSION['error_msg']);
             background-color: #ccc; 
             cursor: not-allowed;
         }
-        .error-message {
-            color: red;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
+
     </style>
 
     <script>
@@ -152,7 +143,7 @@ unset($_SESSION['error_msg']);
 
     <form method="post" action="../risorse/process_create_blog.php" enctype="multipart/form-data">
         <?php if (!empty($error_msg)): ?>
-            <div class="error-message"><?php echo htmlspecialchars($error_msg); ?></div>
+            <div class="error-msg"><?php echo htmlspecialchars($error_msg); ?></div>
         <?php endif; ?>
 
         <label for="title">Titolo del blog:</label>
