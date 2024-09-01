@@ -314,7 +314,7 @@ $maxImages = $isPremium ? 3 : 1;
                                                             $stmt->close();
                                                         }
                                                         ?>
-                                                        <button type="button" class="btn btn-success like-btn" data-action="<?php echo $hasLiked ? 'unlike' : 'like'; ?>">
+                                                        <button type="button" class="btn btn-success like-btn" color data-action="<?php echo $hasLiked ? 'unlike' : 'like'; ?>">
                                                             <?php echo $hasLiked ? 'Togli Mi Piace' : 'Mi Piace'; ?>
                                                         </button>
                                                     </form>
@@ -349,7 +349,8 @@ $maxImages = $isPremium ? 3 : 1;
 
                                                                     <?php if ($comment['username'] == $_SESSION['username']) : ?>
                                                                         <!-- icona della Modifica -->
-                                                                        <button class="btn btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
+
+                                                                        <button class="btn btn-sm edit-comment-btn" aria-label="pulsante di modifica commento"data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
                                                                             <i class="fas fa-pen" style="color: red;" alt="Tasto per modificare il commento"></i>
                                                                         </button>
                                                                     <?php endif; ?>
@@ -359,7 +360,7 @@ $maxImages = $isPremium ? 3 : 1;
                                                                         <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
                                                                         <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
                                                                         <input type="hidden" name="action" value="delete">
-                                                                        <button type="submit" class="btn btn-sm" style="border: none; background: none;" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
+                                                                        <button type="submit" aria-label="pulsante di elimina commento" class="btn btn-sm" style="border: none; background: none;" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
                                                                             <i class="fas fa-times" style="color: red;" alt="Tasto per eliminare il commento"></i>
                                                                         </button>
                                                                     </form>
@@ -472,10 +473,10 @@ $maxImages = $isPremium ? 3 : 1;
                 <p>Non hai ancora creato blog.</p>
             <?php endif; ?>
         </iv>
-
         <div class="my-4">
-            <a href="../pubblico/create_post.php" class="btn btn-primary">Crea Post</a>
-        </div>
+    <button class="btn btn-success btn-lg" onclick="window.location.href='../pubblico/create_post.php';">Crea Post</button>
+</div>
+
     </div>
     </div>
 

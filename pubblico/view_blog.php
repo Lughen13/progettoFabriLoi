@@ -240,7 +240,7 @@ $conn->close();
                                                 <?php if ($comment['username'] == $_SESSION['username']) : ?>
                                                     <div class="comment-actions mt-2">
                                                         <!-- Pulsante Modifica -->
-                                                        <button class="btn btn-sm edit-comment-btn" data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
+                                                        <button class="btn btn-sm edit-comment-btn" aria-label="pulsante di modifica commento" data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
                                                             <i class="fas fa-pen" style="color: red;" alt="Tasto per modificare il commento"></i>
                                                         </button>
                                                         <!-- Pulsante Elimina -->
@@ -248,7 +248,7 @@ $conn->close();
                                                             <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
                                                             <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
                                                             <input type="hidden" name="action" value="delete">
-                                                            <button type="submit" class="btn btn-sm" style="border: none; background: none;" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
+                                                            <button type="submit" class="btn btn-sm" aria-label="pulsante di elimina commento" style="border: none; background: none;" onclick="return confirm('Sei sicuro di voler eliminare questo commento?')">
                                                                 <i class="fas fa-times" style="color: red;" alt="Tasto per eliminare il commento"></i>
                                                             </button>
                                                         </form>

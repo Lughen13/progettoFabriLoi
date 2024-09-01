@@ -184,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="edit_logo">Logo del Blog</label>
                 <input type="file" class="form-control-file" id="edit_logo" name="edit_logo">
                 <?php if (!empty($blog['img_logo'])): ?>
-                    <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo attuale" class="mt-2" style="max-width: 200px;">
+                    <img src="../blog_logo/<?php echo htmlspecialchars($blog['img_logo']); ?>" alt="Logo del blog attuale" class="mt-2" style="max-width: 200px;">
                 <?php endif; ?>
                 <?php if (isset($error)): ?>
                     <p class="text-danger"><?php echo htmlspecialchars($error); ?></p>

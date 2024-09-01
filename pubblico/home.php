@@ -229,7 +229,7 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                                                 <p class="card-text"><?php echo htmlspecialchars($favoriteBlog['descrizione']); ?></p>
                                                 <form action="../pubblico/view_blog.php" method="get" style="display: inline;">
                                                     <input type="hidden" name="id_blog" value="<?php echo $favoriteBlog['id_blog']; ?>">
-                                                    <button type="submit" class="btn btn-primary">Visualizza Blog</button>
+                                                    <button type="submit" class="btn btn-info">Visualizza Blog</button>
                                                 </form>
                                             </div>
                                         </div>
@@ -254,7 +254,7 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                                                 <p class="card-text"><?php echo htmlspecialchars($blog['descrizione']); ?></p>
                                                 <form action="../pubblico/view_blog.php" method="get" style="display: inline;">
                                                     <input type="hidden" name="id_blog" value="<?php echo $blog['id_blog']; ?>">
-                                                    <button type="submit" class="btn btn-primary">Visualizza Blog</button>
+                                                    <button type="submit" class="btn btn-info">Visualizza Blog</button>
                                                 </form>
                                             </div>
                                         </div>
