@@ -178,7 +178,7 @@ $stmt->close();
             <div class="col-md-4">
                 <h3>Informazioni Personali</h3>
                 <?php if (!empty($user['img_profilo'])) : ?>
-                    <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>?v=<?php echo time(); ?>" alt="Immagine del profilo di <?php echo htmlspecialchars($user['username']); ?>" class="img-thumbnail mb-3">
+                    <img src="../uploads/<?php echo htmlspecialchars($user['img_profilo']); ?>?v=<?php echo time(); ?>" alt="Immagine del profilo di <?php echo htmlspecialchars($user['username']); ?>" class="img-profilo" style="max-width: 250px">
                 <?php endif; ?>
                 <form id="updateImgForm" action="my_profile.php" method="post" enctype="multipart/form-data">
                     <div class="form-group">

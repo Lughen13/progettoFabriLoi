@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Ago 28, 2024 alle 00:08
+-- Creato il: Set 02, 2024 alle 07:55
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -268,13 +268,6 @@ CREATE TABLE `utente` (
   `numero_telefono` varchar(10) DEFAULT NULL,
   `premium` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dump dei dati per la tabella `utente`
---
-
-INSERT INTO `utente` (`id_utente`, `username`, `email`, `pw`, `img_profilo`, `nome`, `cognome`, `genere`, `data_nascita`, `bio`, `numero_telefono`, `premium`) VALUES
-(4, 'federicafabri', 'federicafabri11@gmail.com', '2ca1d3d0120e71f15986e69fb7e30dc9', '../uploads/predefinita.jpeg', 'federica', 'fabri', 'Femmina', '2002-10-02', NULL, '3407348310', 0);
 
 --
 -- Indici per le tabelle scaricate
