@@ -394,6 +394,27 @@ $utenti = $utentiResult->fetch_all(MYSQLI_ASSOC);
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
+    function updateBlog(blogId) {
+            var form = $('#editBlogForm' + blogId)[0];
+            var formData = new FormData(form);
+            formData.append('action', 'edit_blog');
+
+            $.ajax({
+                url: 'my_profile.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert(response);
+                    $('#editBlogModal' + blogId).modal('hide');
+                    location.reload();
+                },
+                error: function() {
+                    alert('Si è verificato un errore durante la richiesta.');
+                }
+            });
+        }
         document.addEventListener('DOMContentLoaded', function() {
             var inputImg = document.getElementById('img_profilo');
             var btnUpdateImg = document.getElementById('btnUpdateImg');
@@ -513,29 +534,8 @@ $utenti = $utentiResult->fetch_all(MYSQLI_ASSOC);
             });
         });
         
-        function updateBlog(blogId) {
-            var form = $('#editBlogForm' + blogId)[0];
-            var formData = new FormData(form);
-            formData.append('action', 'edit_blog');
-
-            $.ajax({
-                url: 'my_profile.php',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    alert(response);
-                    $('#editBlogModal' + blogId).modal('hide');
-                    location.reload();
-                },
-                error: function() {
-                    alert('Si è verificato un errore durante la richiesta.');
-                }
-            });
-        }
-
-   <script>
+        
+<script>
     
 </body>
 </html>
