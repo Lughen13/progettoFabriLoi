@@ -13,7 +13,6 @@ $conn = new mysqli($host, $user, $password, $database);
 if ($conn->connect_error) {
     die("Connessione fallita: " . $conn->connect_error);
 }
-
 // Funzione per ripulire i dati in input prima che entrino nel db
 function validateInput($data)
 {
@@ -121,7 +120,6 @@ if (isset($_POST['action']) && $_POST['action'] == 'validate') {
             $response['numero_telefono'] = "Il numero di telefono deve essere di 10 cifre.";
         }
     }
-
 
     // Validazione password
     if (isset($_POST["password"])) {
@@ -363,23 +361,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 }
-
-
 $conn->close();
 ?>
+
+
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8">
     <title>Registrazione</title>
         <link rel="stylesheet" href="../risorse/stile.css">
-
     <style>
         body {
             text-align: center;
         }
-
         .container {
             width: 50%;
             margin: auto;
@@ -411,22 +406,20 @@ $conn->close();
             width: auto;
         }
         button {
-        padding: 10px;
-        background-color: #4CAF50;
-        border: none;
-        color: white;
-        border: 1px solid #cccccc;
-        border-radius: 5px;
-        width: calc(100%);
-    }
+            padding: 10px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            width: calc(100%);
+        }
 
-    button:hover {
-        background-color: #45a049;
-    }
-
+        button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
-
 <body>
     <div class="container mt-4">
         <h1>

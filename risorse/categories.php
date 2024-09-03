@@ -13,7 +13,6 @@ $categories = [
     'Altro' => ['Altro']
     
 ];
-
 // funzione che utilizzo per inserire categorie e sottocategorie nelle apposite tabella
 function inserisci_cat_sottocat($conn, $categories) {       
 

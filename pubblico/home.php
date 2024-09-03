@@ -98,16 +98,13 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
 
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="../risorse/stile.css">
-
 </head>
-
 <body>
     <div class="container mt-4">
         <h1>
@@ -146,7 +143,6 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                 </div>
             </div>
         </nav>
-
 
         <div class="container">
             <h1><?php echo $saluto . ', ' . $username; ?> nella tua home</h1>
@@ -211,7 +207,6 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                         </div>
                     </div>
                 <?php endif; ?>
-
                 <!-- restituzione dei blog, prima seguiti e poi non seguiti-->
                 <div class="row">
                     <div class="col-md-12">
@@ -314,7 +309,6 @@ $query = "SELECT sender_id, user_id tipo, contenuto_id, data
                     }
                 });
             }
-
             // Carica le notifiche all'apertura del dropdown
             $('#notificationDropdown').on('click', function() {
                 fetchNotifications();

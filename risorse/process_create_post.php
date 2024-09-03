@@ -74,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['immagini'])) {
     }
 }
 
-
 $photosJson = json_encode($photos);
 
 $sql = "INSERT INTO post (titolo_post, descrizione_post, img_post, id_autore, id_sottocat, id_blog, data_post) VALUES (?, ?, ?, ?, ?, ?, NOW())";

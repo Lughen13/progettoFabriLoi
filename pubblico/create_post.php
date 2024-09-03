@@ -12,7 +12,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: ../pubblico/login.php");
     exit();
 }
-
 $userId = $_SESSION['id'];
 
 // query che determina che l'utente sia premium 
@@ -61,7 +60,6 @@ $maxImages = $isPremium ? 3 : 1;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-       
         input[type="text"], input[type="file"], 
         button, textarea, select {
             width: calc(100% - 22px);
@@ -89,88 +87,6 @@ $maxImages = $isPremium ? 3 : 1;
             display: none;
         }
     </style>
-    <script>
-        $(document).ready(function() {
-            const maxImages = <?php echo $maxImages; ?>;
-            const submitButton = $('#submit-button');
-
-            function validateForm() {
-                const blog = $('#blog').val().trim();
-                const title = $('#title').val().trim();
-                const description = $('#description').val().trim();
-                const subcategory = $('#subcategory').val().trim();
-
-                submitButton.prop('disabled', !(blog && title && description && subcategory));
-            }
-
-            $('#blog, #title, #description, #subcategory').on('input change', validateForm);
-            validateForm();
-
-            if (maxImages === 1) {
-                $('.standard-only').show();
-            } else {
-                $('.premium-only').show();
-            }
-
-            $('#blog').on('change', function() {
-                const blogId = $(this).val();
-                if (blogId) {
-                    $.ajax({
-                        url: '../risorse/get_subcategories_by_blog.php',
-                        type: 'POST',
-                        data: { id_blog: blogId },
-                        success: function(response) {
-                            $('#subcategory').html(response);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Errore AJAX: ' + status + ' - ' + error);
-                        }
-                    });
-                } else {
-                    $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
-                }
-            });
-        });
-    </script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const titleInput = document.querySelector('input[name="title"]');
-            const errorMsg = document.createElement('p');
-            errorMsg.style.color = 'red';
-            titleInput.parentNode.insertBefore(errorMsg, titleInput.nextSibling);
-
-            titleInput.addEventListener('input', function() {
-                if (titleInput.value.length > 50) {
-                    titleInput.value = titleInput.value.substring(0, 50);
-                    errorMsg.textContent = 'Il titolo non può superare i 50 caratteri.';
-                } else {
-                    errorMsg.textContent = '';
-                }
-            });
-        });
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const allowedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
-            const imageInputs = document.querySelectorAll('input[type="file"][name="immagini[]"]');
-
-            function validateImageFormat(input) {
-                const file = input.files[0];
-                if (file && !allowedFormats.includes(file.type)) {
-                    alert('Formato non valido per ' + input.id + '. Seleziona un file JPG, JPEG, PNG o GIF.');
-                    input.value = ''; // Resetta l'input
-                }
-            }
-
-            imageInputs.forEach(input => {
-                input.addEventListener('change', function() {
-                    validateImageFormat(this);
-                });
-            });
-        });
-        
-    </script>
-
 </head>
 <body>
     <h1>Crea un nuovo post</h1>
@@ -220,5 +136,84 @@ $maxImages = $isPremium ? 3 : 1;
         <button type="submit" id="submit-button" disabled>Crea post</button>
         <button type="button" onclick="location.href='../pubblico/my_profile.php'">Torna indietro</button>
     </form>
+
+    <script>
+        $(document).ready(function() {
+            const maxImages = <?php echo $maxImages; ?>;
+            const submitButton = $('#submit-button');
+
+            function validateForm() {
+                const blog = $('#blog').val().trim();
+                const title = $('#title').val().trim();
+                const description = $('#description').val().trim();
+                const subcategory = $('#subcategory').val().trim();
+
+                submitButton.prop('disabled', !(blog && title && description && subcategory));
+            }
+
+            $('#blog, #title, #description, #subcategory').on('input change', validateForm);
+            validateForm();
+
+            if (maxImages === 1) {
+                $('.standard-only').show();
+            } else {
+                $('.premium-only').show();
+            }
+
+            $('#blog').on('change', function() {
+                const blogId = $(this).val();
+                if (blogId) {
+                    $.ajax({
+                        url: '../risorse/get_subcategories_by_blog.php',
+                        type: 'POST',
+                        data: { id_blog: blogId },
+                        success: function(response) {
+                            $('#subcategory').html(response);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Errore AJAX: ' + status + ' - ' + error);
+                        }
+                    });
+                } else {
+                    $('#subcategory').html('<option value="">Seleziona una sottocategoria</option>');
+                }
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.querySelector('input[name="title"]');
+            const errorMsg = document.createElement('p');
+            errorMsg.style.color = 'red';
+            titleInput.parentNode.insertBefore(errorMsg, titleInput.nextSibling);
+
+            titleInput.addEventListener('input', function() {
+                if (titleInput.value.length > 50) {
+                    titleInput.value = titleInput.value.substring(0, 50);
+                    errorMsg.textContent = 'Il titolo non può superare i 50 caratteri.';
+                } else {
+                    errorMsg.textContent = '';
+                }
+            });
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const allowedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+            const imageInputs = document.querySelectorAll('input[type="file"][name="immagini[]"]');
+
+            function validateImageFormat(input) {
+                const file = input.files[0];
+                if (file && !allowedFormats.includes(file.type)) {
+                    alert('Formato non valido per ' + input.id + '. Seleziona un file JPG, JPEG, PNG o GIF.');
+                    input.value = ''; // Resetta l'input
+                }
+            }
+
+            imageInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    validateImageFormat(this);
+                });
+            });
+        });
+        
+    </script>
 </body>
 </html>

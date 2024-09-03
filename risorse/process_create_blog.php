@@ -14,7 +14,6 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     exit();
 }
 
-// Recupera i dati della sessione
 $title = $_POST['title'] ?? '';
 $description = $_POST['description'] ?? '';
 $category_id = $_POST['category'] ?? '';

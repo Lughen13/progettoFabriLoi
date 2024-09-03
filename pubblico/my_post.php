@@ -362,7 +362,7 @@ $maxImages = $isPremium ? 3 : 1;
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                                            <button type="button" class="btn btn-primary" onclick="editPost(<?php echo $post['id_post']; ?>)">Salva</button>
+                                            <button type="button" class="btn btn-primary" onclick="editPost(<?php echo $post['id_post']; ?>)">Salva modifiche</button>
                                         </div>
                                     </div>
                                 </div>

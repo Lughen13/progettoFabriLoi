@@ -15,11 +15,71 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 $userId = $_SESSION['id'];  // ID dell'utente autenticato
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_blog') {
+    $blogId = $_POST['id_blog'];
+    $titoloBlog = $_POST['edit_titolo_blog'];
+    $descrizione = $_POST['edit_descrizione'];
+    $coautoreId = !empty($_POST['edit_coautore']) ? $_POST['edit_coautore'] : null;
+    
+    $logoName = null;
+    if (isset($_FILES['edit_logo']) && $_FILES['edit_logo']['error'] === UPLOAD_ERR_OK) {
+        $logoFile = $_FILES['edit_logo'];
+        $logoName = 'blog_logo_' . $blogId . '.' . pathinfo($logoFile['name'], PATHINFO_EXTENSION);
+        move_uploaded_file($logoFile['tmp_name'], '../blog_logo/' . $logoName);
+    }
+
+    $updateBlogQuery = "UPDATE blog SET titolo_blog = ?, descrizione = ?" . ($logoName ? ", img_logo = ?" : "") . " WHERE id_blog = ? AND id_proprietario = ?";
+    $stmt = $conn->prepare($updateBlogQuery);
+    
+    if ($logoName) {
+        $stmt->bind_param("sssii", $titoloBlog, $descrizione, $logoName, $blogId, $userId);
+    } else {
+        $stmt->bind_param("ssii", $titoloBlog, $descrizione, $blogId, $userId);
+    }
+    
+    $blogsQuery = "SELECT b.*, c.nome_categoria, u.username AS coautore_username, u.id_utente AS id_coautore
+    FROM blog b 
+    LEFT JOIN categoria c ON b.id_categoria = c.id_categoria
+    LEFT JOIN co_autore co ON b.id_blog = co.id_blog
+    LEFT JOIN utente u ON co.id_utente = u.id_utente
+    WHERE b.id_proprietario = ?";
+
+    if ($stmt->execute()) {
+        if ($coautoreId) { // Controlla se esiste già un coautore per questo blog
+            $checkCoautoreQuery = "SELECT id_utente FROM co_autore WHERE id_blog = ?";
+            $stmtCheck = $conn->prepare($checkCoautoreQuery);
+            $stmtCheck->bind_param("i", $blogId);
+            $stmtCheck->execute();
+            $result = $stmtCheck->get_result();
+        
+            if ($result->num_rows > 0) { // Aggiorna il coautore esistente
+                $updateCoautoreQuery = "UPDATE co_autore SET id_utente = ? WHERE id_blog = ?";
+                $stmtCoautore = $conn->prepare($updateCoautoreQuery);
+                $stmtCoautore->bind_param("ii", $coautoreId, $blogId);
+            } else { // Inserisci un nuovo coautore
+                $insertCoautoreQuery = "INSERT INTO co_autore (id_blog, id_utente) VALUES (?, ?)";
+                $stmtCoautore = $conn->prepare($insertCoautoreQuery);
+                $stmtCoautore->bind_param("ii", $blogId, $coautoreId);
+            }
+            $stmtCoautore->execute();
+        } else { // Rimuovi il coautore se è stato selezionato "Nessun coautore"
+            $deleteCoautoreQuery = "DELETE FROM co_autore WHERE id_blog = ?";
+            $stmtDeleteCoautore = $conn->prepare($deleteCoautoreQuery);
+            $stmtDeleteCoautore->bind_param("i", $blogId);
+            $stmtDeleteCoautore->execute();
+        }
+        
+        echo "Blog aggiornato con successo!";
+    } else {
+        echo "Errore durante l'aggiornamento del blog: " . $stmt->error;
+    }
+    exit();
+    
+}
 // eliminazione del blog
 if ($action == 'delete_blog') {
     $id_blog = $_GET['id_blog'];
-
-    // alimina le notifiche associate al blog e ai post del blog
+    // elimina le notifiche associate al blog e ai post del blog
     $deleteNotificationsQuery = "DELETE FROM notifiche WHERE contenuto_id = ? OR contenuto_id IN (SELECT id_post FROM post WHERE id_blog = ?)";
     $stmt = $conn->prepare($deleteNotificationsQuery);
     $stmt->bind_param("ii", $id_blog, $id_blog);
@@ -47,7 +107,6 @@ if ($action == 'delete_blog') {
 // eliminazione del post
 if ($action == 'delete_post') {
     $id_post = $_GET['id_post'];
-
     // recupero l'ID del blog a cui appartiene il post
     $getBlogIdQuery = "SELECT id_blog FROM post WHERE id_post = ?";
     $stmt = $conn->prepare($getBlogIdQuery);
@@ -57,8 +116,7 @@ if ($action == 'delete_post') {
     $stmt->fetch();
     $stmt->close();
 
-    if ($id_blog) {
-        // elimina le notifiche associate al post
+    if ($id_blog) { // elimina le notifiche associate al post
         $deleteNotifiche = "DELETE FROM notifiche WHERE contenuto_id = ?";
         $stmt = $conn->prepare($deleteNotifiche);
         $stmt->bind_param("i", $id_post);
@@ -105,11 +163,9 @@ if ($action == 'edit_post') {
     $postId = $_POST['post_id'];
     $newTitle = $_POST['edit_post_title'];
     $newDescription = $_POST['edit_post_description'];
-
-    // cricamento delle immagini del post, se fornite
+// cricamento delle immagini del post, se fornite
     $newImgFileNames = [];
-
-    if (isset($_FILES['edit_post_img'])) {
+if (isset($_FILES['edit_post_img'])) {
         $uploadedFiles = $_FILES['edit_post_img'];
 
         foreach ($uploadedFiles['name'] as $key => $name) {
@@ -138,7 +194,6 @@ if ($action == 'edit_post') {
             }
         }
     }
-
     // aggiornamento dell'immagine del post nel database, se nuove immagini sono state caricate
     if (!empty($newImgFileNames)) {
         $newImgFileNamesJSON = json_encode($newImgFileNames);
@@ -151,7 +206,6 @@ if ($action == 'edit_post') {
         }
         $stmt->close();
     }
-
     // aggiornamento del resto delle informazioni del post
     $updatePostQuery = "UPDATE post SET titolo_post = ?, descrizione_post = ? WHERE id_post = ? AND id_blog IN (SELECT id_blog FROM blog WHERE id_proprietario = ?)";
     $stmt = $conn->prepare($updatePostQuery);
@@ -179,10 +233,17 @@ $stmt->bind_result($isPremium);
 $stmt->fetch();
 $stmt->close();
 $maxImages = $isPremium ? 3 : 1;
+
+$utentiQuery = "SELECT id_utente, username FROM utente WHERE id_utente != ?";
+$stmtUtenti = $conn->prepare($utentiQuery);
+$stmtUtenti->bind_param("i", $userId);
+$stmtUtenti->execute();
+$utentiResult = $stmtUtenti->get_result();
+$utenti = $utentiResult->fetch_all(MYSQLI_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -190,9 +251,7 @@ $maxImages = $isPremium ? 3 : 1;
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="../risorse/stile.css">
-
 </head>
-
 <body>
     <div class="container mt-4">
         <h1>
@@ -209,13 +268,11 @@ $maxImages = $isPremium ? 3 : 1;
                     <li class="nav-item"><a class="nav-link" href="../pubblico/account_settings.php">Impostazioni profilo</a></li>
                     <li class="nav-item"><a class="nav-link" href="../pubblico/logout.php">Logout</a></li>
                 </ul>
-
                 <div class="d-flex align-items-right">
                     <form class="form-inline my-2 my-lg-0" action="search.php" method="GET">
                         <input class="form-control mr-sm-2" type="text" name="query" placeholder="Cerca blog o post">
                         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Cerca</button>
                     </form>
-
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -231,8 +288,7 @@ $maxImages = $isPremium ? 3 : 1;
                 </div>
             </div>
         </nav>
-
-        <iv class="my-4">
+        <div class="my-4">
             <?php if (!empty($blogs)): ?>
                 <?php foreach ($blogs as $blog): ?>
                     <div class="card">
@@ -245,12 +301,59 @@ $maxImages = $isPremium ? 3 : 1;
                                 <img src="../blog_logo/<?php echo basename($blog['img_logo']); ?>" class="img-fluid mb-2" alt="Logo del blog <?php echo htmlspecialchars($blog['titolo_blog']); ?> " width="200">
                             <?php endif; ?>
                             <div>
-                                <button class="btn btn-primary" onclick="window.location.href='../risorse/process_update_blog.php?id=<?php echo $blog['id_blog']; ?>'">Modifica Blog</button>
-                                <button class="btn btn-danger" onclick="if(confirm('Sei sicuro di voler eliminare questo blog?')) { window.location.href='../pubblico/my_blog.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>'; }">Elimina Blog</button>
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#editBlogModal<?php echo $blog['id_blog']; ?>">Modifica Blog</button>
+                            <button class="btn btn-danger" onclick="if(confirm('Sei sicuro di voler eliminare questo blog?')) { window.location.href='../pubblico/my_blog.php?action=delete_blog&id_blog=<?php echo $blog['id_blog']; ?>'; }">Elimina Blog</button>
                             </div>
-
-                            <?php
-                            // recupero informazioni dei post (mi serve soprattutto per il recupero della sottocategoria)
+                            
+                            <!-- Modale per modificare il blog -->
+                            <div class="modal fade" id="editBlogModal<?php echo $blog['id_blog']; ?>" tabindex="-1" role="dialog" aria-labelledby="editBlogModalLabel<?php echo $blog['id_blog']; ?>" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editBlogModalLabel<?php echo $blog['id_blog']; ?>">Modifica Blog</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="editBlogForm<?php echo $blog['id_blog']; ?>" enctype="multipart/form-data">
+                                                <input type="hidden" name="id_blog" value="<?php echo $blog['id_blog']; ?>">
+                                                <div class="form-group">
+                                                    <label for="edit_titolo_blog<?php echo $blog['id_blog']; ?>">Titolo Blog</label>
+                                                    <input type="text" class="form-control" id="edit_titolo_blog<?php echo $blog['id_blog']; ?>" name="edit_titolo_blog" value="<?php echo htmlspecialchars($blog['titolo_blog']); ?>" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_descrizione<?php echo $blog['id_blog']; ?>">Descrizione</label>
+                                                    <textarea class="form-control" id="edit_descrizione<?php echo $blog['id_blog']; ?>" name="edit_descrizione" rows="3" required><?php echo htmlspecialchars($blog['descrizione']); ?></textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_coautore<?php echo $blog['id_blog']; ?>">Coautore</label>
+                                                    <select class="form-control" id="edit_coautore<?php echo $blog['id_blog']; ?>" name="edit_coautore">
+                                                        <option value="">Nessun coautore</option>
+                                                        <?php foreach ($utenti as $utente): ?>
+                                                            <option value="<?php echo $utente['id_utente']; ?>" 
+                                                                <?php echo (isset($blog['id_coautore']) && $blog['id_coautore'] == $utente['id_utente']) ? 'selected' : ''; ?>>
+                                                                <?php echo htmlspecialchars($utente['username']); ?>
+                                                                <?php echo (isset($blog['id_coautore']) && $blog['id_coautore'] == $utente['id_utente']) ? ' (Coautore attuale)' : ''; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="edit_logo<?php echo $blog['id_blog']; ?>">Logo del Blog</label>
+                                                    <input type="file" class="form-control-file" id="edit_logo<?php echo $blog['id_blog']; ?>" name="edit_logo">
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+                                            <button type="button" class="btn btn-primary" onclick="updateBlog(<?php echo $blog['id_blog']; ?>)">Salva modifiche</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <?php  // recupero informazioni dei post (mi serve soprattutto per il recupero della sottocategoria)
                             $postsQuery = "SELECT p.id_post, p.titolo_post, p.descrizione_post, p.img_post, p.likes_count, s.nome_sottocat, u.username
                                             FROM post p
                                             JOIN utente u ON u.id_utente = p.id_autore
@@ -275,11 +378,9 @@ $maxImages = $isPremium ? 3 : 1;
                                                 <h6 class="card-text">Autore: <?php echo htmlspecialchars($post['username']) ?> </h6>
                                                 <h6 class="card-text">Sottocategoria: <?php echo htmlspecialchars($post['nome_sottocat']); ?></h6>
                                                 <h6 class="card-text">Mi piace: <?php echo htmlspecialchars($post['likes_count']); ?></h6>
-
                                                 <p class="card-text"><?php echo htmlspecialchars($post['descrizione_post']); ?></p>
 
-                                                <?php
-                                                // Decodifica le immagini dal formato JSON
+                                                <?php  // Decodifica le immagini dal formato JSON
                                                 $images = json_decode($post['img_post'], true);
                                                 if (is_array($images) && count($images) > 0):
                                                 ?>
@@ -294,7 +395,6 @@ $maxImages = $isPremium ? 3 : 1;
                                                 <div>
                                                     <button class="btn btn-primary mr-2" onclick="showEditPostModal(<?php echo $post['id_post']; ?>)">Modifica Post</button>
                                                     <button class="btn btn-danger" onclick="if(confirm('Sei sicuro di voler eliminare questo post?')) { window.location.href='../pubblico/my_blog.php?action=delete_post&id_post=<?php echo $post['id_post']; ?>'; }">Elimina Post</button>
-
                                                 </div>
 
                                                 <div class="mt-3">
@@ -320,8 +420,7 @@ $maxImages = $isPremium ? 3 : 1;
                                                     </form>
                                                 </div>
 
-                                                <!-- Recupero dei commenti per il post specifico -->
-                                                <?php
+                                               <?php   // Recupero dei commenti per il post specifico
                                                 $commentsQuery = "SELECT c.id_comm, c.contenuto, c.data_comm, u.username, u.img_profilo
                                                                 FROM commento c
                                                                 INNER JOIN utente u ON c.id_utente = u.id_utente
@@ -341,21 +440,14 @@ $maxImages = $isPremium ? 3 : 1;
                                                                 <div class="comment-header d-flex align-items-center">
                                                                     <?php if (!empty($comment['img_profilo'])): ?>
                                                                         <img src="../uploads/<?php echo htmlspecialchars($comment['img_profilo']); ?>" class="rounded-circle mr-2" width="40" height="40" alt="Immagine del profilo di <?php echo htmlspecialchars($comment['username']); ?> che ha commentato il post '<?php echo htmlspecialchars($post['titolo_post']); ?>'">
-
-
                                                                     <?php endif; ?>
                                                                     <strong><?php echo htmlspecialchars($comment['username']); ?></strong>
                                                                     <span class="ml-auto text-muted"><?php echo htmlspecialchars($comment['data_comm']); ?></span>
-
                                                                     <?php if ($comment['username'] == $_SESSION['username']) : ?>
-                                                                        <!-- icona della Modifica -->
-
                                                                         <button class="btn btn-sm edit-comment-btn" aria-label="pulsante di modifica commento"data-comment-id="<?php echo $comment['id_comm']; ?>" style="border: none; background: none;">
                                                                             <i class="fas fa-pen" style="color: red;" alt="Tasto per modificare il commento"></i>
                                                                         </button>
                                                                     <?php endif; ?>
-
-                                                                    <!-- icona per eliminare il commento -->
                                                                     <form method="post" action="../risorse/comment.php" class="d-inline">
                                                                         <input type="hidden" name="id_comm" value="<?php echo $comment['id_comm']; ?>">
                                                                         <input type="hidden" name="id_blog" value="<?php echo $id_blog; ?>">
@@ -369,7 +461,6 @@ $maxImages = $isPremium ? 3 : 1;
                                                                 <div class="comment-content mt-2">
                                                                     <?php echo htmlspecialchars($comment['contenuto']); ?>
                                                                 </div>
-
                                                                 <!-- modale per la modifica commento -->
                                                                 <div class="edit-comment-form d-none">
                                                                     <form method="post" action="../risorse/comment.php">
@@ -394,7 +485,6 @@ $maxImages = $isPremium ? 3 : 1;
                                                     unset($_SESSION['comment_error']);
                                                 }
                                                 ?>
-
                                                 <!-- form per inserire un commento -->
                                                 <form method="post" action="../risorse/comment.php" class="mt-3">
                                                     <input type="hidden" name="post_id" value="<?php echo $post['id_post']; ?>">
@@ -405,7 +495,6 @@ $maxImages = $isPremium ? 3 : 1;
                                                     </div>
                                                     <button type="submit" class="btn btn-primary comment-submit-btn" disabled>Commenta</button>
                                                 </form>
-
                                                 <!-- modale per la modifica del post -->
                                                 <div class="modal fade" id="editPostModal_<?php echo $post['id_post']; ?>" tabindex="-1" role="dialog" aria-labelledby="editPostModalLabel_<?php echo $post['id_post']; ?>" aria-hidden="true">
                                                     <div class="modal-dialog" role="document">
@@ -428,7 +517,6 @@ $maxImages = $isPremium ? 3 : 1;
                                                                         <label for="edit_post_description_<?php echo $post['id_post']; ?>">Nuova descrizione</label>
                                                                         <textarea name="edit_post_description" id="edit_post_description_<?php echo $post['id_post']; ?>" class="form-control"><?php echo htmlspecialchars($post['descrizione_post']); ?></textarea>
                                                                     </div>
-
                                                                     <div class="form-group">
                                                                         <?php if ($isPremium): ?>
                                                                             <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuove foto</label>
@@ -439,8 +527,6 @@ $maxImages = $isPremium ? 3 : 1;
                                                                         <?php else: ?>
                                                                             <label for="edit_post_img_<?php echo $post['id_post']; ?>">Nuova foto</label>
                                                                             <input type="file" name="edit_post_img[]" id="edit_post_img_<?php echo $post['id_post']; ?>" class="form-control-file" multiple>
-
-
                                                                         <?php endif; ?>
                                                                         <?php if (!empty($post['img_post'])): ?>
                                                                             <div class="mt-2">
@@ -454,7 +540,7 @@ $maxImages = $isPremium ? 3 : 1;
                                                             </div>
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
-                                                                <button type="button" class="btn btn-primary" onclick="editPost(<?php echo $post['id_post']; ?>)">Salva</button>
+                                                                <button type="button" class="btn btn-primary" onclick="editPost(<?php echo $post['id_post']; ?>)">Salva modifiche</button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -472,20 +558,18 @@ $maxImages = $isPremium ? 3 : 1;
             <?php else: ?>
                 <p>Non hai ancora creato blog.</p>
             <?php endif; ?>
-        </iv>
+        </div>
         <div class="my-4">
-    <button class="btn btn-success btn-lg" onclick="window.location.href='../pubblico/create_post.php';">Crea Post</button>
+            <button class="btn btn-success btn-lg" onclick="window.location.href='../pubblico/create_post.php';">Crea Post</button>
+        </div>
+    </div>
 </div>
-
-    </div>
-    </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        $(document).ready(function() {
-            // Funzione per controllare il formato delle immagini
+        $(document).ready(function() { // Funzione per controllare il formato delle immagini
             function validateImageInput(postId) {
                 var fileInput = $('#edit_post_img_' + postId)[0];
                 var validFormats = ['image/jpeg', 'image/png'];
@@ -511,7 +595,6 @@ $maxImages = $isPremium ? 3 : 1;
                 var postId = $(this).attr('id').split('_')[3];
                 validateImageInput(postId);
             });
-
 
             // Funzione per controllare la lunghezza del titolo
             function validateTitleInput(postId) {
@@ -540,7 +623,6 @@ $maxImages = $isPremium ? 3 : 1;
 
         function editBlog(blogId) {
             var formData = new FormData($('#edit_blog_form_' + blogId)[0]);
-
             $.ajax({
                 url: '../pubblico/my_blog.php?action=edit_blog',
                 type: 'POST',
@@ -564,7 +646,6 @@ $maxImages = $isPremium ? 3 : 1;
 
         function editPost(postId) {
             var formData = new FormData($('#edit_post_form_' + postId)[0]);
-
             $.ajax({
                 url: '../pubblico/my_blog.php?action=edit_post',
                 type: 'POST',
@@ -582,8 +663,7 @@ $maxImages = $isPremium ? 3 : 1;
             });
         }
 
-        $(document).ready(function() {
-            // funzione per aggiornare il testo dentro al pulsante Mi Piace
+        $(document).ready(function() { // funzione per aggiornare il testo dentro al pulsante Mi Piace
             function updateLikeButton(button, action, likeCount) {
                 if (action === 'like') {
                     button.data('action', 'unlike');
@@ -606,8 +686,7 @@ $maxImages = $isPremium ? 3 : 1;
                         post_id: postId,
                         action: action
                     },
-                    success: function(likeCount) {
-                        // aggiornamento del testo del pulsante 
+                    success: function(likeCount) { // aggiornamento del testo del pulsante 
                         updateLikeButton(button, action, likeCount);
                     },
                     error: function(xhr, status, error) {
@@ -616,7 +695,6 @@ $maxImages = $isPremium ? 3 : 1;
                 });
             });
         });
-
 
         $('.comment-textarea').on('input', function() {
             var form = $(this).closest('form');
@@ -714,7 +792,29 @@ $maxImages = $isPremium ? 3 : 1;
                 fetchNotifications();
             });
         });
+
+        function updateBlog(blogId) {
+            var form = $('#editBlogForm' + blogId)[0];
+            var formData = new FormData(form);
+            formData.append('action', 'edit_blog');
+
+            $.ajax({
+                url: 'my_profile.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert(response);
+                    $('#editBlogModal' + blogId).modal('hide');
+                    location.reload();
+                },
+                error: function() {
+                    alert('Si è verificato un errore durante la richiesta.');
+                }
+            });
+        }
+
     </script>
 </body>
-
 </html>

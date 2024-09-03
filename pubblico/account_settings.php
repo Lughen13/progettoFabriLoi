@@ -39,7 +39,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             // Inizia una transazione
             $conn->begin_transaction();
-
             try {
                 // Elimina record correlati in altre tabelle
                 $deleteCoAutoreQuery = "DELETE FROM co_autore WHERE id_utente = ?";
@@ -210,7 +209,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             $stmt->close();
                         }
                     }
-                    // $stmt->close();
                 }
             } elseif (isset($user['premium']) && $user['premium'] == 1) {
                 $deleteCardQuery = "DELETE FROM premium WHERE id_utente = ?";
@@ -235,19 +233,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
-
 ?>
 
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8">
     <title>Impostazioni account</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="../risorse/stile.css">
-
     <style>
         form {
             margin: 20px auto;
@@ -404,9 +399,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button type="submit" name="save_changes" value="1">Salva Modifiche</button>
             <button type="submit" name="delete_user" value="1" style="background-color: red;">Elimina Utente</button>
         </form>
-
+        
         <button onclick="window.location.href='../pubblico/home.php'">Torna alla Home</button>
-
+        
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -416,5 +411,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             });
         </script>
 </body>
-
 </html>

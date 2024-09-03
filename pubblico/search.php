@@ -85,7 +85,6 @@ if (isset($_GET['query'])) {
                 </div>
             </div>
         </nav>
-
     <main class="py-4">
         <div class="container">
             <?php if (!empty($searchQuery) && isset($blogResult) && $blogResult->num_rows > 0): ?>

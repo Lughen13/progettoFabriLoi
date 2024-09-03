@@ -78,69 +78,10 @@ unset($_SESSION['error_msg']);
             background-color: #ccc; 
             cursor: not-allowed;
         }
-
     </style>
-
-    <script>
-        function validateForm() {
-            const title = document.getElementById('title').value.trim();
-            const description = document.getElementById('description').value.trim();
-            document.getElementById('submit-button').disabled = !(title && description);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('title').addEventListener('input', validateForm);
-            document.getElementById('description').addEventListener('input', validateForm);
-            validateForm();
-        });
-    </script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const titleInput = document.querySelector('input[name="title"]');
-            const errorMsg = document.createElement('p');
-            errorMsg.style.color = 'red';
-            titleInput.parentNode.insertBefore(errorMsg, titleInput.nextSibling);
-
-            titleInput.addEventListener('input', function() {
-                if (titleInput.value.length > 50) {
-                    titleInput.value = titleInput.value.substring(0, 50);
-                    errorMsg.textContent = 'Il titolo non può superare i 50 caratteri.';
-                } else {
-                    errorMsg.textContent = '';
-                }
-            });
-        });
-    </script>
-    
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const logoInput = document.getElementById('logo');
-        const form = document.querySelector('form');
-        const allowedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
-
-        logoInput.addEventListener('change', function() {
-            const file = logoInput.files[0];
-            if (file && !allowedFormats.includes(file.type)) {
-                alert('Formato non valido. Seleziona un file JPG, JPEG, PNG o GIF.');
-                logoInput.value = ''; 
-            }
-        });
-
-        form.addEventListener('submit', function(e) {
-            const file = logoInput.files[0];
-            if (file && !allowedFormats.includes(file.type)) {
-                e.preventDefault();
-                alert('Formato non valido. Seleziona un file JPG, JPEG, PNG o GIF.');
-            }
-        });
-    });
-</script>
 </head>
-
 <body>    
     <h1>Crea un nuovo blog</h1>
-
     <form method="post" action="../risorse/process_create_blog.php" enctype="multipart/form-data">
         <?php if (!empty($error_msg)): ?>
             <div class="error-msg"><?php echo htmlspecialchars($error_msg); ?></div>
@@ -177,5 +118,57 @@ unset($_SESSION['error_msg']);
         <button type="submit" id="submit-button" disabled>Crea blog</button>
         <button type="button" onclick="location.href='../pubblico/my_profile.php'">Torna indietro</button>
     </form>
+    
+    <script>
+        function validateForm() {
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            document.getElementById('submit-button').disabled = !(title && description);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('title').addEventListener('input', validateForm);
+            document.getElementById('description').addEventListener('input', validateForm);
+            validateForm();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.querySelector('input[name="title"]');
+            const errorMsg = document.createElement('p');
+            errorMsg.style.color = 'red';
+            titleInput.parentNode.insertBefore(errorMsg, titleInput.nextSibling);
+
+            titleInput.addEventListener('input', function() {
+                if (titleInput.value.length > 50) {
+                    titleInput.value = titleInput.value.substring(0, 50);
+                    errorMsg.textContent = 'Il titolo non può superare i 50 caratteri.';
+                } else {
+                    errorMsg.textContent = '';
+                }
+            });
+        });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoInput = document.getElementById('logo');
+        const form = document.querySelector('form');
+        const allowedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+
+        logoInput.addEventListener('change', function() {
+            const file = logoInput.files[0];
+            if (file && !allowedFormats.includes(file.type)) {
+                alert('Formato non valido. Seleziona un file JPG, JPEG, PNG o GIF.');
+                logoInput.value = ''; 
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            const file = logoInput.files[0];
+            if (file && !allowedFormats.includes(file.type)) {
+                e.preventDefault();
+                alert('Formato non valido. Seleziona un file JPG, JPEG, PNG o GIF.');
+            }
+        });
+    });
+</script>
 </body>
 </html>
