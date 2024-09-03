@@ -535,7 +535,7 @@ $utenti = $utentiResult->fetch_all(MYSQLI_ASSOC);
         });
         
         
-<script>
+</script>
     
 </body>
 </html>
